@@ -1,0 +1,17 @@
+#
+# Rules for building aged files
+#
+# 2017-08-08 - Phil Harvey
+#
+
+.KEEP_STATE:
+
+HDRS        = $(wildcard *.h)
+CXX         = $(wildcard *.cxx)
+OBJS        = $(patsubst %.cxx,%.o,$(CXX))
+
+libaged.so: $(OBJS)
+	$(LDCC) -fPIC -shared $(LDFLAGS) $(OBJS) $(XLIBS) $(LIBS) $(ROOTLIBS) -o libaged.so
+
+%.o: %.cxx %.h $(HDRS)
+	$(CCC) $(CXXFLAGS) $(INCLUDE) $(XFLAGS) $(ROOTFLAGS) -o $@ -c $<
