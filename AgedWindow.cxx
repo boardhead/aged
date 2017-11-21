@@ -265,6 +265,28 @@ AgedWindow::~AgedWindow()
 	freeData(mData);
 }
 
+// add run:event numbers to window title
+void AgedWindow::SetTitle(char *str)
+{
+	char buff[256];
+
+    if (!str) {
+        ImageData	*data = GetData();
+        char        *pt = GetTitle();
+        
+        strncpy(buff, pt, 128);
+        pt = strchr(buff, '[');						/* find old run:event */
+        if (pt > buff+1) --pt;	
+        else pt = buff + strlen(buff);				/* pt points to end of title */
+        if (data->agEvent) {
+            sprintf(pt,data->hex_id ? " [%ld:0x%lx]" : " [%ld:%ld]",
+                data->run_number, data->event_id);
+        } else *pt = 0;
+        str = buff;
+    }
+    PWindow::SetTitle(str);		/* set new title */
+}
+
 void AgedWindow::Listen(int message, void *dataPt)
 {
 	ImageData	*data = GetData();
@@ -274,11 +296,13 @@ void AgedWindow::Listen(int message, void *dataPt)
 			mLabelText[0].font = NULL;
 			mLabelText[0].string = NULL;
 			mLabelFlags = 0;
+			SetTitle();
 			break;
 		case kMessageNewEvent:
 			if (data->show_label) {
 				SetLabelDirty();
 			}
+			SetTitle();
 			break;
 		case kMessageTimeFormatChanged:
 			// make new label if it shows time or date
@@ -291,6 +315,7 @@ void AgedWindow::Listen(int message, void *dataPt)
 			if (data->show_label && (mLabelFlags & kLabelEvID)) {
 				SetLabelDirty();
 			}
+			SetTitle();
 			break;
 		case kMessageAngleFormatChanged:
 			if (data->show_label && (mLabelFlags & kLabelSunAngle)) {
@@ -943,7 +968,7 @@ void AgedWindow::DoMenuCommand(int anID)
 			break;
 			
 		case IDM_SAVE_SETTINGS:
-			data->mMainWindow->SaveResources(1);
+			SaveResources(1);
 			break;
 			
 		case IDM_NEXT_EVENT:

@@ -47,9 +47,9 @@ enum ELabelFlags {
 
 
 class AgedWindow : public PImageWindow,
-					 public PListener, 
-					 public PSpeaker,
-					 public PMenuHandler
+				   public PListener, 
+				   public PSpeaker,
+				   public PMenuHandler
 {
 public:
 			 		AgedWindow(int load_settings=1);
@@ -59,6 +59,7 @@ public:
 	virtual void	DoMenuCommand(int anID);
 	virtual int		CheckMenuCommand(int anID, int flags);
 	virtual void	Listen(int message, void *dataPt);
+	virtual void    SetTitle(char *str=NULL);
 	
 	void			CreateWindow(int anID);
 	void			ShowWindow(int id);

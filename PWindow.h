@@ -30,9 +30,9 @@ public:
 	virtual char *	Class()					{ return sWindowClass;	}
 	
 	virtual void	SetShell(Widget w);
+	virtual void	SetTitle(char *str=NULL);
 	
 	void			Raise();
-	void			SetTitle(char *str);
 	char *			GetTitle();
 	void			GetFullName(char *buff);
 	void			Resize(int width, int height);

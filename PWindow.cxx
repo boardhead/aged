@@ -264,8 +264,10 @@ void PWindow::SetTitle(char *str)
 {
 	Arg		wargs[1];
 
-	XtSetArg(wargs[0], XmNtitle, str);
-	XtSetValues(mShell, wargs, 1);		// set window title
+    if (str) {
+    	XtSetArg(wargs[0], XmNtitle, str);
+	    XtSetValues(mShell, wargs, 1);		// set window title
+	}
 }
 
 // GetTitle - get window title
