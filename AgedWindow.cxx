@@ -107,16 +107,11 @@ AgedWindow::AgedWindow(int load_settings)
 	
 	mLabelHeight = 0;
 	mLabelDirty = 0;
-	mEchoMainDisplay = 0;
 	mPrintType = kPrintImage;
 	mLabelText[0].font = NULL;
 	mLabelText[0].string = NULL;
 	mWarnDialog = NULL;
 	
-	/* initialize necessary member variables */
-	filebox = 0;
-	aboutbox = 0;
-
 	/* create new imagedata structure */
 	ImageData *data = new ImageData;
 	memset(data,0,sizeof(ImageData));
@@ -177,7 +172,7 @@ AgedWindow::AgedWindow(int load_settings)
 	
 	SetMainWindow();		// make this a main window
 
-	PImageCanvas *pimage = CreateNewImage();
+	PImageCanvas *pimage = new AgedImage(this);
 	pimage->CreateCanvas("canvas", kScrollAllMask);
 
 	/* save a pointer to this main window */
@@ -190,7 +185,6 @@ AgedWindow::AgedWindow(int load_settings)
 	data->mSpeaker->AddListener(this);
 	
 	/* setup menus from our resources */
-	if (data->geo)		  SelectMenuItem(IDM_GEODESIC + data->geo);
 	if (data->dataType)	  SelectMenuItem(IDM_TIME + data->dataType);
 	if (data->spType)	  SelectMenuItem(IDM_SP_ERRORS + data->spType);
 	
@@ -331,28 +325,6 @@ void AgedWindow::Listen(int message, void *dataPt)
 	}
 }
 
-PImageCanvas *AgedWindow::CreateNewImage(Widget canvas)
-{
-	PImageCanvas	*pimage;
-	
-	switch (GetData()->wGeo) {
-		case IDM_GEODESIC:
-		case IDM_POLAR:
-		case IDM_NO_FRAME:
-			pimage = new AgedImage(this, canvas);
-			break;
-		case IDM_PANE_PROJ:
-			pimage = new PMapImage(this, canvas);
-			((PMapImage *)pimage)->AddMenuItem();	// add Projection menu
-			break;
-        default:
-			pimage = new PImageCanvas(this, canvas);
-			break;
-	}
-	
-	return(pimage);
-}
-
 // update AgedResource's and save to file
 void AgedWindow::SaveResources(int force_save)
 {
@@ -383,7 +355,6 @@ void AgedWindow::SaveResources(int force_save)
 	data->version			= AGED_VERSION;
 	data->open_windows		= -open_windows;	// negative to indicate IDM_ indexing
 	data->open_windows2     = -open_windows2;
-	data->geo				= data->wGeo - IDM_GEODESIC;
 	data->dataType			= data->wDataType - IDM_TIME;
 	data->spType			= data->wSpStyle - IDM_SP_ERRORS;
 	data->projType			= data->wProjType - IDM_PROJ_RECTANGULAR;
@@ -505,7 +476,7 @@ long AgedWindow::BuildLabelString(ImageData *data, TextSpec *aTextOut,
 	long			labelFlags;
 	
 	// these label formats are in the same order as the ELabelFlags bits
-	static char *labelFormats[] = { "rn","gt","ti","da","nh","no","ow","lg",
+	static char *labelFormats[] = { "rn","ev","ti","da","nh","no","ow","lg",
 									"fe","bu","ne","dt","dm","dx","pk","in",
 									"df","tr","en","fn","fp","fd","fr","ft",
 									"fq","nf","sd","sa","pt","nt","sr",NULL };
@@ -590,6 +561,9 @@ long AgedWindow::BuildLabelString(ImageData *data, TextSpec *aTextOut,
 						} else {
 							pt += sprintf(pt,"%ld",(long)data->event_id);
 						}
+						break;
+					case kLabelNhit:
+						pt += sprintf(pt,"%ld",(long)data->hits.num_nodes);
 						break;
 					case kLabelTime:
 						if (!tms) tms = getTms(data->event_time, data->time_zone);
@@ -938,10 +912,6 @@ void AgedWindow::DoMenuCommand(int anID)
 		
 	} else switch (anID) {
 	
-		case IDM_NEW_DISPLAY:
-			(void)new AgedWindow;
-			break;
-			
 		case IDM_ABOUT:
 			if (aboutbox) {
 				XtUnmanageChild(aboutbox);
@@ -980,9 +950,9 @@ void AgedWindow::DoMenuCommand(int anID)
 		    aged_next(data, 1);
 			break;
 			
-		case IDM_PREV_EVENT:
-		    aged_next(data, -1);
-			break;
+//		case IDM_PREV_EVENT:
+//		    aged_next(data, -1);
+//			break;
 			
 		case IDM_CLEAR_EVENT:
 		    clearEvent(data);
@@ -1041,13 +1011,6 @@ void AgedWindow::DoMenuCommand(int anID)
             sendMessage(data,kMessageHitsChanged);
             break;
 
-		default:
-			// break if not an extra hit data type
-			if (anID<IDM_DISP_EXTRA_FIRST || anID>IDM_DISP_EXTRA_LAST) {
-				Printf("Unknown menu command ID - %d\n",anID);
-				break;
-			}
-			// Drop through! (extra hit data types...)
 		case IDM_TIME:
 		case IDM_HEIGHT:
 		case IDM_ERROR:
@@ -1069,6 +1032,10 @@ void AgedWindow::DoMenuCommand(int anID)
                 sendMessage(data,kMessageHitsChanged);
 			}
 		} break;
+
+		default:
+            Printf("Unknown menu command ID - %d\n",anID);
+            break;
     }
 }
 

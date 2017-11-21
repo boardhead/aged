@@ -117,7 +117,6 @@ struct ImageData : AgedResource {
 	float			angle_conv;			// conversion from radians to displayed angle units
 
 	// menu ID (IDM_) variables
-	int				wGeo;				// code for geometry type
 	int				wDataType;			// flag for displayed data type
 	int				wSpStyle;			// flag for displayed space point style
 	int				wProjType;			// current projection type

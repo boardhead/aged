@@ -41,7 +41,6 @@ PSettingsWindow::PSettingsWindow(ImageData *data)
 	int		n;
 	Arg		wargs[10];
 	Widget	w, but;
-	long	label_flags = data->mMainWindow->GetLabelFlags();
 	
 	if (data->angle_rad<0 || data->angle_rad>2) {
 		data->angle_rad = 0;
@@ -255,7 +254,6 @@ PSettingsWindow::PSettingsWindow(ImageData *data)
 	XtSetArg(wargs[n], XmNx, 100); ++n;
 	XtSetArg(wargs[n], XmNy, 245); ++n;
 	XtSetArg(wargs[n], XmNwidth, 55); ++n;
-	XtSetArg(wargs[n], XmNset, (label_flags & kLabelRun) != 0); ++n;
 	but = XtCreateManagedWidget("Clear",xmPushButtonWidgetClass,w,wargs,n);
 	XtAddCallback(but,XmNactivateCallback,(XtCallbackProc)ClearProc, this);
 	
@@ -263,7 +261,6 @@ PSettingsWindow::PSettingsWindow(ImageData *data)
 	XtSetArg(wargs[n], XmNx, 163); ++n;
 	XtSetArg(wargs[n], XmNy, 245); ++n;
 	XtSetArg(wargs[n], XmNwidth, 55); ++n;
-	XtSetArg(wargs[n], XmNset, (label_flags & kLabelRun) != 0); ++n;
 	but = XtCreateManagedWidget("+Run",xmPushButtonWidgetClass,w,wargs,n);
 	XtAddCallback(but,XmNactivateCallback,(XtCallbackProc)AddRunProc, this);
 	
@@ -271,7 +268,6 @@ PSettingsWindow::PSettingsWindow(ImageData *data)
 	XtSetArg(wargs[n], XmNx, 226); ++n;
 	XtSetArg(wargs[n], XmNy, 245); ++n;
 	XtSetArg(wargs[n], XmNwidth, 55); ++n;
-	XtSetArg(wargs[n], XmNset, (label_flags & kLabelEvID) != 0); ++n;
 	but = XtCreateManagedWidget("+Evt",xmPushButtonWidgetClass,w,wargs,n);
 	XtAddCallback(but,XmNactivateCallback,(XtCallbackProc)AddEvIDProc, this);
 	
@@ -279,17 +275,9 @@ PSettingsWindow::PSettingsWindow(ImageData *data)
 	XtSetArg(wargs[n], XmNx, 289); ++n;
 	XtSetArg(wargs[n], XmNy, 245); ++n;
 	XtSetArg(wargs[n], XmNwidth, 55); ++n;
-	XtSetArg(wargs[n], XmNset, (label_flags & kLabelTime) != 0); ++n;
-	but = XtCreateManagedWidget("+Time",xmPushButtonWidgetClass,w,wargs,n);
-	XtAddCallback(but,XmNactivateCallback,(XtCallbackProc)AddTimeProc, this);
-	
-/*	n = 0;
-	XtSetArg(wargs[n], XmNx, 320); ++n;
-	XtSetArg(wargs[n], XmNy, 245); ++n;
-	XtSetArg(wargs[n], XmNset, (label_flags & kLabelNhit) != 0); ++n;
 	but = XtCreateManagedWidget("+NHit",xmPushButtonWidgetClass,w,wargs,n);
 	XtAddCallback(but,XmNactivateCallback,(XtCallbackProc)AddNHitProc, this);
-*/	
+	
 	n = 0;
 	XtSetArg(wargs[n], XmNleftOffset, 16); ++n;
 	XtSetArg(wargs[n], XmNy, 279); ++n;
@@ -503,7 +491,7 @@ void PSettingsWindow::AddRunProc(Widget w, PSettingsWindow *set_win, caddr_t cal
 
 void PSettingsWindow::AddEvIDProc(Widget w, PSettingsWindow *set_win, caddr_t call_data)
 {
-	set_win->AddLabel("Event: %gt");
+	set_win->AddLabel("Event: %ev");
 }
 
 void PSettingsWindow::AddTimeProc(Widget w, PSettingsWindow *set_win, caddr_t call_data)

@@ -322,7 +322,7 @@ void PPrintWindow::DoPrint()
 	} else {
 		mTempFilename[0] = '\0';
 	}
-	strcat(mTempFilename,"aged_tmp.ps");
+	strcat(mTempFilename,"aged_tmp.eps");
 	
 	// create argument list for printer
 	mPrintFlags = 0;

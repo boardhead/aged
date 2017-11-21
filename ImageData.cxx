@@ -31,7 +31,6 @@ void initData(ImageData *data, int load_settings)
 	memcpy(data, &PResourceManager::sResource, sizeof(AgedResource));
 
 	// range check menu items
-	if ((unsigned)data->geo > IMAX_GEO)					  data->geo = 0;
 	if ((unsigned)data->dataType > IMAX_DATATYPE)		  data->dataType = 0;
 	if ((unsigned)data->projType > IMAX_PROJTYPE)	   	  data->projType = 0;
 	if ((unsigned)data->shapeOption > IMAX_SHAPEOPTION)   data->shapeOption = 0;
@@ -45,7 +44,6 @@ void initData(ImageData *data, int load_settings)
 
 	// reset other settings if not loading settings
 	if (!load_settings) {
-		data->geo 			= 0;
 		data->dataType 		= 0;
 		data->projType 		= 0;
 		data->shapeOption 	= 0;
@@ -62,7 +60,6 @@ void initData(ImageData *data, int load_settings)
 		data->save_config	= 0;
 	}
 	
-	data->wGeo				= IDM_GEODESIC;		// set later
 	data->wDataType			= IDM_TIME;			// set later
 	data->wSpStyle			= IDM_SP_ERRORS;	// set later
 	data->wProjType			= data->projType + IDM_PROJ_RECTANGULAR;
@@ -103,7 +100,9 @@ void freeData(ImageData *data)
 	clearEvent(data);
 	
 	XtFree(data->projName);
+	data->projName = NULL;
 	XtFree(data->dispName);
+	data->dispName = NULL;
 	
 	delete data->mSpeaker;
 	data->mSpeaker = NULL;
@@ -134,13 +133,14 @@ void sendMessage(ImageData *data, int message, void *dataPt)
 void clearEvent(ImageData *data)
 {
 	if (data->hits.num_nodes) {
-		free(data->hits.nodes);
-		free(data->hits.hit_info);
 		data->hits.num_nodes = 0;
 		data->event_nhit = 0;
+		free(data->hits.nodes);
+		data->hits.nodes = NULL;
+		free(data->hits.hit_info);
+		data->hits.hit_info = NULL;
 	}
 	data->cursor_hit = -1;
-	
 	data->run_number = 0;
 	data->event_id = 0;
 	//setEventTime(data,0);
@@ -296,14 +296,17 @@ void freePoly(Polyhedron *poly)
 	if (poly->num_nodes) {
 		poly->num_nodes = 0;
 		free(poly->nodes);
+		poly->nodes = NULL;
 	}
 	if (poly->num_edges) {
 		poly->num_edges = 0;
 		free(poly->edges);
+		poly->edges = NULL;
 	}
 	if (poly->num_faces) {
 		poly->num_faces = 0;
 		free(poly->faces);
+		poly->faces = NULL;
 	}
 }
 void freeWireFrame(WireFrame *frame)
@@ -311,10 +314,12 @@ void freeWireFrame(WireFrame *frame)
 	if (frame->num_nodes) {
 		frame->num_nodes = 0;
 		free(frame->nodes);
+		frame->nodes = NULL;
 	}
 	if (frame->num_edges) {
 		frame->num_edges = 0;
 		free(frame->edges);
+		frame->edges = NULL;
 	}
 }
 char *loadGeometry(Polyhedron *poly, int geo, char *argv)

@@ -78,7 +78,6 @@ public:
 									 char *aLabelFormat, char *aBuffer);
 
 private:
-	PImageCanvas  *	CreateNewImage(Widget canvas=0);
 	void			SetHitMaskMenuToggles();
 	void			MakeLabel();
 	void			SetLabelDirty();
@@ -100,10 +99,8 @@ private:
 	long			mLabelFlags;		// label flags
 	int				mLabelDirty;		// non-zero if label needs remaking
 	int				mPrintType;
-	int				mEchoMainDisplay;
 	
 	Widget			disp_text;
-	Widget			filebox;			// file selection dialog box
 	Widget			aboutbox;			// about box
 	Widget			mWarnDialog;		// warning dialog
 };

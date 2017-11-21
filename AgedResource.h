@@ -76,7 +76,6 @@ struct AgedResource {
 	XtAppContext	the_app;					// the application context
 	Display		  *	display;					// the X display
 	GC				gc;							// the X graphics context
-	int				geo;						// index for geometry menu item
 	int				dataType;					// index for data type menu item
 	int				spType;					    // drawing style for space points
 	int				projType;					// index for projection menu item

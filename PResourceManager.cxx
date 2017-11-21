@@ -129,8 +129,6 @@ static XtResource sResourceList[] = {
 	 	XtRString, (XtPointer) "1.0" },
  {"save_config","SaveConfig",XtRInt,sizeof(int),XtOffset(AgedResPtr,save_config),
  		XtRString, (XtPointer) "0" },
- {"geo","Geo",XtRInt,sizeof(int),XtOffset(AgedResPtr,geo),
- 		XtRString, (XtPointer) "0" },
  {"dataType","DataType",XtRInt,sizeof(int),XtOffset(AgedResPtr,dataType),
  		XtRString, (XtPointer) "0" },
  {"projType","ProjType",XtRInt,sizeof(int),XtOffset(AgedResPtr,projType),
@@ -160,11 +158,11 @@ static XtResource sResourceList[] = {
  {"show_label","ShowLabel",XtRInt,sizeof(int),XtOffset(AgedResPtr,show_label),
  		XtRString, (XtPointer) "0" },
  {"label_format","LabelFormat",XtRString,sizeof(String),XtOffset(AgedResPtr,label_format_pt),
- 		XtRString, (XtPointer) "Run: %rn  Event: %gt" },
+ 		XtRString, (XtPointer) "Run: %rn  Event: %ev" },
  {"print_command","PrintCommand",XtRString,sizeof(String),XtOffset(AgedResPtr,print_string_pt[0]),
  		XtRString, (XtPointer) "lpr " },
  {"print_filename","PrintFilename",XtRString,sizeof(String),XtOffset(AgedResPtr,print_string_pt[1]),
- 		XtRString, (XtPointer) "aged_image.ps" },
+ 		XtRString, (XtPointer) "aged_image.eps" },
 
  // colours
  {"bkg_col",	"BkgCol",   XtRPixel, sizeof(Pixel),XtOffset(AgedResPtr,colset[0][BKG_COL]),
