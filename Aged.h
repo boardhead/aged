@@ -8,6 +8,8 @@
 
 class TStoreEvent;
 class PWindow;
+class AgAnalysisFlow;
+class TARunInfo;
 struct ImageData;
 
 class Aged
@@ -16,9 +18,9 @@ public:
     Aged();
     ~Aged();
     
-    void ShowEvent(TStoreEvent* anEvent, int runNum);
+    void ShowEvent(AgAnalysisFlow* analysis_flow, TARunInfo* runinfo);
 
 private:
-    ImageData   *fdata;
-    PWindow     *fwindow;
+    ImageData   *fData;
+    PWindow     *fWindow;
 };

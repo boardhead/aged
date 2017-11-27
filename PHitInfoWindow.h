@@ -25,7 +25,6 @@ private:
 	PLabel			hi_wire, hi_pad, hi_type;
 	PLabel			hi_xyz_labels[3], hi_xyz[3];
 	int				mLastNum;
-	int				mCheckExtraNum;
 };
 
 

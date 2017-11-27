@@ -14,6 +14,7 @@
 #include "AgedWindow.h"
 #include "PEventControlWindow.h"
 #include "TStoreEvent.hh"
+#include "AgFlow.h"
 #include "TStoreHelix.hh" // TEMPORARY
 
 #define AnyModMask			(Mod1Mask | Mod2Mask | Mod3Mask | Mod4Mask | Mod5Mask)
@@ -24,14 +25,14 @@ Aged::Aged()
 /*
 ** Create main window and menus
 */
-	fwindow = new AgedWindow(1);
-	fdata = fwindow->GetData();
+	fWindow = new AgedWindow(1);
+	fData = fWindow->GetData();
 }
 
 Aged::~Aged()
 {
-    delete fwindow;
-    fwindow = NULL;
+    delete fWindow;
+    fWindow = NULL;
 }
 
 // dispatchEvent - dispatch the X event (PH 03/25/00)
@@ -113,15 +114,17 @@ static void do_next(ImageData *data)
     }
 }
 
-void Aged::ShowEvent(TStoreEvent *anEvent, int runNum)
+void Aged::ShowEvent(AgAnalysisFlow* analysis_flow, TARunInfo* runinfo)
 {
-    ImageData *data = fdata;
+    ImageData *data = fData;
 
     if (data) clearEvent(data);
 
+    TStoreEvent *anEvent = analysis_flow->fEvent;
+
     if (!anEvent) return;
 
-#if 0 //TEST
+#if 1 //TEST
     const TObjArray *points = anEvent->GetSpacePoints();
     if (points) {
         int num = points->GetEntries();
@@ -130,23 +133,24 @@ void Aged::ShowEvent(TStoreEvent *anEvent, int runNum)
             TSpacePoint* spi = (TSpacePoint*) points->At(i);
             double x=spi->GetX(),y=spi->GetY(),z=spi->GetZ();
             if (x*x+y*y>100) continue;
-            printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
-            printf("%d) %g %g %g %lx %lx %lx time=%g h=%g r=%g phi=%g wire=%d pad=%d\n",
-                i,x,y,z,
-                *(unsigned long *)&x, *(unsigned long *)&y, *(unsigned long *)&z,
+            printf("%d) %16lx %16lx %16lx %g %g %g time=%g h=%g r=%g phi=%g wire=%d pad=%d\n",
+                i, *(unsigned long *)&x, *(unsigned long *)&y, *(unsigned long *)&z,
+				x,y,z,
                 spi->GetTime(),spi->GetHeight(),spi->GetR(),spi->GetPhi(),spi->GetWire(),spi->GetPad());
         }
     }
 #endif
 
-#if 1
+#if 1 //TEST
     const TObjArray *helices = anEvent->GetHelixArray();
     if (helices && helices->GetEntries() > 0) {
         for (int i=0; i<helices->GetEntries(); ++i) {
             TStoreHelix *helix = (TStoreHelix *)helices->At(i);
-            printf("Helix %d) c=%g phi=%g d=%g lam=%g z=%g Mom=(%g %g %g)\n", i,
-                helix->GetC(), helix->GetPhi0(), helix->GetD(), helix->GetLambda(), helix->GetZ0(),
-                helix->GetMomentumV().X(),helix->GetMomentumV().Y(),helix->GetMomentumV().Z());
+            printf("Helix %d) c=%g phi=%g d=%g lam=%g xyz=(%g %g %g) p=(%g %g %g) beta=%g %d %d\n", i,
+                helix->GetC(), helix->GetPhi0(), helix->GetD(), helix->GetLambda(),
+                helix->GetX0(), helix->GetY0(), helix->GetZ0(),
+                helix->GetMomentumV().X(),helix->GetMomentumV().Y(),helix->GetMomentumV().Z(),
+                helix->GetFBeta(), helix->GetBranch(), helix->GetStatus());
         }
     }
 #endif
@@ -204,7 +208,8 @@ void Aged::ShowEvent(TStoreEvent *anEvent, int runNum)
         calcHitVals(data);
     
         data->agEvent = anEvent;
-        data->run_number = runNum;
+        data->agFlow = analysis_flow;
+        data->run_number = runinfo->fRunNo;
         data->event_id = anEvent->GetEventNumber();
     
         sendMessage(data, kMessageNewEvent);

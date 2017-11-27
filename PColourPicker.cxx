@@ -22,11 +22,11 @@ int PColourPicker::sLastColourNum	= -1;
 
 static char	*sColourName[] = {
 	"Background", "Labels & Text", "Back Edge", "Front Edge", "Dark Surface",
-		"Light Surface", "XYZ Axes", "Cursor", "Fit", "Discarded Hit", "Map Grids",
-    "Underscale", "0% Scale", "25% Scale", "50% Scale", "75% Scale", "100% Scale",
-	    "Overscale", "", "",
-	"", "", "", "", "",
-	    "", "", "", "", ""
+    "Light Surface", "XYZ Axes", "Cursor", "Vertex",
+    "Fit Bad", "Fit Good", "Fit Seed", "Fit Added", "Fit Secondary", "Fit Photon",
+    "Discarded", "Map Grids", "Underscale",
+    "0% Scale", "25% Scale", "50% Scale", "75% Scale", "100% Scale", "Overscale",
+    "", "", "", "", "", "", ""
 };
 
 

@@ -18,7 +18,7 @@
 #define FORMAT_LEN		512				// maximum length of event label
 #define FILELEN			4096			// maximum length of file name
 
-#define AG_SCALE        150             // size of Alpha-G geometry (units?)
+#define AG_SCALE        150.0           // size of Alpha-G geometry (units?)
 
 #ifndef PI
 #define	PI				3.14159265358979324
@@ -96,6 +96,7 @@ struct SpacePoints {
 };
 
 class TStoreEvent;
+class AgAnalysisFlow;
 
 struct ImageData : AgedResource {
 	AgedWindow    *	mMainWindow;		// main Aged window
@@ -108,6 +109,7 @@ struct ImageData : AgedResource {
 	int             mNext;              // true to step to next event (exit event loop)
 
     TStoreEvent   * agEvent;            // the event we are displaying
+    AgAnalysisFlow* agFlow;             // the Ag flow
 
 	Widget			toplevel;			// top level Aged widget
 	SpacePoints		hits;				// tube hit information

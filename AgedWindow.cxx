@@ -279,7 +279,7 @@ void AgedWindow::SetTitle(char *str)
         if (pt > buff+1) --pt;	
         else pt = buff + strlen(buff);				/* pt points to end of title */
         if (data->agEvent) {
-            sprintf(pt,data->hex_id ? " [%ld:0x%lx]" : " [%ld:%ld]",
+            sprintf(pt,data->hex_id ? " [Run %ld:0x%lx]" : " [Run %ld:%ld]",
                 data->run_number, data->event_id);
         } else *pt = 0;
         str = buff;

@@ -12,17 +12,16 @@
 #include "TStoreHelix.hh"
 
 #define STRETCH				2
-#define RCON_WID			(2 * GetScaling())	// half-width of reconstructed point
-#define SOURCE_WID			(2 * GetScaling())	// half-width of source monte-carlo point
-#define	CELL				0.02
-#define	HEX_ASPECT			0.866025
-#define CONE_MAG			0.85	// default cone mag. for set-to-vertex
 
 #define UPDATE_FIT    		0x01	// update fit information window
 #define	UPDATE_HIT_VALS		0x02	// update displays where hit values are used
 
 #define	NN_AXES				16
 #define NE_AXES				11
+
+const double kMaxR = 175 / AG_SCALE;   // maximum radius for helix track
+const double kMaxRSq = kMaxR * kMaxR;
+const double kFitLineLength = 1.5;
 
 static Point3 axes_nodes[NN_AXES] = {
 							{	0   ,  0   ,  0		},
@@ -603,9 +602,9 @@ void AgedImage::DrawSelf()
             switch (data->wSpStyle) {
                 case IDM_SP_ERRORS: {
                     TSpacePoint* spi = (TSpacePoint*) points->At(i);
-                    nod[0].x3 = nod[1].x3 = nod[2].x3 = nod[3].x3 = nod[4].x3 = nod[5].x3 = spi->GetX() / AG_SCALE;
-                    nod[0].y3 = nod[1].y3 = nod[2].y3 = nod[3].y3 = nod[4].y3 = nod[5].y3 = spi->GetY() / AG_SCALE;
-                    nod[0].z3 = nod[1].z3 = nod[2].z3 = nod[3].z3 = nod[4].z3 = nod[5].z3 = spi->GetZ() / AG_SCALE;
+                    nod[0].x3 = nod[1].x3 = nod[2].x3 = nod[3].x3 = nod[4].x3 = nod[5].x3 = n1->x3;
+                    nod[0].y3 = nod[1].y3 = nod[2].y3 = nod[3].y3 = nod[4].y3 = nod[5].y3 = n1->y3;
+                    nod[0].z3 = nod[1].z3 = nod[2].z3 = nod[3].z3 = nod[4].z3 = nod[5].z3 = n1->z3;
                     nod[0].x3 -= spi->GetErrX() / AG_SCALE;
                     nod[1].x3 += spi->GetErrX() / AG_SCALE;
                     nod[2].y3 -= spi->GetErrY() / AG_SCALE;
@@ -660,45 +659,68 @@ void AgedImage::DrawSelf()
 /*
 ** Draw fit lines
 */
-    SetForeground(FIT_COL);
     const TObjArray *lines = evt->GetLineArray();
-    if (lines && lines->GetEntries() > 0) {
-        for (i=0, sp=segments; i<lines->GetEntries(); ++i, ++sp) {
-            if (sp - segments >= MAX_EDGES) {
-                DrawSegments(segments, MAX_EDGES);
-                sp = segments;
-            }
+    if (data->show_fit && lines) {
+        for (i=0, sp=segments; i<lines->GetEntries(); ++i) {
             TStoreLine *line = (TStoreLine *)lines->At(i);
-            nod[0].x3 = line->GetPoint()->X() + line->GetDirection()->X() * 2;
-            nod[1].x3 = line->GetPoint()->X() - line->GetDirection()->X() * 2;
-            nod[0].y3 = line->GetPoint()->Y() + line->GetDirection()->Y() * 2;
-            nod[1].y3 = line->GetPoint()->Y() - line->GetDirection()->Y() * 2;
-            nod[0].z3 = line->GetPoint()->Z() + line->GetDirection()->Z() * 2;
-            nod[1].z3 = line->GetPoint()->Z() - line->GetDirection()->Z() * 2;
-    		Transform(nod,2);
+            nod[0].x3 = line->GetPoint()->X() / AG_SCALE;
+            nod[1].x3 = nod[0].x3 + line->GetDirection()->X() * kFitLineLength;
+            nod[0].y3 = line->GetPoint()->Y() / AG_SCALE;
+            nod[1].y3 = nod[0].y3 + line->GetDirection()->Y() * kFitLineLength;
+            nod[0].z3 = line->GetPoint()->Z() / AG_SCALE;
+            nod[1].z3 = nod[0].z3 + line->GetDirection()->Z() * kFitLineLength;
+    		Transform(nod, 2);
     		sp->x1 = nod[0].x;
     		sp->y1 = nod[0].y;
     		sp->x2 = nod[1].x;
     		sp->y2 = nod[1].y;
+            int col = FIT_BAD_COL + line->GetStatus();
+            if (col < FIT_BAD_COL || col > FIT_PHOTON_COL) col = FIT_BAD_COL;
+            SetForeground(col);
+            DrawSegments(segments, 1);
         }
-        DrawSegments(segments, sp - segments);
     }
 /*
 ** Draw fit helices
 */
     const TObjArray *helices = evt->GetHelixArray();
-    if (data->show_fit && helices && helices->GetEntries() > 0) {
+    if (data->show_fit && helices) {
         for (i=0, sp=segments; i<helices->GetEntries(); ++i, ++sp) {
             TStoreHelix *helix = (TStoreHelix *)helices->At(i);
             const int kNumPoints = 100;
+            double r = 1 / (2 * helix->GetC());
+            double xc = -(r + helix->GetD()) * sin(helix->GetPhi0());
+            double yc =  (r + helix->GetD()) * cos(helix->GetPhi0());
+            double x0 = helix->GetX0();
+            double y0 = helix->GetY0();
+            double z0 = helix->GetZ0();
+            double scl = PI / kNumPoints;
+            double rla = r * helix->GetLambda();
+            // decide which direction to draw
+            if (helix->GetFBeta() * helix->GetMomentumV().Z() * rla > 0) {
+                scl *= -1;
+            }
             n1 = n2 = 0;
+            int last = 0;
             for (j=0, sp=segments; j<kNumPoints; ++j) {
-                double phi = helix->GetPhi0() + j * PI / kNumPoints;
+                // draw one half turn (or less) of the helix
+                double phi = helix->GetPhi0() + j * scl;
                 n1 = n2;
                 n2 = nod + (j & 1);
-                n2->x3 = (helix->GetD() * cos(helix->GetPhi0()) + (cos(helix->GetPhi0()) - cos(phi))/helix->GetC()) / AG_SCALE;
-                n2->y3 = (helix->GetD() * sin(helix->GetPhi0()) + (sin(helix->GetPhi0()) - sin(phi))/helix->GetC()) / AG_SCALE;
-                n2->z3 = (helix->GetZ0() - tan(helix->GetLambda()) * phi) / AG_SCALE;
+                n2->x3 = (xc + r * sin(phi)) / AG_SCALE;
+                n2->y3 = (yc - r * cos(phi)) / AG_SCALE;
+                n2->z3 = (z0 + rla * j * scl) / AG_SCALE;
+                double r2sq = n2->x3*n2->x3 + n2->y3*n2->y3;
+                if (r2sq > kMaxRSq) {
+                    if (!j) break;
+                    // draw line to maximum
+                    double r1 = sqrt(n1->x3*n1->x3 + n1->y3*n1->y3);
+                    double f = (kMaxR - r1) / (sqrt(r2sq) - r1);
+                    n2->x3 = n1->x3 + f * (n2->x3 - n1->x3);
+                    n2->y3 = n1->y3 + f * (n2->y3 - n1->y3);
+                    n2->z3 = n1->z3 + f * (n2->z3 - n1->z3);
+                    last = 1;
+                }
                 Transform(n2,1);
                 if (!n1 || (n1->flags & n2->flags & (NODE_HID | NODE_OUT))) continue;
                 sp->x1 = n1->x;
@@ -706,8 +728,21 @@ void AgedImage::DrawSelf()
                 sp->x2 = n2->x;
                 sp->y2 = n2->y;
                 ++sp;
+                if (last) break;
             }
+            int col = FIT_BAD_COL + helix->GetStatus();
+            if (col < FIT_BAD_COL || col > FIT_PHOTON_COL) col = FIT_BAD_COL;
+            SetForeground(col);
             DrawSegments(segments, sp - segments);
+#if 1 //TEST
+            // draw X0,Y0,Z0
+            nod[0].x3 = x0 / AG_SCALE;
+            nod[0].y3 = y0 / AG_SCALE;
+            nod[0].z3 = z0 / AG_SCALE;
+            Transform(nod,1);
+            int sz = (int)(data->fit_size * 3 + 0.5);
+            FillArc(nod[0].x, nod[0].y, sz, sz);
+#endif
         }
     }
 /*
@@ -719,6 +754,7 @@ void AgedImage::DrawSelf()
         nod[0].z3 = evt->GetVertex().Z() / AG_SCALE;
         Transform(nod,1);
         int sz = (int)(data->fit_size * 3 + 0.5);
+        SetForeground(VERTEX_COL);
     	FillArc(nod[0].x, nod[0].y, sz, sz);
     }
 /*

@@ -20,7 +20,6 @@ PHitInfoWindow::PHitInfoWindow(ImageData *data)
 	Arg		wargs[16];
 		
 	mLastNum = -1;
-	mCheckExtraNum = 1;
 	
 	n = 0;
 	XtSetArg(wargs[n], XmNtitle, "Hit Info"); ++n;
@@ -202,7 +201,6 @@ void PHitInfoWindow::Listen(int message, void *message_data)
 {
 	switch (message) {
 		case kMessageNewEvent:
-			mCheckExtraNum = 1;	// must check extra hit data after each new event is displayed
 			if (mLastNum >= 0) {
 				// the event has changed, so the displayed hit data is now invalid
 				// -> set the last displayed hit number to something invalid too
