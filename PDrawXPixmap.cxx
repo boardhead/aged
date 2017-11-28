@@ -167,7 +167,7 @@ void PDrawXPixmap::FillRectangle(int x,int y,int w,int h)
 void PDrawXPixmap::DrawSegments(XSegment *segments, int num, int smooth)
 {
 #ifdef SMOOTH_LINES
-    if (smooth & kSmoothLines) {
+    if (smooth) {
         XPointDouble    poly[4];
         XSegment *sp = segments;
         Picture pict = XftDrawSrcPicture(mXftDraw, &mXftColor);
@@ -176,16 +176,20 @@ void PDrawXPixmap::DrawSegments(XSegment *segments, int num, int smooth)
             if (sp->x1==sp->x2 || sp->y1==sp->y2) {
                 XDrawLine(mDpy,mDrawable,mGC,sp->x1,sp->y1,sp->x2,sp->y2);
             } else {
-                XDouble     dx = sp->x2 - sp->x1;
-                XDouble     dy = sp->y2 - sp->y1;
-                XDouble     len = sqrt(dx*dx + dy*dy);
-                XDouble     ldx = (mLineWidth/2.0) * dy / len;
-                XDouble     ldy = (mLineWidth/2.0) * dx / len;
+                XDouble x1 = sp->x1 + 0.5;
+                XDouble x2 = sp->x2 + 0.5;
+                XDouble y1 = sp->y1 + 0.5;
+                XDouble y2 = sp->y2 + 0.5;
+                XDouble dx = x2 - x1;
+                XDouble dy = y2 - y1;
+                XDouble len = sqrt(dx*dx + dy*dy);
+                XDouble ldx = (mLineWidth/2.0) * dy / len;
+                XDouble ldy = (mLineWidth/2.0) * dx / len;
             
-                poly[0].x = sp->x1 + ldx + 0.5;  poly[0].y = sp->y1 - ldy + 0.5;
-                poly[1].x = sp->x2 + ldx + 0.5;  poly[1].y = sp->y2 - ldy + 0.5;
-                poly[2].x = sp->x2 - ldx + 0.5;  poly[2].y = sp->y2 + ldy + 0.5;
-                poly[3].x = sp->x1 - ldx + 0.5;  poly[3].y = sp->y1 + ldy + 0.5;
+                poly[0].x = sp->x1 + ldx;  poly[0].y = sp->y1 - ldy;
+                poly[1].x = sp->x2 + ldx;  poly[1].y = sp->y2 - ldy;
+                poly[2].x = sp->x2 - ldx;  poly[2].y = sp->y2 + ldy;
+                poly[3].x = sp->x1 - ldx;  poly[3].y = sp->y1 + ldy;
             
                 XRenderCompositeDoublePoly(mDpy, PictOpOver, pict, mXftPicture,
                                           fmt, 0, 0, 0, 0, poly, 4, EvenOddRule);
@@ -211,11 +215,11 @@ void PDrawXPixmap::DrawLine(int x1,int y1,int x2,int y2)
         XDrawLine(mDpy,mDrawable,mGC,x1,y1,x2,y2);
     } else {
         XPointDouble    poly[4];
-        XDouble     dx = x2 - x1;
-        XDouble     dy = y2 - y1;
-        XDouble     len = sqrt(dx*dx + dy*dy);
-        XDouble     ldx = (mLineWidth/2.0) * dy / len;
-        XDouble     ldy = (mLineWidth/2.0) * dx / len;
+        XDouble dx = x2 - x1;
+        XDouble dy = y2 - y1;
+        XDouble len = sqrt(dx*dx + dy*dy);
+        XDouble ldx = (mLineWidth/2.0) * dy / len;
+        XDouble ldy = (mLineWidth/2.0) * dx / len;
     
         poly[0].x = x1 + ldx + 0.5;  poly[0].y = y1 - ldy + 0.5;
         poly[1].x = x2 + ldx + 0.5;  poly[1].y = y2 - ldy + 0.5;
@@ -226,7 +230,7 @@ void PDrawXPixmap::DrawLine(int x1,int y1,int x2,int y2)
                                   PictOpOver,
                                   XftDrawSrcPicture(mXftDraw, &mXftColor),
                                   mXftPicture,
-                                  XRenderFindStandardFormat(mDpy,PictStandardA1),
+                                  XRenderFindStandardFormat(mDpy,PictStandardA8),
                                   0, 0, 0, 0, poly, 4, EvenOddRule);
     }
 #else

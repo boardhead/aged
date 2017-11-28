@@ -37,6 +37,11 @@ enum HitInfoFlags {
 	HIT_HIDDEN		= 0x800
 };
 
+enum ESmoothFlags {
+    kSmoothText     = 0x01,
+    kSmoothLines    = 0x02
+};
+
 struct Point3 {
 	float		x,y,z;
 };

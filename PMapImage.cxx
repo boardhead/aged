@@ -646,7 +646,7 @@ void PMapImage::DrawSelf()
 				sp->y2 = ycen + yscl;
 				++sp;
 			}
-			DrawSegments(segments,sp-segments);
+			DrawSegments(segments,sp-segments, data->smooth & kSmoothLines);
 			break;
 
 		case IDM_PROJ_HAMMER:
@@ -678,7 +678,7 @@ Do_Proj_Hammer:
 				sp->x1 = xcen - xscl;
 				sp->x2 = xcen + xscl;
 				sp->y1 = sp->y2 = ycen;
-				DrawSegments(segments,1);	/* draw equator */
+				DrawSegments(segments,1,data->smooth & kSmoothLines);	/* draw equator */
 				num = 3;
 				num1 = segs / loops;
 				for (i=1; i<num; ++i) {
@@ -703,7 +703,7 @@ Do_Proj_Hammer:
 					}
 					sp = reflectSegmentsX(segments, m, xcen);
 					sp = reflectSegmentsY(segments, sp-segments, ycen);
-					DrawSegments(segments,sp-segments);
+					DrawSegments(segments,sp-segments,data->smooth & kSmoothLines);
 				}
 				
 				/* draw lines of longitude */
@@ -712,7 +712,7 @@ Do_Proj_Hammer:
 				sp->y1 = ycen - yscl;
 				sp->y2 = ycen + yscl;
 				++sp;
-				DrawSegments(segments,sp-segments);
+				DrawSegments(segments,sp-segments,data->smooth & kSmoothLines);
 				
 				num = 6 / loops;
 				for (i=1; i<num; ++i) {
@@ -743,7 +743,7 @@ Do_Proj_Hammer:
 					}
 					sp = reflectSegmentsX(segments, m, xcen);
 					sp = reflectSegmentsY(segments, sp-segments, ycen);
-					DrawSegments(segments,sp-segments);
+					DrawSegments(segments,sp-segments,data->smooth & kSmoothLines);
 				}
 				xcen += 2 * xscl;
 			}
@@ -805,7 +805,7 @@ Do_Proj_Polar:
 					sp->y1 = ycen - y;	sp->y2 = ycen + y;
 					++sp;
 				}
-				DrawSegments(segments,sp - segments);
+				DrawSegments(segments,sp - segments,data->smooth & kSmoothLines);
 				xcen += 2 * xscl;
 			}
 			break;
@@ -858,7 +858,7 @@ Do_Proj_Sinusoid:
 					sp->y1 = ycen - yscl;
 					sp->y2 = ycen + yscl;
 					++sp;
-					DrawSegments(segments,sp-segments);
+					DrawSegments(segments,sp-segments,data->smooth & kSmoothLines);
 				}
 				/* draw lines of latitude */
 				num = 6;
@@ -873,7 +873,7 @@ Do_Proj_Sinusoid:
 					sp->y2 = y;
 					++sp;
 				}
-				DrawSegments(segments,sp-segments);
+				DrawSegments(segments,sp-segments,data->smooth & kSmoothLines);
 				xcen += 2 * xscl;
 			}
 			break;
@@ -939,7 +939,7 @@ Do_Proj_Elliptical:
 					sp->y2 = y;
 					++sp;
 				}
-				DrawSegments(segments,sp-segments);
+				DrawSegments(segments,sp-segments,data->smooth & kSmoothLines);
 				xcen += 2 * xscl;
 			}
 			break;
