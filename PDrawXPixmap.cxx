@@ -8,6 +8,10 @@
 #include "PUtils.h"
 #include "colours.h"
 
+#ifdef SMOOTH_LINES
+#include <math.h>
+#endif
+
 PDrawXPixmap::PDrawXPixmap(Display *dpy, GC gc, int depth, Widget w)
 {
 	mDpy = dpy;
@@ -17,6 +21,9 @@ PDrawXPixmap::PDrawXPixmap(Display *dpy, GC gc, int depth, Widget w)
 	mPix = 0;
 	mWidth = 0;
 	mHeight = 0;
+#ifdef SMOOTH_LINES
+    mLineWidth = 1.0;
+#endif
 }
 
 PDrawXPixmap::~PDrawXPixmap()
@@ -54,12 +61,40 @@ int PDrawXPixmap::BeginDrawing(int width, int height)
 		mWidth = width;
 		mHeight = height;
 	}
+#ifdef SMOOTH_FONTS
+    mXftDraw = XftDrawCreate(mDpy, mDrawable, DefaultVisual(mDpy,DefaultScreen(mDpy)),
+               DefaultColormap(mDpy, DefaultScreen(mDpy)));
+    SetXftColour(WhitePixel(mDpy, DefaultScreen(mDpy)));
+#ifdef SMOOTH_LINES // TEST this doesn't produce smooth lines
+    mXftPicture = XftDrawPicture(mXftDraw);
+#endif
+#endif
+
 	return(1);
 }
 
 void PDrawXPixmap::EndDrawing()
 {
 }
+
+#ifdef SMOOTH_FONTS
+void PDrawXPixmap::SetXftColour(Pixel pixel)
+{
+    if (mDpy) {
+        XColor c;
+        c.pixel = pixel;
+        XQueryColor(mDpy, DefaultColormap(mDpy,DefaultScreen(mDpy)), &c);
+        XRenderColor xrcolor;
+        xrcolor.red = c.red;
+        xrcolor.green = c.green;
+        xrcolor.blue = c.blue;
+        xrcolor.alpha = 0xffff;
+        XftColorAllocValue(mDpy, DefaultVisual(mDpy,DefaultScreen(mDpy)),
+                   DefaultColormap(mDpy, DefaultScreen(mDpy) ), &xrcolor, &mXftColor );
+
+    }
+}
+#endif
 
 void PDrawXPixmap::FreePixmap()
 {
@@ -79,22 +114,30 @@ int PDrawXPixmap::HasPixmap()
 
 void PDrawXPixmap::SetForeground(int col_num)
 {
+    Pixel pixel;
 	if (mColours) {
-		XSetForeground(mDpy, mGC, mColours[col_num]);
-	} else {
-		if (col_num < NUM_COLOURS) {
-			XSetForeground(mDpy, mGC, PResourceManager::sResource.colour[col_num]);
-		} else if ((col_num-=NUM_COLOURS) < PResourceManager::sResource.num_cols) {
-			XSetForeground(mDpy, mGC, PResourceManager::sResource.scale_col[col_num]);
-		} else if ((col_num-=PResourceManager::sResource.num_cols) < PResourceManager::sResource.det_cols) {
-			XSetForeground(mDpy, mGC, PResourceManager::sResource.det_col[col_num]);
-		}
+		pixel = mColours[col_num];
+	} else  if (col_num < NUM_COLOURS) {
+        pixel = PResourceManager::sResource.colour[col_num];
+    } else if ((col_num-=NUM_COLOURS) < PResourceManager::sResource.num_cols) {
+        pixel = PResourceManager::sResource.scale_col[col_num];
+    } else if ((col_num-=PResourceManager::sResource.num_cols) < PResourceManager::sResource.det_cols) {
+        pixel = PResourceManager::sResource.det_col[col_num];
+    } else {
+        pixel = WhitePixel(mDpy, DefaultScreen(mDpy));
 	}
+	XSetForeground(mDpy, mGC, pixel);
+#ifdef SMOOTH_FONTS
+    SetXftColour(pixel);
+#endif
 }
 
 void PDrawXPixmap::SetForegroundPixel(Pixel pixel)
 {
 	XSetForeground(mDpy, mGC, pixel);
+#ifdef SMOOTH_FONTS
+    SetXftColour(pixel);
+#endif
 }
 
 void PDrawXPixmap::SetFont(XFontStruct *font)
@@ -106,6 +149,9 @@ void PDrawXPixmap::SetFont(XFontStruct *font)
 void PDrawXPixmap::SetLineWidth(float width)
 {
 	XSetLineAttributes(mDpy, mGC, (int)width, LineSolid, CapButt, JoinMiter);
+#ifdef SMOOTH_LINES
+    mLineWidth = width < 1 ? 1 : width;
+#endif
 }
 
 void PDrawXPixmap::DrawRectangle(int x,int y,int w,int h)
@@ -118,9 +164,39 @@ void PDrawXPixmap::FillRectangle(int x,int y,int w,int h)
 	XFillRectangle(mDpy, mDrawable, mGC, x, y, w, h);
 }
 
-void PDrawXPixmap::DrawSegments(XSegment *segments, int num)
+void PDrawXPixmap::DrawSegments(XSegment *segments, int num, int smooth)
 {
-	XDrawSegments(mDpy,mDrawable,mGC,segments,num);
+#ifdef SMOOTH_LINES
+    if (smooth & kSmoothLines) {
+        XPointDouble    poly[4];
+        XSegment *sp = segments;
+        Picture pict = XftDrawSrcPicture(mXftDraw, &mXftColor);
+        XRenderPictFormat *fmt = XRenderFindStandardFormat(mDpy,PictStandardA8);
+        for (int i=0; i<num; ++i, ++sp) {
+            if (sp->x1==sp->x2 || sp->y1==sp->y2) {
+                XDrawLine(mDpy,mDrawable,mGC,sp->x1,sp->y1,sp->x2,sp->y2);
+            } else {
+                XDouble     dx = sp->x2 - sp->x1;
+                XDouble     dy = sp->y2 - sp->y1;
+                XDouble     len = sqrt(dx*dx + dy*dy);
+                XDouble     ldx = (mLineWidth/2.0) * dy / len;
+                XDouble     ldy = (mLineWidth/2.0) * dx / len;
+            
+                poly[0].x = sp->x1 + ldx + 0.5;  poly[0].y = sp->y1 - ldy + 0.5;
+                poly[1].x = sp->x2 + ldx + 0.5;  poly[1].y = sp->y2 - ldy + 0.5;
+                poly[2].x = sp->x2 - ldx + 0.5;  poly[2].y = sp->y2 + ldy + 0.5;
+                poly[3].x = sp->x1 - ldx + 0.5;  poly[3].y = sp->y1 + ldy + 0.5;
+            
+                XRenderCompositeDoublePoly(mDpy, PictOpOver, pict, mXftPicture,
+                                          fmt, 0, 0, 0, 0, poly, 4, EvenOddRule);
+            }
+        }
+    } else {
+        XDrawSegments(mDpy,mDrawable,mGC,segments,num);
+    }
+#else
+    XDrawSegments(mDpy,mDrawable,mGC,segments,num);
+#endif
 }
 
 void PDrawXPixmap::DrawPoint(int x, int y)
@@ -130,7 +206,32 @@ void PDrawXPixmap::DrawPoint(int x, int y)
 
 void PDrawXPixmap::DrawLine(int x1,int y1,int x2,int y2)
 {
-	XDrawLine(mDpy,mDrawable,mGC,x1,y1,x2,y2);
+#ifdef SMOOTH_LINES // TEST this doesn't produce smooth lines
+    if (x1==x2 || y1==y2) {
+        XDrawLine(mDpy,mDrawable,mGC,x1,y1,x2,y2);
+    } else {
+        XPointDouble    poly[4];
+        XDouble     dx = x2 - x1;
+        XDouble     dy = y2 - y1;
+        XDouble     len = sqrt(dx*dx + dy*dy);
+        XDouble     ldx = (mLineWidth/2.0) * dy / len;
+        XDouble     ldy = (mLineWidth/2.0) * dx / len;
+    
+        poly[0].x = x1 + ldx + 0.5;  poly[0].y = y1 - ldy + 0.5;
+        poly[1].x = x2 + ldx + 0.5;  poly[1].y = y2 - ldy + 0.5;
+        poly[2].x = x2 - ldx + 0.5;  poly[2].y = y2 + ldy + 0.5;
+        poly[3].x = x1 - ldx + 0.5;  poly[3].y = y1 + ldy + 0.5;
+    
+        XRenderCompositeDoublePoly(mDpy,
+                                  PictOpOver,
+                                  XftDrawSrcPicture(mXftDraw, &mXftColor),
+                                  mXftPicture,
+                                  XRenderFindStandardFormat(mDpy,PictStandardA1),
+                                  0, 0, 0, 0, poly, 4, EvenOddRule);
+    }
+#else
+    XDrawLine(mDpy,mDrawable,mGC,x1,y1,x2,y2);
+#endif
 }
 
 void PDrawXPixmap::FillPolygon(XPoint *point, int num)
@@ -138,18 +239,45 @@ void PDrawXPixmap::FillPolygon(XPoint *point, int num)
 	XFillPolygon(mDpy,mDrawable,mGC,point,num, Convex, CoordModeOrigin);
 }
 
-void PDrawXPixmap::DrawString(int x, int y, char *str,ETextAlign_q align)
+void PDrawXPixmap::DrawString(int x, int y, char *str, ETextAlign_q align)
 {
 	int len = strlen(str);
-	
+
+#ifdef SMOOTH_FONTS
+    if (GetXftFont() && GetSmoothText()) {
+        XGlyphInfo  extents;
+        XftTextExtents8(mDpy, GetXftFont(), (XftChar8 *)str, len, &extents);
+		switch (align % 3) {
+			case 0:		// left
+				break;
+			case 1:		// center
+				x -= extents.width / 2;
+				break;
+			case 2:		// right
+				x -= extents.width;
+				break;
+		}
+		switch (align / 3) {
+			case 0:		// top
+				y += extents.height;
+				break;
+			case 1:		// middle
+				y += extents.height / 2;
+				break;
+			case 2:		// bottom
+				break;
+		}
+        XftDrawString8(mXftDraw, &mXftColor, GetXftFont(), x-1, y+1, (XftChar8 *)str, len);
+    } else {
+#endif
 	if (GetFont()) {
 		switch (align % 3) {
 			case 0:		// left
 				break;
-			case 1:		// right
+			case 1:		// center
 				x -= XTextWidth(GetFont(), str, len) / 2;
 				break;
-			case 2:		// center
+			case 2:		// right
 				x -= XTextWidth(GetFont(), str, len);
 				break;
 		}
@@ -165,6 +293,9 @@ void PDrawXPixmap::DrawString(int x, int y, char *str,ETextAlign_q align)
 		}
 	}
 	XDrawString(mDpy,mDrawable,mGC,x,y,str,len);
+#ifdef SMOOTH_FONTS
+    }
+#endif
 }
 
 void PDrawXPixmap::DrawArc(int cx,int cy,int rx,int ry,float ang1,float ang2)

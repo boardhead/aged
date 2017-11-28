@@ -36,9 +36,14 @@ private:
 	static void		AddTimeProc(Widget w, PSettingsWindow *set_win, caddr_t call_data);
 	static void		AddNHitProc(Widget w, PSettingsWindow *set_win, caddr_t call_data);
 	static void		ClearProc(Widget w, PSettingsWindow *set_win, caddr_t call_data);
-	static void		PSTProc(Widget w, PSettingsWindow *set_win, caddr_t call_data);
+#ifdef SMOOTH_LINES
+    static void		SmoothTextProc(Widget w, PSettingsWindow *set_win, caddr_t call_data);
+    static void		SmoothLinesProc(Widget w, PSettingsWindow *set_win, caddr_t call_data);
+#else
+    static void		PSTProc(Widget w, PSettingsWindow *set_win, caddr_t call_data);
 	static void		LocalProc(Widget w, PSettingsWindow *set_win, caddr_t call_data);
 	static void		UTCProc(Widget w, PSettingsWindow *set_win, caddr_t call_data);
+#endif
 	static void		OkProc(Widget w, PSettingsWindow *set_win, caddr_t call_data);
 	static void		CancelProc(Widget w, PSettingsWindow *set_win, caddr_t call_data);
 	static void		ScaleMovedProc(Widget w, ImageData *data, XmScaleCallbackStruct *call_data);
@@ -49,7 +54,11 @@ private:
 	static void 	SaveConfigProc(Widget w, ImageData *data, XmScaleCallbackStruct *call_data);
 	
 	int				mSave_hex_id;
+#ifdef SMOOTH_LINES
+	int				mSave_smooth;
+#else
 	int				mSave_time_zone;
+#endif
 	int				mSave_angle_rad;
 	int				mSave_show_label;
 	int				mSave_hit_xyz;
@@ -60,7 +69,11 @@ private:
 
 	Widget			hex_radio, dec_radio;
 	Widget			angle_radio[3];
+#ifdef SMOOTH_LINES
+    Widget          smooth_lines, smooth_text;
+#else
 	Widget			utc_radio, local_radio, sudbury_radio;
+#endif
 	Widget			label_toggle;
 	Widget			label_text;
 	

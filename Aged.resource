@@ -2,6 +2,12 @@ Aged.resource_version:                  3.5
 
 Aged.title:                             ALPHA-g Event Display
 *background:                            Grey
+
+*.renderTable:                          variable
+*.renderTable.variable.fontName:        Sans
+*.renderTable.variable.fontSize:        10
+*.renderTable.variable.fontType:        FONT_IS_XFT
+
 *fontList:                              -*-helvetica-bold-r-normal--14-*,\
                                         -*-helvetica-medium-r-normal--12-*:SMALL,\
                                         -*-clean-medium-r-*-*-12-*:FIXED

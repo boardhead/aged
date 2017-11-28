@@ -47,7 +47,11 @@ PSettingsWindow::PSettingsWindow(ImageData *data)
 	}
 	
 	mSave_hex_id		= data->hex_id;
+#ifdef SMOOTH_LINES
+    mSave_smooth        = data->smooth;
+#else
 	mSave_time_zone		= data->time_zone;
+#endif
 	mSave_hit_size		= data->hit_size;
 	mSave_ncd_size		= data->fit_size;
 	mSave_angle_rad		= data->angle_rad;
@@ -139,7 +143,32 @@ PSettingsWindow::PSettingsWindow(ImageData *data)
 	but = XtCreateManagedWidget("None",xmToggleButtonWidgetClass,w,wargs,n);
 	XtAddCallback(but,XmNvalueChangedCallback,(XtCallbackProc)AngleProc, this);
 	angle_radio[2] = but;
+
+#ifdef SMOOTH_LINES
+	n = 0;
+	XtSetArg(wargs[n], XmNx, 16); ++n;
+	XtSetArg(wargs[n], XmNy, 74); ++n;
+	XtCreateManagedWidget("Anti-alias:",xmLabelWidgetClass,w,wargs,n);
 	
+	n = 0;
+	XtSetArg(wargs[n], XmNx, 100); ++n;
+	XtSetArg(wargs[n], XmNy, 70 + RADIO_OFFSET); ++n;
+	XtSetArg(wargs[n], XmNmarginHeight, 2); ++n;
+	XtSetArg(wargs[n], XmNset, (data->smooth & kSmoothText) ? 1 : 0); ++n;
+	but = XtCreateManagedWidget("Text",xmToggleButtonWidgetClass,w,wargs,n);
+	XtAddCallback(but,XmNvalueChangedCallback,(XtCallbackProc)SmoothTextProc, this);
+	smooth_text = but;
+
+	n = 0;
+	XtSetArg(wargs[n], XmNx, 190); ++n;
+	XtSetArg(wargs[n], XmNy, 70 + RADIO_OFFSET); ++n;
+	XtSetArg(wargs[n], XmNmarginHeight, 2); ++n;
+	XtSetArg(wargs[n], XmNset, (data->smooth & kSmoothLines) ? 1 : 0); ++n;
+	but = XtCreateManagedWidget("Lines",xmToggleButtonWidgetClass,w,wargs,n);
+	XtAddCallback(but,XmNvalueChangedCallback,(XtCallbackProc)SmoothLinesProc, this);
+	smooth_lines = but;
+
+#else
 	n = 0;
 	XtSetArg(wargs[n], XmNx, 16); ++n;
 	XtSetArg(wargs[n], XmNy, 74); ++n;
@@ -174,6 +203,7 @@ PSettingsWindow::PSettingsWindow(ImageData *data)
 	but = XtCreateManagedWidget("UTC",xmToggleButtonWidgetClass,w,wargs,n);
 	XtAddCallback(but,XmNvalueChangedCallback,(XtCallbackProc)UTCProc, this);
 	utc_radio = but;
+#endif
 
 	n = 0;
 	XtSetArg(wargs[n], XmNx, 16); ++n;
@@ -334,6 +364,21 @@ void PSettingsWindow::DecProc(Widget w, PSettingsWindow *set_win, caddr_t call_d
 	set_win->SetHexID(0);
 }
 
+#ifdef SMOOTH_LINES
+void PSettingsWindow::SmoothTextProc(Widget w, PSettingsWindow *set_win, caddr_t call_data)
+{
+    ImageData *data = set_win->GetData();
+	data->smooth ^= kSmoothText;
+	sendMessage(data, kMessageNewEvent);
+}
+void PSettingsWindow::SmoothLinesProc(Widget w, PSettingsWindow *set_win, caddr_t call_data)
+{
+    ImageData *data = set_win->GetData();
+	data->smooth ^= kSmoothLines;
+	sendMessage(data, kMessageNewEvent);
+}
+
+#else
 void PSettingsWindow::SetTimeZone(int tz)
 {
 	ImageData *data = GetData();
@@ -380,6 +425,7 @@ void PSettingsWindow::UTCProc(Widget w, PSettingsWindow *set_win, caddr_t call_d
 {
 	set_win->SetTimeZone(kTimeZoneUTC);
 }
+#endif
 
 void PSettingsWindow::SetAngle(int flag)
 {
@@ -523,9 +569,16 @@ void PSettingsWindow::CancelProc(Widget w, PSettingsWindow *set_win, caddr_t cal
 	if (set_win->mSave_hex_id != data->hex_id) {
 		set_win->SetHexID(set_win->mSave_hex_id);
 	}
+#ifdef SMOOTH_LINES
+	if (set_win->mSave_smooth != data->smooth) {
+	    data->smooth = set_win->mSave_smooth;
+	    sendMessage(data, kMessageNewEvent);
+	}
+#else
 	if (set_win->mSave_time_zone != data->time_zone) {
 		set_win->SetTimeZone(set_win->mSave_time_zone);
 	}
+#endif
 	if (set_win->mSave_hit_size != data->hit_size) {
 		SetHitSize(data, set_win->mSave_hit_size);
 	}

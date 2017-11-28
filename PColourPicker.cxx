@@ -1,9 +1,13 @@
 #include <string.h>
+#ifdef SMOOTH_FONTS
+#include <X11/Xft/Xft.h>
+#endif
 #include "PResourceManager.h"
 #include "PColourPicker.h"
 #include "PImageWindow.h"
 #include "PColourWindow.h"
 #include "PUtils.h"
+#include "ImageData.h"
 #include "menu.h"
 #include "colours.h"
 
@@ -40,7 +44,9 @@ PColourPicker::PColourPicker(PImageWindow *owner, Widget canvas)
 	}
 	// set the font for our drawable (must be done after creating canvas)
 	SetFont(PResourceManager::sResource.hist_font);
-	
+#ifdef SMOOTH_FONTS
+    SetFont(PResourceManager::sResource.xft_hist_font);
+#endif
 	mDrawLabel 	= 0;			// don't draw the image label
 	mCurrentSet = -1;			// initialize to invalid colour set number
 	mAllocErr	= 0;
@@ -283,7 +289,14 @@ void PColourPicker::AfterDrawing()
 	
 	// underline text for this colour
 	char *name = sColourName[mColourNum];
+#ifdef SMOOTH_FONTS
+    XGlyphInfo    extents;
+    ImageData *data = mOwner->GetData();
+    XftTextExtents8(dpy, data->xft_hist_font, (XftChar8 *)name, strlen(name), &extents );
+	int width = extents.width - extents.x;
+#else
 	int width = XTextWidth(mDrawable->GetFont(), name, strlen(name));
+#endif
 	x += kW + kTextMargin;
 	y += kH - 1;
 	XDrawLine(dpy,XtWindow(mCanvas),gc,x,y,x+width,y);

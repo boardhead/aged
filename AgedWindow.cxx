@@ -109,6 +109,9 @@ AgedWindow::AgedWindow(int load_settings)
 	mLabelDirty = 0;
 	mPrintType = kPrintImage;
 	mLabelText[0].font = NULL;
+#ifdef SMOOTH_FONTS
+	mLabelText[0].xftFont = NULL;
+#endif
 	mLabelText[0].string = NULL;
 	mWarnDialog = NULL;
 	
@@ -156,6 +159,7 @@ AgedWindow::AgedWindow(int load_settings)
 ** Initialize our ImageData
 */
 	initData(data, load_settings);
+
 	SetShell(data->toplevel);
 
 	/* create main pane */
@@ -294,6 +298,9 @@ void AgedWindow::Listen(int message, void *dataPt)
 	switch (message) {
 		case kMessageEventCleared:
 			mLabelText[0].font = NULL;
+#ifdef SMOOTH_FONTS
+	        mLabelText[0].xftFont = NULL;
+#endif
 			mLabelText[0].string = NULL;
 			mLabelFlags = 0;
 			SetTitle();
@@ -497,7 +504,7 @@ long AgedWindow::BuildLabelString(ImageData *data, TextSpec *aTextOut,
 	char 		  *	fmtPt = NULL;
 	const short		kFormatSize	= 128;
 	char 			format[kFormatSize];
-	struct tm	  *	tms = NULL;
+//	struct tm	  *	tms = NULL;
 	long			labelFlags;
 	
 	// these label formats are in the same order as the ELabelFlags bits
@@ -512,6 +519,9 @@ long AgedWindow::BuildLabelString(ImageData *data, TextSpec *aTextOut,
 	int lines = 0;
 	if (aTextOut) {
 		aTextOut[0].font = PResourceManager::sResource.label_font;
+#ifdef SMOOTH_FONTS
+	    aTextOut[0].xftFont = PResourceManager::sResource.xft_label_font;
+#endif
 		aTextOut[0].string = aBuffer;
 	}
 	
@@ -543,11 +553,17 @@ long AgedWindow::BuildLabelString(ImageData *data, TextSpec *aTextOut,
 				++lines;
 				if (aTextOut) {
 					aTextOut[lines].font = PResourceManager::sResource.label_font;
+#ifdef SMOOTH_FONTS
+	                aTextOut[lines].xftFont = PResourceManager::sResource.xft_label_font;
+#endif
 					aTextOut[lines].string = pt;
 				}
 			} else if (ch == '+') {	// big font specified by "%+"
 				if (aTextOut) {
 					aTextOut[lines].font = PResourceManager::sResource.label_big_font;
+#ifdef SMOOTH_FONTS
+	                aTextOut[lines].xftFont = PResourceManager::sResource.xft_label_big_font;
+#endif
 				}
 				fmtPt = NULL;
 			} else if (!*(++src)) {	// skip second letter of format type
@@ -590,7 +606,7 @@ long AgedWindow::BuildLabelString(ImageData *data, TextSpec *aTextOut,
 					case kLabelNhit:
 						pt += sprintf(pt,"%ld",(long)data->hits.num_nodes);
 						break;
-					case kLabelTime:
+/*					case kLabelTime:
 						if (!tms) tms = getTms(data->event_time, data->time_zone);
 						if (!data->event_time) {
 							tms->tm_hour = tms->tm_min = tms->tm_sec = 0;
@@ -621,7 +637,8 @@ long AgedWindow::BuildLabelString(ImageData *data, TextSpec *aTextOut,
 							pt += sprintf(pt,"00/00/0000");
 						}
 						break;
-				}
+*/
+                }
 				fmtPt = NULL;	// no longer in format statement
 			}
 		} else if (!ch) {
@@ -643,6 +660,9 @@ long AgedWindow::BuildLabelString(ImageData *data, TextSpec *aTextOut,
 	++lines;
 	if (aTextOut) {
 		aTextOut[lines].font = NULL;
+#ifdef SMOOTH_FONTS
+	    aTextOut[lines].xftFont = NULL;
+#endif
 		aTextOut[lines].string = NULL;
 	}
 	

@@ -147,7 +147,11 @@ void PHitInfoWindow::UpdateSelf()
 		hi_pad.SetString(buff);
 		float *xyz = &(data->hits.nodes[num].x3);
         for (int i=0; i<3; ++i) {
+#ifdef SMOOTH_FONTS
+            sprintf(buff,"%.1f \xc2\xb1 %.1f",xyz[i] * AG_SCALE,hi->error[i]);
+#else
             sprintf(buff,"%.1f \xb1 %.1f",xyz[i] * AG_SCALE,hi->error[i]);
+#endif
             hi_xyz[i].SetString(buff);
         }
 	}

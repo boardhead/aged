@@ -231,7 +231,7 @@ void PDrawPostscriptFile::Comment(char *str)
 	fprintf(mFile,"\n%% %s\n\n",str);
 }
 
-void PDrawPostscriptFile::DrawSegments(XSegment *segments, int num)
+void PDrawPostscriptFile::DrawSegments(XSegment *segments, int num, int smooth)
 {
 	fprintf(mFile,"newpath\n");
 	XSegment *curpos = NULL;

@@ -85,6 +85,14 @@ static XtResource sResourceList[] = {
  		XtRString, (XtPointer)"-*-helvetica-medium-r-normal--12-*"},
  {"label_big_font",	"LabelBigFont",	XtRFontStruct, sizeof(XFontStruct *), XtOffset(AgedResPtr,label_big_font),
  		XtRString, (XtPointer)"-*-helvetica-medium-r-normal--24-*"},
+#ifdef SMOOTH_FONTS
+ {"xft_hist_font",	"XftHistFont",	XtRString, sizeof(String), XtOffset(AgedResPtr,xft_hist_font_str),
+ 		XtRString, (XtPointer)"morpheus-9"},
+ {"xft_label_font",	"XftLabelFont",	XtRString, sizeof(String), XtOffset(AgedResPtr,xft_label_font_str),
+ 		XtRString, (XtPointer)"morpheus-9"},
+ {"xft_label_big_font",	"XftLabelBigFont",	XtRString, sizeof(String), XtOffset(AgedResPtr,xft_label_big_font_str),
+ 		XtRString, (XtPointer)"morpheus-16"},
+#endif
  {"file_path","FilePath",XtRString,sizeof(String),XtOffset(AgedResPtr,file_path),
 		XtRString, (XtPointer) "/usr/local/ph:/usr/local/aged:/usr/local/lib/aged:/usr/share/aged" },
  {"black_col",	"BlackCol",XtRPixel, sizeof(Pixel),XtOffset(AgedResPtr,black_col),
@@ -115,6 +123,8 @@ static XtResource sResourceList[] = {
  		XtRString, (XtPointer)"10"},
  {"hex_id", "HexID", XtRInt, sizeof(int), XtOffset(AgedResPtr,hex_id),
 	 	XtRString, (XtPointer) "0" },
+ {"smooth", "Smooth", XtRInt, sizeof(int), XtOffset(AgedResPtr,smooth),
+	 	XtRString, (XtPointer) "1" },
  {"time_zone", "TimeZone", XtRInt, sizeof(int), XtOffset(AgedResPtr,time_zone),
 	 	XtRString, (XtPointer) "0" },
  {"angle_rad", "AngleRad", XtRInt, sizeof(int), XtOffset(AgedResPtr,angle_rad),
@@ -306,28 +316,32 @@ void PResourceManager::InitApp()
 	}
 	// initialize the_app, display and gc
 	if (!sResource.the_app) {
-	
+
+        Display *dpy;
+
 		XtToolkitInitialize();
 		sResource.the_app = XtCreateApplicationContext();
 		
 #if defined(USE_ROOT_DISPLAY) && defined(ROOT_SYSTEM) && defined(NO_MAIN)
 		// this is close, but events aren't getting sent properly from ROOT...
-		sResource.display = (Display *)gGXW->GetDisplay();
-		if (!sResource.display) {
+		dpy = (Display *)gGXW->GetDisplay();
+		if (!dpy) {
 			quit("Display not initialized by ROOT!");
 		}
 #else
-		sResource.display = XOpenDisplay(NULL);
-		if (!sResource.display) {
+		dpy = XOpenDisplay(NULL);
+		if (!dpy) {
 			Printf("Could not initialize default display.\n");
 			quit("Is your DISPLAY environment variable set?");
 		}
 #endif
+        sResource.display = dpy;
+
 		// initialize the Xt display
-		XtDisplayInitialize(sResource.the_app, sResource.display, "aged", aged_class,
+		XtDisplayInitialize(sResource.the_app, dpy, "aged", aged_class,
                               GetCommandLineOptions(), GetNumOptions(), &g_argc, g_argv);
 
-		sResource.gc = XCreateGC(sResource.display,DefaultRootWindow(sResource.display),0,NULL);
+		sResource.gc = XCreateGC(dpy,DefaultRootWindow(dpy),0,NULL);
 
 		// add our keyboard translation action
 		static XtActionsRec actions[] = { { "AgedTranslate", &TranslationCallback } };
@@ -405,6 +419,12 @@ void PResourceManager::InitResources(Widget toplevel)
 		/* allocate our colours */
 		AllocColours(sResource.num_cols,&sResource.scale_col,SCALE_UNDER, 7, 1, 1);
 		AllocColours(sResource.det_cols,&sResource.det_col,VDARK_COL, 2, 0, 0);
+
+#ifdef SMOOTH_FONTS
+        sResource.xft_hist_font = XftFontOpenName(dpy, DefaultScreen(dpy), sResource.xft_hist_font_str); 
+        sResource.xft_label_font = XftFontOpenName(dpy, DefaultScreen(dpy), sResource.xft_label_font_str); 
+        sResource.xft_label_big_font = XftFontOpenName(dpy, DefaultScreen(dpy), sResource.xft_label_big_font_str); 
+#endif
 	}
 }
 

@@ -510,6 +510,9 @@ void AgedImage::DrawSelf()
 	    TransformHits();
 	}
 	SetFont(data->hist_font);
+#ifdef SMOOTH_FONTS
+    SetFont(data->xft_hist_font);
+#endif
 
 	/* draw projection angles */
 	if (mProj.theta || mProj.phi || mProj.gamma) DrawAngles(0,kAngleAll);
@@ -540,7 +543,7 @@ void AgedImage::DrawSelf()
                     segments[i].y2 = point[j].y;
                 }
                 SetForeground(HID_COL);
-                DrawSegments(segments, num);
+                DrawSegments(segments, num, data->smooth & kSmoothLines);
             }
 		}
 		for (face=mDet.faces; face<lface; ++face) {
@@ -559,7 +562,7 @@ void AgedImage::DrawSelf()
                     segments[i].y2 = segments[j].y1;
                 }
                 SetForeground(FRAME_COL);
-                DrawSegments(segments, num);
+                DrawSegments(segments, num, data->smooth & kSmoothLines);
             }
 		}
 	}
@@ -582,7 +585,7 @@ void AgedImage::DrawSelf()
 	}
 	SetForeground(AXES_COL);
 	SetLineWidth(2);
-	DrawSegments(segments,sp-segments);
+	DrawSegments(segments,sp-segments, data->smooth & kSmoothLines);
 	SetLineWidth(THICK_LINE_WIDTH);
 
     TStoreEvent *evt = data->agEvent;
@@ -677,7 +680,7 @@ void AgedImage::DrawSelf()
             int col = FIT_BAD_COL + line->GetStatus();
             if (col < FIT_BAD_COL || col > FIT_PHOTON_COL) col = FIT_BAD_COL;
             SetForeground(col);
-            DrawSegments(segments, 1);
+            DrawSegments(segments, 1, data->smooth & kSmoothLines);
         }
     }
 /*
@@ -733,7 +736,7 @@ void AgedImage::DrawSelf()
             int col = FIT_BAD_COL + helix->GetStatus();
             if (col < FIT_BAD_COL || col > FIT_PHOTON_COL) col = FIT_BAD_COL;
             SetForeground(col);
-            DrawSegments(segments, sp - segments);
+            DrawSegments(segments, sp - segments, data->smooth & kSmoothLines);
 #if 1 //TEST
             // draw X0,Y0,Z0
             nod[0].x3 = x0 / AG_SCALE;

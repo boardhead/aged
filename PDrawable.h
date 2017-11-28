@@ -13,6 +13,9 @@
 #define __PDrawable_h__
 
 #include <Xm/Xm.h>
+#ifdef SMOOTH_FONTS
+#include <X11/Xft/Xft.h>
+#endif
 
 enum ETextAlign_q {
 	kTextAlignTopLeft,
@@ -41,10 +44,18 @@ enum EDevice {
 class PDrawable
 {
 public:
-	PDrawable() : mColours(NULL), mFont(0), mScaling(1) { }
+	PDrawable() : mColours(NULL), mFont(0),
+#ifdef SMOOTH_FONTS
+	              mXftFont(0),
+#endif
+                  mScaling(1) { }
+
 	virtual ~PDrawable()   { }
 	
-	XFontStruct	  *	GetFont()	{ return mFont; }
+	XFontStruct	  *	GetFont()	    { return mFont; }
+#ifdef SMOOTH_FONTS
+	XftFont       * GetXftFont()    { return mXftFont; }
+#endif
 	
 	void			SetColourMap(Pixel *cols)	{ mColours = cols;  }
 	void			SetScaling(int scale)		{ mScaling = scale; }
@@ -59,7 +70,12 @@ public:
 	virtual void	SetLineWidth(float width)					{ }
 	virtual void	SetLineType(ELineType type)					{ }
 	virtual void	SetFont(XFontStruct *font)					{ mFont = font; }
-	virtual void	DrawSegments(XSegment *segments, int num) 	{ }
+#ifdef SMOOTH_FONTS
+	virtual void	SetFont(XftFont *font)					    { mXftFont = font; }
+	virtual void    SetSmoothText(int on)                       { mSmoothText = on; }
+	int             GetSmoothText()                             { return mSmoothText; }
+#endif
+	virtual void	DrawSegments(XSegment *segments, int num, int smooth=0) { }
 	virtual void	DrawPoint(int x, int y)						{ }
 	virtual void	DrawLine(int x1,int y1,int x2,int y2) 		{ }
 	virtual void	DrawRectangle(int x,int y,int w,int h)		{ }
@@ -82,6 +98,10 @@ protected:
 	
 private:
 	XFontStruct	  *	mFont;
+#ifdef SMOOTH_FONTS
+    XftFont       * mXftFont;
+    int             mSmoothText;
+#endif
 	int				mScaling;
 };
 

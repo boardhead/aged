@@ -52,7 +52,9 @@ void initData(ImageData *data, int load_settings)
 		data->open_windows 	= 0;
 		data->open_windows2 = 0;
 		data->hex_id 		= 0;
+#ifndef SMOOTH_LINES
 		data->time_zone 	= 0;
+#endif
 		data->angle_rad 	= 0;
 		data->hit_xyz 		= 0;
 		data->log_scale		= 0;

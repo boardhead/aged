@@ -32,7 +32,7 @@ CC_LD_FLAGS   = -shared -elf
 
 XINCS         = -I/usr/X11R6/include/X11/ -I/usr/X11R6/include -I/sw/include
 XFLAGS        = $(XINCS)
-XLIBS         = -L/usr/local/lib -L/sw/lib -lXm -L/usr/X11R6/lib -lXmu -lXt -lX11
+XLIBS         = -L/usr/local/lib -L/sw/lib -lXm -L/usr/X11R6/lib -lXmu -lXft -lXt -lX11
 
 ROOTINCS      = -I$(ROOTSYS)/include -I$(ANALYSIS_TPC)/include -I$(ROOTANASYS)/include
 ROOTFLAGS     = -fno-rtti $(ROOTINCS)

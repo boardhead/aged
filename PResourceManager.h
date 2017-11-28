@@ -22,6 +22,11 @@ struct SWindowGeometry {
 	Dimension	width, height;
 };
 
+enum ESmoothFlags {
+    kSmoothText     = 0x01,
+    kSmoothLines    = 0x02
+};
+
 class PResourceManager {
 public:
 	static void					InitApp();

@@ -2,6 +2,9 @@
 #define __AgedResource_h__
 
 #include <Xm/Xm.h>
+#ifdef SMOOTH_FONTS
+#include <X11/Xft/Xft.h>
+#endif
 #include "colours.h"
 #include "menu.h"
 #include "PProjImage.h"
@@ -62,7 +65,16 @@ struct AgedResource {
 	XFontStruct	  *	hist_font;					// font for histograms
 	XFontStruct	  *	label_font;					// font for image labels
 	XFontStruct	  *	label_big_font;				// big label font
+#ifdef SMOOTH_FONTS
+    XftFont       * xft_hist_font;
+    XftFont       * xft_label_font;
+    XftFont       * xft_label_big_font;
+    char          * xft_hist_font_str;
+    char          * xft_label_font_str;
+    char          * xft_label_big_font_str;
+#endif
 	int				hex_id;						// flag to display event ID's in hex
+    int             smooth;                     // antialiasing flag 0x01=text, 0x02=lines
 	int				time_zone;					// time zone: 0=local, 1=UTC, 2=PST
 	int				angle_rad;					// flag to display angles in radians
 	int				hit_xyz;					// flag to display hit xyz coordinates

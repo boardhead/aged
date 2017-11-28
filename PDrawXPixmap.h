@@ -19,7 +19,7 @@ public:
 	virtual void	SetForegroundPixel(Pixel pixel);
 	virtual void	SetFont(XFontStruct *font);
 	virtual void	SetLineWidth(float width);
-	virtual void	DrawSegments(XSegment *segments, int num);
+	virtual void	DrawSegments(XSegment *segments, int num, int smooth=0);
 	virtual void	DrawPoint(int x,int y);
 	virtual void	DrawLine(int x1,int y1,int x2,int y2);
 	virtual void	DrawRectangle(int x,int y,int w,int h);
@@ -48,6 +48,17 @@ private:
 	int				mDepth;				// depth of screen
 	int				mWidth;				// pixmap width
 	int				mHeight;			// pixmap height
+
+#ifdef SMOOTH_FONTS
+    void            SetXftColour(Pixel pixel);
+
+    XftDraw       * mXftDraw;           // Xft drawable
+    XftColor        mXftColor;
+#ifdef SMOOTH_LINES // TEST this doesn't produce smooth lines
+    Picture         mXftPicture;
+    double          mLineWidth;
+#endif
+#endif
 };
 
 
