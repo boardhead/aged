@@ -16,7 +16,7 @@
 #define	PI				3.14159265358979324
 #endif
 
-const int kMinArcPoints = 4;
+const int kMinArcPoints = 8;
 const int kMaxArcPoints = 120;
 
 PDrawXPixmap::PDrawXPixmap(Display *dpy, GC gc, int depth, Widget w)
@@ -315,7 +315,7 @@ void PDrawXPixmap::DrawArc(int cx,int cy,int rx,int ry,float ang1,float ang2)
 {
 #ifdef SMOOTH_LINES
     if (IsSmoothLines()) {
-        int num = (rx + ry) * 3;
+        int num = rx + ry;
         if (num < kMinArcPoints) num = kMinArcPoints;
         if (num > kMaxArcPoints) num = kMaxArcPoints;
         double ang = ang1 * PI / 180;
@@ -343,7 +343,7 @@ void PDrawXPixmap::FillArc(int cx,int cy,int rx,int ry,float ang1,float ang2)
 #ifdef SMOOTH_LINES
     if (IsSmoothLines()) {
         XPointDouble poly[kMaxArcPoints];
-        int num = (rx + ry) / 2;
+        int num = rx + ry;
         if (num < kMinArcPoints) num = kMinArcPoints;
         if (num > kMaxArcPoints) num = kMaxArcPoints;
         double ang = 0;
