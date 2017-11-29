@@ -32,7 +32,7 @@ XFLAGS        = $(XINCS)
 XLIBS         = -L/usr/X11R6/lib -lXm -lXp -lXmu -lXft -lXt -lX11
 
 ROOTINCS      = -I$(ROOTSYS)/include -I$(ANALYSIS_TPC)/include -I$(ROOTANASYS)/include
-ROOTFLAGS     = -fno-rtti $(ROOTINCS)
+ROOTFLAGS     = $(ROOTINCS)
 ROOTLIBS      = $(shell root-config --libs) -lMinuit
 
 OS_OBJS       =

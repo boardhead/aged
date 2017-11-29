@@ -23,6 +23,7 @@ public:
 			
 	virtual void	Resize();
 	virtual void	DrawSelf();
+    virtual void    AfterDrawing();
 	virtual void	HandleEvents(XEvent *event)	;
 	virtual void	Transform(Node *node, int num_nodes) { transform(node, &mProj, num_nodes); }
 	virtual void	TransformHits();

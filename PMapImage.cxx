@@ -380,18 +380,20 @@ ProjDualPolar2:
 	}
 } 
 
+void PMapImage::CalcTransformMatrix()
+{
+    matrixIdent(mRot1);
+    mVec[0] = 0;
+    mVec[1] = 0;
+    mVec[2] = 0;
+
+	matrixMult(mRot1, mProj.rot);
+}
+
 void PMapImage::TransformHits()
 {
-	Vector3		vec;
-	Matrix3		rot1;
-	
-    matrixIdent(rot1);
-    vec[0] = 0;
-    vec[1] = 0;
-    vec[2] = 0;
-
-	matrixMult(rot1, mProj.rot);
-	TransformHits(vec,rot1);
+    CalcTransformMatrix();
+	TransformHits(mVec,mRot1);
 }
 
 
@@ -589,8 +591,6 @@ void PMapImage::DrawSelf()
 	int			i, j, k, loops, segs, num, num1, m, i1, i2;
 	int			x, y=0, xcen, ycen, xscl, yscl;
 	double		theta=0, thinc, fac;
-	Matrix3		rot1;
-	Vector3		vec;
 	double		a, b, f, t;
 #ifdef PRINT_DRAWS
 	Printf("drawProjImage\n");
@@ -947,13 +947,8 @@ Do_Proj_Elliptical:
 /*
 ** get transformation matrix
 */
-    matrixIdent(rot1);
-    vec[0] = 0;
-    vec[1] = 0;
-    vec[2] = 0;
-
 	get3DMatrix(mProj.rot, mProj.phi, mProj.theta, 0.);
-	matrixMult(rot1, mProj.rot );
+	CalcTransformMatrix();
 	SetLineWidth(1);
 /*
 ** Draw viewing angle if not set to home
@@ -966,7 +961,7 @@ Do_Proj_Elliptical:
 /*
 ** Transform the hits into the current projection coordinates
 */
-	TransformHits(vec, rot1);
+	TransformHits(mVec, mRot1);
 /*
 ** Draw hits
 */

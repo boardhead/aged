@@ -154,7 +154,7 @@ PSettingsWindow::PSettingsWindow(ImageData *data)
 	XtSetArg(wargs[n], XmNx, 100); ++n;
 	XtSetArg(wargs[n], XmNy, 70 + RADIO_OFFSET); ++n;
 	XtSetArg(wargs[n], XmNmarginHeight, 2); ++n;
-	XtSetArg(wargs[n], XmNset, (data->smooth & kSmoothText) ? 1 : 0); ++n;
+	XtSetArg(wargs[n], XmNset, (data->smooth & kSmoothText) != 0); ++n;
 	but = XtCreateManagedWidget("Text",xmToggleButtonWidgetClass,w,wargs,n);
 	XtAddCallback(but,XmNvalueChangedCallback,(XtCallbackProc)SmoothTextProc, this);
 	smooth_text = but;
@@ -163,7 +163,7 @@ PSettingsWindow::PSettingsWindow(ImageData *data)
 	XtSetArg(wargs[n], XmNx, 190); ++n;
 	XtSetArg(wargs[n], XmNy, 70 + RADIO_OFFSET); ++n;
 	XtSetArg(wargs[n], XmNmarginHeight, 2); ++n;
-	XtSetArg(wargs[n], XmNset, (data->smooth & kSmoothLines) ? 1 : 0); ++n;
+	XtSetArg(wargs[n], XmNset, (data->smooth & kSmoothLines) != 0); ++n;
 	but = XtCreateManagedWidget("Lines",xmToggleButtonWidgetClass,w,wargs,n);
 	XtAddCallback(but,XmNvalueChangedCallback,(XtCallbackProc)SmoothLinesProc, this);
 	smooth_lines = but;
@@ -369,6 +369,7 @@ void PSettingsWindow::SmoothTextProc(Widget w, PSettingsWindow *set_win, caddr_t
 {
     ImageData *data = set_win->GetData();
 	data->smooth ^= kSmoothText;
+	data->mMainWindow->LabelFormatChanged();
 	sendMessage(data, kMessageNewEvent);
 }
 void PSettingsWindow::SmoothLinesProc(Widget w, PSettingsWindow *set_win, caddr_t call_data)
@@ -570,8 +571,11 @@ void PSettingsWindow::CancelProc(Widget w, PSettingsWindow *set_win, caddr_t cal
 		set_win->SetHexID(set_win->mSave_hex_id);
 	}
 #ifdef SMOOTH_LINES
-	if (set_win->mSave_smooth != data->smooth) {
+    int diff = set_win->mSave_smooth ^ data->smooth;
+	if (diff) {
 	    data->smooth = set_win->mSave_smooth;
+	    // the label height may change if the font changes
+        if (diff & kSmoothText) data->mMainWindow->LabelFormatChanged();
 	    sendMessage(data, kMessageNewEvent);
 	}
 #else

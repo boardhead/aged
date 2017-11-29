@@ -47,6 +47,9 @@ void PProjImage::Listen(int message, void *dataPt)
 		case kMessageHitsChanged:
 			SetDirty();
 			break;
+		case kMessageCursorHit:
+		    SetDirty(kDirtyCursor);
+		    break;
 		default:
 			PImageCanvas::Listen(message, dataPt);
 			break;
@@ -103,7 +106,7 @@ void PProjImage::DrawAngles(int horiz,int angleFlags)
 				len = sprintf(buff,"T=%.1f\xb0",(mProj.theta+PI/2)*data->angle_conv);
 			}
 			DrawString(mWidth-8*GetScaling(), y, buff, kTextAlignTopRight);
-			y += GetScaling() * (GetFont()->ascent + GetFont()->descent);
+			y += GetScaling() * (GetFontAscent() + GetFontDescent());
 		}
 		if (angleFlags & kAnglePhi) {
 			if (data->angle_rad) {
@@ -112,7 +115,7 @@ void PProjImage::DrawAngles(int horiz,int angleFlags)
 				len = sprintf(buff,"P=%.1f\xb0",mProj.phi*data->angle_conv);
 			}
 			DrawString(mWidth-8*GetScaling(), y, buff, kTextAlignTopRight);
-			y += GetScaling() * (GetFont()->ascent + GetFont()->descent);
+			y += GetScaling() * (GetFontAscent() + GetFontDescent());
 		}
 		if (angleFlags & kAngleGamma) {
 			if (data->angle_rad) {
@@ -153,7 +156,7 @@ void PProjImage::TransformHits()
 	data->mLastImage = this;
 	
 	// find nearest hit if we are the cursor image and updating all windows
-	if (data->mCursorImage == this) {
+	if (data->mCursorImage == this && !sButtonDown) {
 		FindNearestHit();
 	}
 }
@@ -202,6 +205,7 @@ int PProjImage::FindNearestHit()
 		}
 		if (data->cursor_hit != num) {
 			data->cursor_hit = num;
+            sendMessage(data, kMessageCursorHit, this);
 			return(1);
 		}
 	}
@@ -304,6 +308,9 @@ void PProjImage::HandleEvents(XEvent *event)
 				data->cursor_hit = -1;
 				sendMessage(data, kMessageCursorHit, this);
 			}
+		    if (data->mCursorImage == this) {
+		        data->mCursorImage = NULL;
+		    }
 			break;
 	}
 }

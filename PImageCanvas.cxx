@@ -275,9 +275,9 @@ void PImageCanvas::DrawLabel(int x,int y,ETextAlign_q align)
 #ifdef SMOOTH_FONTS
 	        SetFont(ts->xftFont);
 #endif
-			y += GetScaling() * ts->font->ascent;
+	        y += GetScaling() * GetFontAscent();
 			DrawString(x, y, ts->string, align);
-			y += GetScaling() * ts->font->descent;
+			y += GetScaling() * GetFontDescent();
 		}
 	}
 }

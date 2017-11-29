@@ -427,8 +427,8 @@ void AgedWindow::UpdateSelf()
 // - sets label dirty, forcing rebuilding of label on next GetLabelText() call
 void AgedWindow::LabelFormatChanged()
 {
-	XFontStruct	*font;
-	char		*label_format = mData->label_format;
+    int     fontNum;
+	char	*label_format = mData->label_format;
 	
 	mLabelHeight = 0;	// initialize label height
 	
@@ -436,14 +436,26 @@ void AgedWindow::LabelFormatChanged()
 	if (*label_format) {
 		// initialize pointer to next big-font specification
 		char *next_big = strstr(label_format,"%+");
+		int fontHeight[2];
+#ifdef SMOOTH_FONTS
+        if ((mData->smooth & kSmoothText) && mData->xft_label_font && mData->xft_label_big_font) {
+            fontHeight[0] = mData->xft_label_font->ascent + mData->xft_label_font->descent;
+            fontHeight[1] = mData->xft_label_big_font->ascent + mData->xft_label_big_font->descent;
+        } else {
+#endif
+            fontHeight[0] = mData->label_font->ascent + mData->label_font->descent;
+            fontHeight[1] = mData->label_big_font->ascent + mData->label_big_font->descent;
+#ifdef SMOOTH_FONTS
+        }
+#endif
 		for (;;) {
 			// look for next newline spec
 			label_format = strstr(label_format, "%/");
 			if (!label_format) {
 				// no more newlines -- add height of this line
-				if (next_big) font = PResourceManager::sResource.label_big_font;
-				else		  font = PResourceManager::sResource.label_font;
-				mLabelHeight += font->ascent + font->descent;
+				if (next_big) fontNum = 1;
+				else		  fontNum = 0;
+				mLabelHeight += fontHeight[fontNum];
 				break;
 			}
 			// skip over newline specification
@@ -451,14 +463,14 @@ void AgedWindow::LabelFormatChanged()
 			
 			if (next_big && next_big<label_format) {
 				// this line contained a big-font specification
-				font = PResourceManager::sResource.label_big_font;
+				fontNum = 1;
 				// look for next big-font spec
 				next_big = strstr(label_format,"%+");
 			} else {
-				font = PResourceManager::sResource.label_font;
+				fontNum = 0;
 			}
 			// add the height of this label line
-			mLabelHeight += font->ascent + font->descent;
+			mLabelHeight += fontHeight[fontNum];
 		}
 	} else {
 		mLabelFlags = 0;

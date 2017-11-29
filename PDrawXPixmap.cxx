@@ -43,7 +43,9 @@ int PDrawXPixmap::BeginDrawing(int width, int height)
 		FreePixmap();
 		sizeChanged = 1;
 	}
-	if (!mPix) {
+    if (mPix) {
+        mDrawable = mPix;
+	} else {
 		if (!width) return(0);
 		mPix = XCreatePixmap(mDpy, DefaultRootWindow(mDpy), width, height, mDepth); 
 		if (mPix) {
@@ -75,6 +77,8 @@ int PDrawXPixmap::BeginDrawing(int width, int height)
 
 void PDrawXPixmap::EndDrawing()
 {
+    // must draw directly to window since pixmap has already been copied
+    mDrawable = XtWindow(mAltWidget);
 }
 
 #ifdef SMOOTH_FONTS
@@ -85,9 +89,9 @@ void PDrawXPixmap::SetXftColour(Pixel pixel)
         c.pixel = pixel;
         XQueryColor(mDpy, DefaultColormap(mDpy,DefaultScreen(mDpy)), &c);
         XRenderColor xrcolor;
-        xrcolor.red = c.red;
+        xrcolor.red   = c.red;
         xrcolor.green = c.green;
-        xrcolor.blue = c.blue;
+        xrcolor.blue  = c.blue;
         xrcolor.alpha = 0xffff;
         XftColorAllocValue(mDpy, DefaultVisual(mDpy,DefaultScreen(mDpy)),
                    DefaultColormap(mDpy, DefaultScreen(mDpy) ), &xrcolor, &mXftColor );
@@ -247,10 +251,22 @@ void PDrawXPixmap::DrawString(int x, int y, char *str, ETextAlign_q align)
 {
 	int len = strlen(str);
 
+    switch (align / 3) {
+        case 0:		// top
+            y += GetFontAscent();
+            break;
+        case 1:		// middle
+            y += GetFontAscent() / 2;
+            break;
+        case 2:		// bottom
+            break;
+    }
 #ifdef SMOOTH_FONTS
-    if (GetXftFont() && GetSmoothText()) {
+    if (IsSmoothText()) {
         XGlyphInfo  extents;
-        XftTextExtents8(mDpy, GetXftFont(), (XftChar8 *)str, len, &extents);
+        if (align % 3) {
+            XftTextExtents8(mDpy, GetXftFont(), (XftChar8 *)str, len, &extents);
+        }
 		switch (align % 3) {
 			case 0:		// left
 				break;
@@ -261,17 +277,7 @@ void PDrawXPixmap::DrawString(int x, int y, char *str, ETextAlign_q align)
 				x -= extents.width;
 				break;
 		}
-		switch (align / 3) {
-			case 0:		// top
-				y += extents.height;
-				break;
-			case 1:		// middle
-				y += extents.height / 2;
-				break;
-			case 2:		// bottom
-				break;
-		}
-        XftDrawString8(mXftDraw, &mXftColor, GetXftFont(), x-1, y+1, (XftChar8 *)str, len);
+        XftDrawString8(mXftDraw, &mXftColor, GetXftFont(), x-1, y, (XftChar8 *)str, len);
     } else {
 #endif
 	if (GetFont()) {
@@ -283,16 +289,6 @@ void PDrawXPixmap::DrawString(int x, int y, char *str, ETextAlign_q align)
 				break;
 			case 2:		// right
 				x -= XTextWidth(GetFont(), str, len);
-				break;
-		}
-		switch (align / 3) {
-			case 0:		// top
-				y += GetFont()->ascent;
-				break;
-			case 1:		// middle
-				y += GetFont()->ascent / 2;
-				break;
-			case 2:		// bottom
 				break;
 		}
 	}

@@ -101,6 +101,8 @@ void AgedImage::Listen(int message, void *dataPt)
 			}
 			break;
 		case kMessageCursorHit:
+		    SetDirty(kDirtyCursor);
+		    break;
 		case kMessageEventCleared:
 		case kMessageFitLinesChanged:
 		case kMessageHitSizeChanged:
@@ -480,6 +482,7 @@ void AgedImage::DrawSelf()
 	Edge		*edge, *last;
 	Face		*face, *lface;
 
+    if (IsDirty() == kDirtyCursor) return; // don't draw if just our cursor changed
 /*
 ** recalculate necessary values for display
 */
@@ -647,19 +650,6 @@ void AgedImage::DrawSelf()
     }
 #endif
 /*
-** Draw the cursor
-*/
-    if (data->cursor_hit >= 0) {
-        Node *nod = data->hits.nodes + data->cursor_hit;
-        SetForeground(CURSOR_COL);
-        int sz = (int)(data->hit_size * 3 + 0.5);
-        if (data->wSpStyle == IDM_SP_SQUARES) {
-            DrawRectangle(nod->x-sz, nod->y-sz, sz*2, sz*2);
-        } else {
-            DrawArc(nod->x, nod->y, sz, sz);
-        }
-    }
-/*
 ** Draw fit lines
 */
     const TObjArray *lines = evt->GetLineArray();
@@ -767,3 +757,30 @@ void AgedImage::DrawSelf()
 	SetForeground(TEXT_COL);
 }
 
+void AgedImage::AfterDrawing()
+{
+    ImageData *data = mOwner->GetData();
+/*
+** Draw the cursor
+*/
+    if (data->cursor_hit >= 0) {
+        Node *node, tmp;
+        node = data->hits.nodes + data->cursor_hit;
+        // remap only the node for this single hit if necessary
+        if (data->mLastImage != this) {
+            memcpy(&tmp, node, sizeof(Node));
+            tmp.flags &= ~(NODE_OUT | NODE_HID);
+		    Transform(&tmp, 1);
+		    node = &tmp;
+		}
+		if (!(node->flags & NODE_OUT)) {
+            SetForeground(CURSOR_COL);
+            int sz = (int)(data->hit_size * 3 + 0.5);
+            if (data->wSpStyle == IDM_SP_SQUARES) {
+                DrawRectangle(node->x-sz, node->y-sz, sz*2, sz*2);
+            } else {
+                DrawArc(node->x, node->y, sz, sz);
+            }
+        }
+    }
+}

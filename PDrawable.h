@@ -73,7 +73,12 @@ public:
 #ifdef SMOOTH_FONTS
 	virtual void	SetFont(XftFont *font)					    { mXftFont = font; }
 	virtual void    SetSmoothText(int on)                       { mSmoothText = on; }
-	int             GetSmoothText()                             { return mSmoothText; }
+	int             IsSmoothText()                              { return mSmoothText && mXftFont; }
+	int             GetFontAscent()  { return IsSmoothText() ? mXftFont->ascent : mFont ? mFont->ascent : 0; }
+	int             GetFontDescent() { return IsSmoothText() ? mXftFont->descent: mFont ? mFont->descent : 0; }
+#else
+	int             GetFontAscent()  { return mFont? mFont->ascent : 0; }
+	int             GetFontDescent() { return mFont ? mFont->descent : 0; }
 #endif
 	virtual void	DrawSegments(XSegment *segments, int num, int smooth=0) { }
 	virtual void	DrawPoint(int x, int y)						{ }

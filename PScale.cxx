@@ -40,7 +40,7 @@ PScale::PScale(PDrawable *drawable,XFontStruct *font,int xa,int ya,int xb,int yb
 		opos2 = pos2 = ya;
 		dpos  = yb-ya;
 		double spacing;
-		int font_height = (font->ascent + font->descent) * mDrawable->GetScaling();
+		int font_height = (mDrawable->GetFontAscent() + mDrawable->GetFontDescent()) * mDrawable->GetScaling();
 		int num_rows = dpos / font_height;
 		if (num_rows <= 8) {
 		    spacing = 1.5;

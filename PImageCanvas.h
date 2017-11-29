@@ -22,6 +22,7 @@ enum EPrintFlags {
 
 enum EDirtyFlags {
 	kDirtyNormal	= 0x0001,
+	kDirtyCursor    = 0x4000,
 	kDirtyPix		= 0x8000
 };
 
@@ -71,8 +72,12 @@ public:
 	void			SetFont(XFontStruct *font)				  { mDrawable->SetFont(font); }
 #ifdef SMOOTH_FONTS
 	void			SetFont(XftFont *font)				      { mDrawable->SetFont(font); }
+	XftFont       * GetXftFont()                              { return mDrawable->GetXftFont(); }
+	int             IsSmoothText()                            { return mDrawable->IsSmoothText(); }
 #endif
 	XFontStruct	  *	GetFont()								  { return mDrawable->GetFont(); }
+	int             GetFontAscent()                           { return mDrawable->GetFontAscent(); }
+	int             GetFontDescent()                          { return mDrawable->GetFontDescent(); }
 	void			SetLineWidth(float width)				  { mDrawable->SetLineWidth(width); }
 	void			SetLineType(ELineType type)				  { mDrawable->SetLineType(type); }
 	void			DrawSegments(XSegment *segments, int num, int smooth=0)
