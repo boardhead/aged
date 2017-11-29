@@ -124,7 +124,7 @@ static XtResource sResourceList[] = {
  {"hex_id", "HexID", XtRInt, sizeof(int), XtOffset(AgedResPtr,hex_id),
 	 	XtRString, (XtPointer) "0" },
  {"smooth", "Smooth", XtRInt, sizeof(int), XtOffset(AgedResPtr,smooth),
-	 	XtRString, (XtPointer) "1" },
+	 	XtRString, (XtPointer) "3" },
  {"time_zone", "TimeZone", XtRInt, sizeof(int), XtOffset(AgedResPtr,time_zone),
 	 	XtRString, (XtPointer) "0" },
  {"angle_rad", "AngleRad", XtRInt, sizeof(int), XtOffset(AgedResPtr,angle_rad),
