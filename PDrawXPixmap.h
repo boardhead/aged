@@ -50,10 +50,13 @@ private:
 	int				mHeight;			// pixmap height
 
 #ifdef SMOOTH_FONTS
+    void            DrawSmoothLine(double x1, double y1, double x2, double y2);
     void            SetXftColour(Pixel pixel);
 
     XftDraw       * mXftDraw;           // Xft drawable
     XftColor        mXftColor;
+    Picture         mXftPict;
+    XRenderPictFormat *mXftFmt;
 #ifdef SMOOTH_LINES // TEST this doesn't produce smooth lines
     Picture         mXftPicture;
     double          mLineWidth;

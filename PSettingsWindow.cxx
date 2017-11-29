@@ -370,13 +370,13 @@ void PSettingsWindow::SmoothTextProc(Widget w, PSettingsWindow *set_win, caddr_t
     ImageData *data = set_win->GetData();
 	data->smooth ^= kSmoothText;
 	data->mMainWindow->LabelFormatChanged();
-	sendMessage(data, kMessageNewEvent);
+	sendMessage(data, kMessageSmoothTextChanged);
 }
 void PSettingsWindow::SmoothLinesProc(Widget w, PSettingsWindow *set_win, caddr_t call_data)
 {
     ImageData *data = set_win->GetData();
 	data->smooth ^= kSmoothLines;
-	sendMessage(data, kMessageNewEvent);
+	sendMessage(data, kMessageSmoothLinesChanged);
 }
 
 #else
@@ -575,8 +575,8 @@ void PSettingsWindow::CancelProc(Widget w, PSettingsWindow *set_win, caddr_t cal
 	if (diff) {
 	    data->smooth = set_win->mSave_smooth;
 	    // the label height may change if the font changes
-        if (diff & kSmoothText) data->mMainWindow->LabelFormatChanged();
-	    sendMessage(data, kMessageNewEvent);
+        if (diff & kSmoothText) sendMessage(data, kMessageSmoothTextChanged);
+        if (diff & kSmoothLines) sendMessage(data, kMessageSmoothLinesChanged);
 	}
 #else
 	if (set_win->mSave_time_zone != data->time_zone) {

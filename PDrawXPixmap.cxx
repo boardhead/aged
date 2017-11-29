@@ -12,6 +12,13 @@
 #include <math.h>
 #endif
 
+#ifndef PI
+#define	PI				3.14159265358979324
+#endif
+
+const int kMinArcPoints = 4;
+const int kMaxArcPoints = 120;
+
 PDrawXPixmap::PDrawXPixmap(Display *dpy, GC gc, int depth, Widget w)
 {
 	mDpy = dpy;
@@ -29,6 +36,12 @@ PDrawXPixmap::PDrawXPixmap(Display *dpy, GC gc, int depth, Widget w)
 PDrawXPixmap::~PDrawXPixmap()
 {
 	FreePixmap();
+#ifdef SMOOTH_FONTS
+	if (mXftDraw) {
+	    XftDrawDestroy(mXftDraw);
+	    mXftDraw = NULL;
+	}
+#endif
 }
 
 //---------------------------------------------------------------------------------------
@@ -67,7 +80,8 @@ int PDrawXPixmap::BeginDrawing(int width, int height)
     mXftDraw = XftDrawCreate(mDpy, mDrawable, DefaultVisual(mDpy,DefaultScreen(mDpy)),
                DefaultColormap(mDpy, DefaultScreen(mDpy)));
     SetXftColour(WhitePixel(mDpy, DefaultScreen(mDpy)));
-#ifdef SMOOTH_LINES // TEST this doesn't produce smooth lines
+    mXftFmt = XRenderFindStandardFormat(mDpy,PictStandardA8);
+#ifdef SMOOTH_LINES
     mXftPicture = XftDrawPicture(mXftDraw);
 #endif
 #endif
@@ -79,6 +93,16 @@ void PDrawXPixmap::EndDrawing()
 {
     // must draw directly to window since pixmap has already been copied
     mDrawable = XtWindow(mAltWidget);
+#ifdef SMOOTH_FONTS
+	if (mXftDraw) {
+	    XftDrawDestroy(mXftDraw);
+	}
+    mXftDraw = XftDrawCreate(mDpy, mDrawable, DefaultVisual(mDpy,DefaultScreen(mDpy)),
+               DefaultColormap(mDpy, DefaultScreen(mDpy)));
+#ifdef SMOOTH_LINES
+    mXftPicture = XftDrawPicture(mXftDraw);
+#endif
+#endif
 }
 
 #ifdef SMOOTH_FONTS
@@ -96,6 +120,7 @@ void PDrawXPixmap::SetXftColour(Pixel pixel)
         XftColorAllocValue(mDpy, DefaultVisual(mDpy,DefaultScreen(mDpy)),
                    DefaultColormap(mDpy, DefaultScreen(mDpy) ), &xrcolor, &mXftColor );
 
+        mXftPict = XftDrawSrcPicture(mXftDraw, &mXftColor);
     }
 }
 #endif
@@ -172,31 +197,12 @@ void PDrawXPixmap::DrawSegments(XSegment *segments, int num, int smooth)
 {
 #ifdef SMOOTH_LINES
     if (smooth) {
-        XPointDouble    poly[4];
         XSegment *sp = segments;
-        Picture pict = XftDrawSrcPicture(mXftDraw, &mXftColor);
-        XRenderPictFormat *fmt = XRenderFindStandardFormat(mDpy,PictStandardA8);
         for (int i=0; i<num; ++i, ++sp) {
             if (sp->x1==sp->x2 || sp->y1==sp->y2) {
                 XDrawLine(mDpy,mDrawable,mGC,sp->x1,sp->y1,sp->x2,sp->y2);
             } else {
-                XDouble x1 = sp->x1 + 0.5;
-                XDouble x2 = sp->x2 + 0.5;
-                XDouble y1 = sp->y1 + 0.5;
-                XDouble y2 = sp->y2 + 0.5;
-                XDouble dx = x2 - x1;
-                XDouble dy = y2 - y1;
-                XDouble len = sqrt(dx*dx + dy*dy);
-                XDouble ldx = (mLineWidth/2.0) * dy / len;
-                XDouble ldy = (mLineWidth/2.0) * dx / len;
-            
-                poly[0].x = sp->x1 + ldx;  poly[0].y = sp->y1 - ldy;
-                poly[1].x = sp->x2 + ldx;  poly[1].y = sp->y2 - ldy;
-                poly[2].x = sp->x2 - ldx;  poly[2].y = sp->y2 + ldy;
-                poly[3].x = sp->x1 - ldx;  poly[3].y = sp->y1 + ldy;
-            
-                XRenderCompositeDoublePoly(mDpy, PictOpOver, pict, mXftPicture,
-                                          fmt, 0, 0, 0, 0, poly, 4, EvenOddRule);
+                DrawSmoothLine(sp->x1, sp->y1, sp->x2, sp->y2);
             }
         }
     } else {
@@ -212,30 +218,37 @@ void PDrawXPixmap::DrawPoint(int x, int y)
 	XDrawPoint(mDpy,mDrawable,mGC,x,y);
 }
 
+#ifdef SMOOTH_LINES
+void PDrawXPixmap::DrawSmoothLine(double x1, double y1, double x2, double y2)
+{
+    XPointDouble poly[4];
+    XDouble dx = x2 - x1;
+    XDouble dy = y2 - y1;
+    XDouble len = sqrt(dx*dx + dy*dy);
+    XDouble ldx = (mLineWidth/2.0) * dy / len;
+    XDouble ldy = (mLineWidth/2.0) * dx / len;
+
+    poly[0].x = x1 + ldx + 0.5;  poly[0].y = y1 - ldy + 0.5;
+    poly[1].x = x2 + ldx + 0.5;  poly[1].y = y2 - ldy + 0.5;
+    poly[2].x = x2 - ldx + 0.5;  poly[2].y = y2 + ldy + 0.5;
+    poly[3].x = x1 - ldx + 0.5;  poly[3].y = y1 + ldy + 0.5;
+
+    XRenderCompositeDoublePoly(mDpy,
+                              PictOpOver,
+                              XftDrawSrcPicture(mXftDraw, &mXftColor),
+                              mXftPicture,
+                              XRenderFindStandardFormat(mDpy,PictStandardA8),
+                              0, 0, 0, 0, poly, 4, EvenOddRule);
+}
+#endif
+
 void PDrawXPixmap::DrawLine(int x1,int y1,int x2,int y2)
 {
-#ifdef SMOOTH_LINES // TEST this doesn't produce smooth lines
+#ifdef SMOOTH_LINES
     if (x1==x2 || y1==y2) {
         XDrawLine(mDpy,mDrawable,mGC,x1,y1,x2,y2);
     } else {
-        XPointDouble    poly[4];
-        XDouble dx = x2 - x1;
-        XDouble dy = y2 - y1;
-        XDouble len = sqrt(dx*dx + dy*dy);
-        XDouble ldx = (mLineWidth/2.0) * dy / len;
-        XDouble ldy = (mLineWidth/2.0) * dx / len;
-    
-        poly[0].x = x1 + ldx + 0.5;  poly[0].y = y1 - ldy + 0.5;
-        poly[1].x = x2 + ldx + 0.5;  poly[1].y = y2 - ldy + 0.5;
-        poly[2].x = x2 - ldx + 0.5;  poly[2].y = y2 + ldy + 0.5;
-        poly[3].x = x1 - ldx + 0.5;  poly[3].y = y1 + ldy + 0.5;
-    
-        XRenderCompositeDoublePoly(mDpy,
-                                  PictOpOver,
-                                  XftDrawSrcPicture(mXftDraw, &mXftColor),
-                                  mXftPicture,
-                                  XRenderFindStandardFormat(mDpy,PictStandardA8),
-                                  0, 0, 0, 0, poly, 4, EvenOddRule);
+        DrawSmoothLine(x1, y1, x2, y2);
     }
 #else
     XDrawLine(mDpy,mDrawable,mGC,x1,y1,x2,y2);
@@ -300,12 +313,61 @@ void PDrawXPixmap::DrawString(int x, int y, char *str, ETextAlign_q align)
 
 void PDrawXPixmap::DrawArc(int cx,int cy,int rx,int ry,float ang1,float ang2)
 {
-	XDrawArc(mDpy,mDrawable,mGC,cx-rx, cy-ry, 2*rx, 2*ry, (int)(ang1 * 64), (int)(ang2 * 64));
+#ifdef SMOOTH_LINES
+    if (IsSmoothLines()) {
+        int num = (rx + ry) * 3;
+        if (num < kMinArcPoints) num = kMinArcPoints;
+        if (num > kMaxArcPoints) num = kMaxArcPoints;
+        double ang = ang1 * PI / 180;
+        double x1 = cx + rx * cos(ang);
+        double y1 = cy + ry * sin(ang);
+        double step = (ang2 * PI / 180 - ang) / num;
+        for (int i=1; i<=num; ++i) {
+            ang += step;
+            double x2 = cx + rx * cos(ang);
+            double y2 = cy + ry * sin(ang);
+            DrawSmoothLine(x1,y1,x2,y2);
+            x1 = x2;
+            y1 = y2;
+        }
+    } else {
+#endif
+	    XDrawArc(mDpy,mDrawable,mGC,cx-rx, cy-ry, 2*rx, 2*ry, (int)(ang1 * 64), (int)(ang2 * 64));
+#ifdef SMOOTH_LINES
+    }
+#endif
 }
 
 void PDrawXPixmap::FillArc(int cx,int cy,int rx,int ry,float ang1,float ang2)
 {
-	XFillArc(mDpy,mDrawable,mGC,cx-rx, cy-ry, 2*rx+1, 2*ry+1, (int)(ang1 * 64), (int)(ang2 * 64));
+#ifdef SMOOTH_LINES
+    if (IsSmoothLines()) {
+        XPointDouble poly[kMaxArcPoints];
+        int num = (rx + ry) / 2;
+        if (num < kMinArcPoints) num = kMinArcPoints;
+        if (num > kMaxArcPoints) num = kMaxArcPoints;
+        double ang = 0;
+        double step = 2 * PI / num;
+        double rxd = rx + 0.5;
+        double ryd = ry + 0.5;
+        double cxd = cx + 0.5;
+        double cyd = cy + 0.5;
+        for (int i=0; i<num; ++i, ang+=step) {
+            poly[i].x = cxd + rxd * cos(ang);
+            poly[i].y = cyd + ryd * sin(ang);
+        }
+        XRenderCompositeDoublePoly(mDpy,
+                              PictOpOver,
+                              XftDrawSrcPicture(mXftDraw, &mXftColor),
+                              mXftPicture,
+                              XRenderFindStandardFormat(mDpy,PictStandardA8),
+                              0, 0, 0, 0, poly, num, EvenOddRule);
+    } else {
+#endif
+	    XFillArc(mDpy,mDrawable,mGC,cx-rx, cy-ry, 2*rx+1, 2*ry+1, (int)(ang1 * 64), (int)(ang2 * 64));
+#ifdef SMOOTH_LINES
+    }
+#endif
 }
 
 void PDrawXPixmap::PutImage(XImage *image, int dest_x, int dest_y)

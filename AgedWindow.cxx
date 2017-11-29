@@ -324,6 +324,9 @@ void AgedWindow::Listen(int message, void *dataPt)
 			}
 			SetTitle();
 			break;
+		case kMessageSmoothTextChanged:
+		    LabelFormatChanged();
+		    break;
 		case kMessageAngleFormatChanged:
 			if (data->show_label && (mLabelFlags & kLabelSunAngle)) {
 				SetLabelDirty();

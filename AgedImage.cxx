@@ -100,6 +100,14 @@ void AgedImage::Listen(int message, void *dataPt)
 				SetDirty();
 			}
 			break;
+	    case kMessageSmoothTextChanged:
+	        if (data->angle_rad <= 1) {
+	            SetDirty();
+	        }
+	        break;
+	    case kMessageSmoothLinesChanged:
+	        SetDirty();
+	        break;
 		case kMessageCursorHit:
 		    SetDirty(kDirtyCursor);
 		    break;

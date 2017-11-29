@@ -67,6 +67,11 @@ void PImageCanvas::Listen(int message, void *dataPt)
 				SetDirty();
 			}
 			break;
+	    case kMessageSmoothTextChanged:
+            if (mLabelText) {
+				SetDirty();
+			}
+	        break;
 	}
 }
 	
@@ -291,6 +296,7 @@ void PImageCanvas::Prepare()
 	ImageData *data = mOwner->GetData();
 #ifdef SMOOTH_FONTS
     mDrawable->SetSmoothText(data->smooth & kSmoothText);
+    mDrawable->SetSmoothLines(data->smooth & kSmoothLines);
 #endif
 	int newHeight;
 	if (mDrawLabel && data->show_label) {

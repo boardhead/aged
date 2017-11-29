@@ -118,6 +118,14 @@ void PMapImage::Listen(int message, void *dataPt)
 				SetDirty();
 			}
 			break;
+	    case kMessageSmoothTextChanged:
+	        if (mOwner->GetData()->angle_rad <= 1) {
+	            SetDirty();
+	        }
+	        break;
+	    case kMessageSmoothLinesChanged:
+	        SetDirty();
+	        break;
 		default:
 			PProjImage::Listen(message, dataPt);
 			break;

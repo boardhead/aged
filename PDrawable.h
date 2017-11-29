@@ -73,7 +73,9 @@ public:
 #ifdef SMOOTH_FONTS
 	virtual void	SetFont(XftFont *font)					    { mXftFont = font; }
 	virtual void    SetSmoothText(int on)                       { mSmoothText = on; }
+	virtual void    SetSmoothLines(int on)                      { mSmoothLines = on; }
 	int             IsSmoothText()                              { return mSmoothText && mXftFont; }
+	int             IsSmoothLines()                             { return mSmoothLines; }
 	int             GetFontAscent()  { return IsSmoothText() ? mXftFont->ascent : mFont ? mFont->ascent : 0; }
 	int             GetFontDescent() { return IsSmoothText() ? mXftFont->descent: mFont ? mFont->descent : 0; }
 #else
@@ -106,6 +108,7 @@ private:
 #ifdef SMOOTH_FONTS
     XftFont       * mXftFont;
     int             mSmoothText;
+    int             mSmoothLines;
 #endif
 	int				mScaling;
 };

@@ -22,6 +22,8 @@ enum {
 	kMessageDetectorChanged,		// the detector display changed
 	kMessageHitSizeChanged,			// the displayed hit size was changed
 	kMessageFitSizeChanged,			// the displayed fit size was changed
+	kMessageSmoothTextChanged,      // text smoothing has changed
+	kMessageSmoothLinesChanged,     // line smoothing has changed
 	kMessageHitsChanged,			// the event hits changed
 	kMessageFitChanged,				// a displayed fit has changed
 	kMessageFitLinesChanged,		// the fit lines setting was changed

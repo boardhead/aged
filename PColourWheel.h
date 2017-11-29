@@ -12,6 +12,7 @@ public:
 	virtual void	DrawSelf();
 	virtual void	AfterDrawing();
 	virtual void	HandleEvents(XEvent *event);
+    virtual void    Listen(int message, void *dataPt);
 	
 	void			SetIntensity(int val, int fastAnimate=0);
 	void			AnimateDone();

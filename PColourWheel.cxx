@@ -67,6 +67,18 @@ PColourWheel::~PColourWheel()
 	}
 }
 
+void PColourWheel::Listen(int message, void *dataPt)
+{
+	switch (message) {
+	    case kMessageSmoothLinesChanged:
+	        SetDirty(kDirtyPix);
+	        break;
+		default:
+			PImageCanvas::Listen(message, dataPt);
+			break;
+	}
+}
+
 // test colours to determine drawing strategy
 // (sets mColourType before returning)
 void PColourWheel::TestColours()
@@ -276,7 +288,7 @@ void PColourWheel::SetIntensity(int val, int fastAnimate)
 			if (mImage) {
 				// we have an image, so fast updates are possible
 				// - update the wheel immediately
-				DrawTheWheel();
+				SetDirty(kDirtyWheel);
 				Draw();
 			} else {
 				// fast animation isn't available because we don't have
