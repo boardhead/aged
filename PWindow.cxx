@@ -223,13 +223,15 @@ void PWindow::SetDirty(int flag)
 		
 		// send a ClientMessage to be sure we break out of XtAppNextEvent()
 		// so we can update our event windows from the event loop
-		XClientMessageEvent clientMsg;
-		clientMsg.type = ClientMessage;
-		clientMsg.display = mData->display;
-		clientMsg.window = XtWindow(mData->toplevel);
-		clientMsg.message_type = 0;
-		clientMsg.format = 8;
-		XSendEvent(mData->display, XtWindow(mData->toplevel), FALSE, 0, (XEvent *)&clientMsg);
+		if (!XPending(mData->display)) {
+            XClientMessageEvent clientMsg;
+            clientMsg.type = ClientMessage;
+            clientMsg.display = mData->display;
+            clientMsg.window = XtWindow(mData->toplevel);
+            clientMsg.message_type = 0;
+            clientMsg.format = 8;
+            XSendEvent(mData->display, XtWindow(mData->toplevel), FALSE, 0, (XEvent *)&clientMsg);
+        }
 	}
 }
 

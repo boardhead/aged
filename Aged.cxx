@@ -104,7 +104,7 @@ static void do_next(ImageData *data)
     if (data->trigger_flag == TRIGGER_CONTINUOUS) {
         data->mNext = 1;
         // generate a ClientMessage event to break us out of waiting in XtNextEvent()
-        if (data->mMainWindow) {
+        if (data->mMainWindow && !XPending(data->display)) {
             XClientMessageEvent xev;
             memset(&xev, 0, sizeof(xev));
             xev.type = ClientMessage;
@@ -224,10 +224,15 @@ void Aged::ShowEvent(AgAnalysisFlow* analysis_flow, TARunInfo* runinfo)
         if (!data->the_app) return;
         XEvent theEvent;
         XtAppNextEvent(data->the_app, &theEvent);
+        // fast-forward to most recent pointer motion event (avoids
+        // falling behind current mouse position if drawing is slow)
+        if (theEvent.type == MotionNotify) {
+            while (XCheckTypedEvent(data->display, MotionNotify, &theEvent)) { }
+        }
         // dispatch the X event
         dispatchEvent(&theEvent);		
-        // update windows now if necessary
-        PWindow::HandleUpdates();
+        // update windows now if necessary (but only after all X events have been dispatched)
+        if (!XPending(data->display)) PWindow::HandleUpdates();
 	}
     PEventControlWindow	*pe_win = (PEventControlWindow *)data->mWindow[EVT_NUM_WINDOW];
     if (pe_win) {
