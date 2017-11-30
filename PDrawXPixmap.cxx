@@ -114,7 +114,7 @@ void PDrawXPixmap::SetXftColour(Pixel pixel)
         xrcolor.blue  = c.blue;
         xrcolor.alpha = 0xffff;
         XftColorAllocValue(mDpy, DefaultVisual(mDpy,DefaultScreen(mDpy)),
-                   DefaultColormap(mDpy, DefaultScreen(mDpy) ), &xrcolor, &mXftColor );
+                   DefaultColormap(mDpy, DefaultScreen(mDpy) ), &xrcolor, &mXftColor);
     }
 }
 #endif
@@ -127,6 +127,12 @@ void PDrawXPixmap::FreePixmap()
 		mWidth = 0;
 		mHeight = 0;
 		mDrawable = 0;
+#ifdef ANTI_ALIAS
+	    if (mXftDrawPix) {
+	        XftDrawDestroy(mXftDrawPix);
+	        mXftDrawPix = NULL;
+	    }
+#endif
 	}
 }
 

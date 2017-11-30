@@ -53,13 +53,13 @@ private:
     void            DrawSmoothLine(double x1, double y1, double x2, double y2);
     void            SetXftColour(Pixel pixel);
 
-    XftDraw       * mXftDraw;           // Xft drawable
-    XftDraw       * mXftDrawPix;        // Xft drawable
-    XftDraw       * mXftDrawDpy;        // Xft drawable
-    XftColor        mXftColor;
-    XRenderPictFormat *mXftFmt;
-    Picture         mXftPicture;
-    double          mLineWidth;
+    XftDraw       * mXftDraw;           // current Xft drawable
+    XftDraw       * mXftDrawPix;        // pixmap Xft drawable
+    XftDraw       * mXftDrawDpy;        // display Xft drawable
+    XftColor        mXftColor;          // current drawing colour (both drawables)
+    XRenderPictFormat *mXftFmt;         // render format
+    Picture         mXftPicture;        // current Xft picture
+    double          mLineWidth;         // current drawing line width
 #endif
 };
 
