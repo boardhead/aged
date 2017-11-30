@@ -76,7 +76,7 @@ AgedImage::AgedImage(PImageWindow *owner, Widget canvas)
 	msg = loadGeometry(&mDet, IDM_DETECTOR, data->argv);
 	if (msg) quit(msg);
 	
-	SetToHome();
+	SetToHome(-1);
 
 	if (data->show_detector) {
 		CalcDetectorShading();
@@ -434,14 +434,16 @@ void AgedImage::RotationChanged()
 void AgedImage::SetToHome(int n)
 {
 	mProj.pt[0] = mProj.pt[1] = 0;
-	mProj.pt[2] = 5; //mProj.proj_max;
-	mProj.mag   = 0.70;
+	if (n < 0) {
+	    mProj.pt[2] = 5; //mProj.proj_max;
+        mProj.mag   = 0.70;
+	}
 	mProj.theta	= 0.;
 	mProj.phi	= 0.;
 	mProj.gamma = 0.;
 	mSpinAngle	= 0.;
 
-	if (n == 0) {
+	if (n <= 0) {
         /* set home position to z left, y up */
         mProj.rot[0][0] = 0;  mProj.rot[0][1] = 0;  mProj.rot[0][2] = -1;
         mProj.rot[1][0] = 0;  mProj.rot[1][1] = 1;  mProj.rot[1][2] = 0;
