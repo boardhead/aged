@@ -141,7 +141,7 @@ void Aged::ShowEvent(AgAnalysisFlow* analysis_flow, TARunInfo* runinfo)
     }
 #endif
 
-#if 1 //TEST
+#if 0 //TEST
     const TObjArray *helices = anEvent->GetHelixArray();
     if (helices && helices->GetEntries() > 0) {
         for (int i=0; i<helices->GetEntries(); ++i) {

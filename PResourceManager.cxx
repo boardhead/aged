@@ -74,7 +74,7 @@ static XtResource sResourceList[] = {
  {"det_cols",	"DetCols",	XtRInt,	  sizeof(int),  XtOffset(AgedResPtr,det_cols),
  		XtRString, (XtPointer)"32" },
  {"proj_min",	"ProjMin",	XtRFloat, sizeof(float),XtOffset(AgedResPtr,proj.proj_min),
- 		XtRString, (XtPointer)"-1.0"},
+ 		XtRString, (XtPointer)"1.3"},
  {"proj_max",	"ProjMax",	XtRFloat, sizeof(float),XtOffset(AgedResPtr,proj.proj_max),
  		XtRString, (XtPointer)"1e10"},
  {"proj_screen","ProjScrn",	XtRFloat, sizeof(float),XtOffset(AgedResPtr,proj.proj_screen),
@@ -85,7 +85,7 @@ static XtResource sResourceList[] = {
  		XtRString, (XtPointer)"-*-helvetica-medium-r-normal--12-*"},
  {"label_big_font",	"LabelBigFont",	XtRFontStruct, sizeof(XFontStruct *), XtOffset(AgedResPtr,label_big_font),
  		XtRString, (XtPointer)"-*-helvetica-medium-r-normal--24-*"},
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
  {"xft_hist_font",	"XftHistFont",	XtRString, sizeof(String), XtOffset(AgedResPtr,xft_hist_font_str),
  		XtRString, (XtPointer)"morpheus-9"},
  {"xft_label_font",	"XftLabelFont",	XtRString, sizeof(String), XtOffset(AgedResPtr,xft_label_font_str),
@@ -420,7 +420,7 @@ void PResourceManager::InitResources(Widget toplevel)
 		AllocColours(sResource.num_cols,&sResource.scale_col,SCALE_UNDER, 7, 1, 1);
 		AllocColours(sResource.det_cols,&sResource.det_col,VDARK_COL, 2, 0, 0);
 
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
         sResource.xft_hist_font = XftFontOpenName(dpy, DefaultScreen(dpy), sResource.xft_hist_font_str); 
         sResource.xft_label_font = XftFontOpenName(dpy, DefaultScreen(dpy), sResource.xft_label_font_str); 
         sResource.xft_label_big_font = XftFontOpenName(dpy, DefaultScreen(dpy), sResource.xft_label_big_font_str); 

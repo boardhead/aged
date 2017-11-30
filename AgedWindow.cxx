@@ -109,7 +109,7 @@ AgedWindow::AgedWindow(int load_settings)
 	mLabelDirty = 0;
 	mPrintType = kPrintImage;
 	mLabelText[0].font = NULL;
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
 	mLabelText[0].xftFont = NULL;
 #endif
 	mLabelText[0].string = NULL;
@@ -298,7 +298,7 @@ void AgedWindow::Listen(int message, void *dataPt)
 	switch (message) {
 		case kMessageEventCleared:
 			mLabelText[0].font = NULL;
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
 	        mLabelText[0].xftFont = NULL;
 #endif
 			mLabelText[0].string = NULL;
@@ -440,7 +440,7 @@ void AgedWindow::LabelFormatChanged()
 		// initialize pointer to next big-font specification
 		char *next_big = strstr(label_format,"%+");
 		int fontHeight[2];
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
         if ((mData->smooth & kSmoothText) && mData->xft_label_font && mData->xft_label_big_font) {
             fontHeight[0] = mData->xft_label_font->ascent + mData->xft_label_font->descent;
             fontHeight[1] = mData->xft_label_big_font->ascent + mData->xft_label_big_font->descent;
@@ -448,7 +448,7 @@ void AgedWindow::LabelFormatChanged()
 #endif
             fontHeight[0] = mData->label_font->ascent + mData->label_font->descent;
             fontHeight[1] = mData->label_big_font->ascent + mData->label_big_font->descent;
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
         }
 #endif
 		for (;;) {
@@ -534,7 +534,7 @@ long AgedWindow::BuildLabelString(ImageData *data, TextSpec *aTextOut,
 	int lines = 0;
 	if (aTextOut) {
 		aTextOut[0].font = PResourceManager::sResource.label_font;
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
 	    aTextOut[0].xftFont = PResourceManager::sResource.xft_label_font;
 #endif
 		aTextOut[0].string = aBuffer;
@@ -568,7 +568,7 @@ long AgedWindow::BuildLabelString(ImageData *data, TextSpec *aTextOut,
 				++lines;
 				if (aTextOut) {
 					aTextOut[lines].font = PResourceManager::sResource.label_font;
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
 	                aTextOut[lines].xftFont = PResourceManager::sResource.xft_label_font;
 #endif
 					aTextOut[lines].string = pt;
@@ -576,7 +576,7 @@ long AgedWindow::BuildLabelString(ImageData *data, TextSpec *aTextOut,
 			} else if (ch == '+') {	// big font specified by "%+"
 				if (aTextOut) {
 					aTextOut[lines].font = PResourceManager::sResource.label_big_font;
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
 	                aTextOut[lines].xftFont = PResourceManager::sResource.xft_label_big_font;
 #endif
 				}
@@ -675,7 +675,7 @@ long AgedWindow::BuildLabelString(ImageData *data, TextSpec *aTextOut,
 	++lines;
 	if (aTextOut) {
 		aTextOut[lines].font = NULL;
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
 	    aTextOut[lines].xftFont = NULL;
 #endif
 		aTextOut[lines].string = NULL;

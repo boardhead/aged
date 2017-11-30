@@ -1,5 +1,5 @@
 #include <string.h>
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
 #include <X11/Xft/Xft.h>
 #endif
 #include "PResourceManager.h"
@@ -44,7 +44,7 @@ PColourPicker::PColourPicker(PImageWindow *owner, Widget canvas)
 	}
 	// set the font for our drawable (must be done after creating canvas)
 	SetFont(PResourceManager::sResource.hist_font);
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
     SetFont(PResourceManager::sResource.xft_hist_font);
 #endif
 	mDrawLabel 	= 0;			// don't draw the image label
@@ -289,7 +289,7 @@ void PColourPicker::AfterDrawing()
 	
 	// underline text for this colour
 	char *name = sColourName[mColourNum];
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
     XGlyphInfo    extents;
     ImageData *data = mOwner->GetData();
     XftTextExtents8(dpy, data->xft_hist_font, (XftChar8 *)name, strlen(name), &extents );

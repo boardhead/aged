@@ -43,6 +43,7 @@ private:
 	Polyhedron			mDet;   				// detector geometry
 	WireFrame			mAxes;					// coordinate axes
 	float				mSpinAngle;				// 'Josh' bar spin angle
+	double              mMinMagAtan;            // arctan of minimum magnification
 	double				mMaxMagAtan;			// arctan of maximum magnification
 	float				mHitSize;				// last used size of PMT hexagon
 	float				mGrabX,mGrabY,mGrabZ;	// 3-D mouse cursor coordinates for grab

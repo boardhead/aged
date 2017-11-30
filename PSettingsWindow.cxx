@@ -26,7 +26,6 @@
 #endif
 
 const double	kMaxUpdateTime	= 0.5;	// maximum drawing time for continuous slider updates
-const int		kMaxNHIT		= 400;	// max NHIT for continuous slider updates
 
 // static member declarations
 double PSettingsWindow::sUpdateTime	= 0;
@@ -47,7 +46,7 @@ PSettingsWindow::PSettingsWindow(ImageData *data)
 	}
 	
 	mSave_hex_id		= data->hex_id;
-#ifdef SMOOTH_LINES
+#ifdef ANTI_ALIAS
     mSave_smooth        = data->smooth;
 #else
 	mSave_time_zone		= data->time_zone;
@@ -144,7 +143,7 @@ PSettingsWindow::PSettingsWindow(ImageData *data)
 	XtAddCallback(but,XmNvalueChangedCallback,(XtCallbackProc)AngleProc, this);
 	angle_radio[2] = but;
 
-#ifdef SMOOTH_LINES
+#ifdef ANTI_ALIAS
 	n = 0;
 	XtSetArg(wargs[n], XmNx, 16); ++n;
 	XtSetArg(wargs[n], XmNy, 74); ++n;
@@ -268,9 +267,9 @@ PSettingsWindow::PSettingsWindow(ImageData *data)
 	XtSetArg(wargs[n], XmNshowValue, TRUE); ++n;
 	XtSetArg(wargs[n], XmNorientation, XmHORIZONTAL); ++n;
 	XtSetArg(wargs[n], XmNvalue, (int)(data->fit_size * 100 + 0.5)); ++n;
-	but = XtCreateManagedWidget("NCDSize",xmScaleWidgetClass,w,wargs,n);
-	XtAddCallback(but,XmNvalueChangedCallback,(XtCallbackProc)NCDChangedProc,data);
-	XtAddCallback(but,XmNdragCallback,(XtCallbackProc)NCDMovedProc,data);
+	but = XtCreateManagedWidget("FitSize",xmScaleWidgetClass,w,wargs,n);
+	XtAddCallback(but,XmNvalueChangedCallback,(XtCallbackProc)FitChangedProc,data);
+	XtAddCallback(but,XmNdragCallback,(XtCallbackProc)FitMovedProc,data);
 	
 	n = 0;
 	XtSetArg(wargs[n], XmNx, 16); ++n;
@@ -364,7 +363,7 @@ void PSettingsWindow::DecProc(Widget w, PSettingsWindow *set_win, caddr_t call_d
 	set_win->SetHexID(0);
 }
 
-#ifdef SMOOTH_LINES
+#ifdef ANTI_ALIAS
 void PSettingsWindow::SmoothTextProc(Widget w, PSettingsWindow *set_win, caddr_t call_data)
 {
     ImageData *data = set_win->GetData();
@@ -570,7 +569,7 @@ void PSettingsWindow::CancelProc(Widget w, PSettingsWindow *set_win, caddr_t cal
 	if (set_win->mSave_hex_id != data->hex_id) {
 		set_win->SetHexID(set_win->mSave_hex_id);
 	}
-#ifdef SMOOTH_LINES
+#ifdef ANTI_ALIAS
     int diff = set_win->mSave_smooth ^ data->smooth;
 	if (diff) {
 	    data->smooth = set_win->mSave_smooth;
@@ -629,7 +628,7 @@ void PSettingsWindow::SetFitSize(ImageData *data, float fit_size)
 
 void PSettingsWindow::ScaleMovedProc(Widget w, ImageData *data, XmScaleCallbackStruct *call_data)
 {
-	if (data->event_nhit>0 && data->num_disp<kMaxNHIT && sUpdateTime<kMaxUpdateTime) {
+	if (data->num_disp && sUpdateTime<kMaxUpdateTime) {
 		// update as slider moves if not too slow
 		double cur_time = double_time();
 		SetHitSize(data, call_data->value / 100.0);
@@ -645,9 +644,9 @@ void PSettingsWindow::ScaleChangedProc(Widget w, ImageData *data, XmScaleCallbac
 	sUpdateTime = 0;
 }
 
-void PSettingsWindow::NCDMovedProc(Widget w, ImageData *data, XmScaleCallbackStruct *call_data)
+void PSettingsWindow::FitMovedProc(Widget w, ImageData *data, XmScaleCallbackStruct *call_data)
 {
-	if (data->num_disp<kMaxNHIT && sUpdateTime<kMaxUpdateTime) {
+	if (sUpdateTime<kMaxUpdateTime) {
 		// update as slider moves if not too slow
 		double cur_time = double_time();
 		SetFitSize(data, call_data->value / 100.0);
@@ -657,7 +656,7 @@ void PSettingsWindow::NCDMovedProc(Widget w, ImageData *data, XmScaleCallbackStr
 	}
 }
 
-void PSettingsWindow::NCDChangedProc(Widget w, ImageData *data, XmScaleCallbackStruct *call_data)
+void PSettingsWindow::FitChangedProc(Widget w, ImageData *data, XmScaleCallbackStruct *call_data)
 {
 	SetFitSize(data, call_data->value / 100.0);
 	sUpdateTime = 0;

@@ -141,7 +141,6 @@ struct ImageData : AgedResource {
 	double			display_time;		// time to display next event
 
 	int				trigger_flag;		// trigger flag (continuous/single/off)
-	int				event_nhit;			// original number of hits in this event
 	long			run_number;			// run number for event
     int      		last_cur_x;			// last cursor x location
     int				last_cur_y;			// last cursor y location

@@ -11,7 +11,7 @@
 #include "TStoreLine.hh"
 #include "TStoreHelix.hh"
 
-#define STRETCH				2
+#define STRETCH				4
 
 #define UPDATE_FIT    		0x01	// update fit information window
 #define	UPDATE_HIT_VALS		0x02	// update displays where hit values are used
@@ -22,6 +22,8 @@
 const double kMaxR = 175 / AG_SCALE;   // maximum radius for helix track
 const double kMaxRSq = kMaxR * kMaxR;
 const double kFitLineLength = 1.5;
+const double kMinMagnification = 0.1;
+const double kMaxMagnification = 10;
 
 static Point3 axes_nodes[NN_AXES] = {
 							{	0   ,  0   ,  0		},
@@ -53,7 +55,8 @@ AgedImage::AgedImage(PImageWindow *owner, Widget canvas)
 	ImageData	*data = owner->GetData();
 	
 	mHitSize = 0;
-	mMaxMagAtan = atan(100.0);	// 100.0 = maximum magnification
+	mMinMagAtan = atan(kMinMagnification);
+	mMaxMagAtan = atan(kMaxMagnification);
 	mMarginPix = 2;
 	mMarginFactor = 1.25;
 	mProj = data->proj;
@@ -284,7 +287,7 @@ void AgedImage::SetScrolls()
 {
 	int			pos;
 
-	pos = kScrollMax - (int)(kScrollMax * atan(mProj.mag) / mMaxMagAtan + 0.5);
+	pos = kScrollMax - (int)(kScrollMax * (atan(mProj.mag)-mMinMagAtan) / (mMaxMagAtan-mMinMagAtan) + 0.5);
 	mOwner->SetScrollValue(kScrollLeft, pos);
 	pos = (kScrollMax/2) + (int)(kScrollMax*mSpinAngle/(4*PI));
 	mOwner->SetScrollValue(kScrollBottom, pos);
@@ -319,7 +322,7 @@ void AgedImage::ScrollValueChanged(EScrollBar bar, int value)
 			SetDirty(kDirtyAll);
 			break;
 		case kScrollLeft:
-			mProj.mag = tan(mMaxMagAtan * (kScrollMax - value) / kScrollMax);
+			mProj.mag = tan(mMinMagAtan + (mMaxMagAtan-mMinMagAtan) * (kScrollMax - value) / kScrollMax);
 			Resize();
 			break;
 		case kScrollBottom: {
@@ -521,7 +524,7 @@ void AgedImage::DrawSelf()
 	    TransformHits();
 	}
 	SetFont(data->hist_font);
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
     SetFont(data->xft_hist_font);
 #endif
 
@@ -546,6 +549,8 @@ void AgedImage::DrawSelf()
             if (n<num) {
                 SetForeground(FIRST_DET_COL + (face->flags>>FACE_COL_SHFT));
                 FillPolygon(point,num);
+#if 1
+                // draw lines along back edges
                 for (i=0; i<num; ++i) {
                     j = (i + 1) % num;
                     segments[i].x1 = point[i].x;
@@ -554,7 +559,8 @@ void AgedImage::DrawSelf()
                     segments[i].y2 = point[j].y;
                 }
                 SetForeground(HID_COL);
-                DrawSegments(segments, num, data->smooth & kSmoothLines);
+                DrawSegments(segments, num);
+#endif
             }
 		}
 		for (face=mDet.faces; face<lface; ++face) {
@@ -573,7 +579,7 @@ void AgedImage::DrawSelf()
                     segments[i].y2 = segments[j].y1;
                 }
                 SetForeground(FRAME_COL);
-                DrawSegments(segments, num, data->smooth & kSmoothLines);
+                DrawSegments(segments, num);
             }
 		}
 	}
@@ -596,7 +602,7 @@ void AgedImage::DrawSelf()
 	}
 	SetForeground(AXES_COL);
 	SetLineWidth(2);
-	DrawSegments(segments,sp-segments, data->smooth & kSmoothLines);
+	DrawSegments(segments,sp-segments);
 	SetLineWidth(THICK_LINE_WIDTH);
 
     TStoreEvent *evt = data->agEvent;
@@ -610,6 +616,7 @@ void AgedImage::DrawSelf()
         HitInfo *hi = data->hits.hit_info;
         int bit_mask = data->bit_mask;
         int sz = (int)(data->hit_size * 2 + 0.5);
+        double scl = data->hit_size / AG_SCALE;
 		for (i=0, n1=data->hits.nodes; i<num; ++i, ++hi, ++n1) {
             if (hi->flags & bit_mask) continue;	/* only consider unmasked hits */
             SetForeground(FIRST_SCALE_COL + hi->hit_val);
@@ -619,12 +626,12 @@ void AgedImage::DrawSelf()
                     nod[0].x3 = nod[1].x3 = nod[2].x3 = nod[3].x3 = nod[4].x3 = nod[5].x3 = n1->x3;
                     nod[0].y3 = nod[1].y3 = nod[2].y3 = nod[3].y3 = nod[4].y3 = nod[5].y3 = n1->y3;
                     nod[0].z3 = nod[1].z3 = nod[2].z3 = nod[3].z3 = nod[4].z3 = nod[5].z3 = n1->z3;
-                    nod[0].x3 -= spi->GetErrX() / AG_SCALE;
-                    nod[1].x3 += spi->GetErrX() / AG_SCALE;
-                    nod[2].y3 -= spi->GetErrY() / AG_SCALE;
-                    nod[3].y3 += spi->GetErrY() / AG_SCALE;
-                    nod[4].z3 -= spi->GetErrZ() / AG_SCALE;
-                    nod[5].z3 += spi->GetErrZ() / AG_SCALE;
+                    nod[0].x3 -= spi->GetErrX() * scl;
+                    nod[1].x3 += spi->GetErrX() * scl;
+                    nod[2].y3 -= spi->GetErrY() * scl;
+                    nod[3].y3 += spi->GetErrY() * scl;
+                    nod[4].z3 -= spi->GetErrZ() * scl;
+                    nod[5].z3 += spi->GetErrZ() * scl;
                     Transform(nod,6);
                     for (j=0, sp=segments; j<6; j+=2, ++sp) {
                         sp->x1 = nod[j].x;
@@ -678,7 +685,7 @@ void AgedImage::DrawSelf()
             int col = FIT_BAD_COL + line->GetStatus();
             if (col < FIT_BAD_COL || col > FIT_PHOTON_COL) col = FIT_BAD_COL;
             SetForeground(col);
-            DrawSegments(segments, 1, data->smooth & kSmoothLines);
+            DrawSegments(segments, 1);
         }
     }
 /*
@@ -734,7 +741,7 @@ void AgedImage::DrawSelf()
             int col = FIT_BAD_COL + helix->GetStatus();
             if (col < FIT_BAD_COL || col > FIT_PHOTON_COL) col = FIT_BAD_COL;
             SetForeground(col);
-            DrawSegments(segments, sp - segments, data->smooth & kSmoothLines);
+            DrawSegments(segments, sp - segments);
 #if 1 //TEST
             // draw X0,Y0,Z0
             nod[0].x3 = x0 / AG_SCALE;

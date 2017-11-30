@@ -70,7 +70,7 @@ public:
 	int				GetScaling()							  { return mDrawable->GetScaling(); }
 	void			SetForeground(int col_num) 				  { mDrawable->SetForeground(col_num); }
 	void			SetFont(XFontStruct *font)				  { mDrawable->SetFont(font); }
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
 	void			SetFont(XftFont *font)				      { mDrawable->SetFont(font); }
 	XftFont       * GetXftFont()                              { return mDrawable->GetXftFont(); }
 	int             IsSmoothText()                            { return mDrawable->IsSmoothText(); }
@@ -80,7 +80,7 @@ public:
 	int             GetFontDescent()                          { return mDrawable->GetFontDescent(); }
 	void			SetLineWidth(float width)				  { mDrawable->SetLineWidth(width); }
 	void			SetLineType(ELineType type)				  { mDrawable->SetLineType(type); }
-	void			DrawSegments(XSegment *segments, int num, int smooth=0)
+	void			DrawSegments(XSegment *segments, int num, int smooth=1)
 	                                                          { mDrawable->DrawSegments(segments,num,smooth); }
 	void            DrawPoint(int x, int y)                   { mDrawable->DrawPoint(x,y); }
 	void			DrawLine(int x1,int y1,int x2,int y2) 	  { mDrawable->DrawLine(x1,y1,x2,y2); }

@@ -2,7 +2,7 @@
 #define __AgedResource_h__
 
 #include <Xm/Xm.h>
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
 #include <X11/Xft/Xft.h>
 #endif
 #include "colours.h"
@@ -65,7 +65,7 @@ struct AgedResource {
 	XFontStruct	  *	hist_font;					// font for histograms
 	XFontStruct	  *	label_font;					// font for image labels
 	XFontStruct	  *	label_big_font;				// big label font
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
     XftFont       * xft_hist_font;
     XftFont       * xft_label_font;
     XftFont       * xft_label_big_font;

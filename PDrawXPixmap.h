@@ -19,7 +19,7 @@ public:
 	virtual void	SetForegroundPixel(Pixel pixel);
 	virtual void	SetFont(XFontStruct *font);
 	virtual void	SetLineWidth(float width);
-	virtual void	DrawSegments(XSegment *segments, int num, int smooth=0);
+	virtual void	DrawSegments(XSegment *segments, int num, int smooth=1);
 	virtual void	DrawPoint(int x,int y);
 	virtual void	DrawLine(int x1,int y1,int x2,int y2);
 	virtual void	DrawRectangle(int x,int y,int w,int h);
@@ -49,18 +49,17 @@ private:
 	int				mWidth;				// pixmap width
 	int				mHeight;			// pixmap height
 
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
     void            DrawSmoothLine(double x1, double y1, double x2, double y2);
     void            SetXftColour(Pixel pixel);
 
     XftDraw       * mXftDraw;           // Xft drawable
+    XftDraw       * mXftDrawPix;        // Xft drawable
+    XftDraw       * mXftDrawDpy;        // Xft drawable
     XftColor        mXftColor;
-    Picture         mXftPict;
     XRenderPictFormat *mXftFmt;
-#ifdef SMOOTH_LINES // TEST this doesn't produce smooth lines
     Picture         mXftPicture;
     double          mLineWidth;
-#endif
 #endif
 };
 

@@ -36,7 +36,7 @@ private:
 	static void		AddTimeProc(Widget w, PSettingsWindow *set_win, caddr_t call_data);
 	static void		AddNHitProc(Widget w, PSettingsWindow *set_win, caddr_t call_data);
 	static void		ClearProc(Widget w, PSettingsWindow *set_win, caddr_t call_data);
-#ifdef SMOOTH_LINES
+#ifdef ANTI_ALIAS
     static void		SmoothTextProc(Widget w, PSettingsWindow *set_win, caddr_t call_data);
     static void		SmoothLinesProc(Widget w, PSettingsWindow *set_win, caddr_t call_data);
 #else
@@ -48,13 +48,13 @@ private:
 	static void		CancelProc(Widget w, PSettingsWindow *set_win, caddr_t call_data);
 	static void		ScaleMovedProc(Widget w, ImageData *data, XmScaleCallbackStruct *call_data);
 	static void 	ScaleChangedProc(Widget w, ImageData *data, XmScaleCallbackStruct *call_data);
-	static void		NCDMovedProc(Widget w, ImageData *data, XmScaleCallbackStruct *call_data);
-	static void 	NCDChangedProc(Widget w, ImageData *data, XmScaleCallbackStruct *call_data);
+	static void		FitMovedProc(Widget w, ImageData *data, XmScaleCallbackStruct *call_data);
+	static void 	FitChangedProc(Widget w, ImageData *data, XmScaleCallbackStruct *call_data);
 	static void 	XYZProc(Widget w, ImageData *data, XmScaleCallbackStruct *call_data);
 	static void 	SaveConfigProc(Widget w, ImageData *data, XmScaleCallbackStruct *call_data);
 	
 	int				mSave_hex_id;
-#ifdef SMOOTH_LINES
+#ifdef ANTI_ALIAS
 	int				mSave_smooth;
 #else
 	int				mSave_time_zone;
@@ -69,7 +69,7 @@ private:
 
 	Widget			hex_radio, dec_radio;
 	Widget			angle_radio[3];
-#ifdef SMOOTH_LINES
+#ifdef ANTI_ALIAS
     Widget          smooth_lines, smooth_text;
 #else
 	Widget			utc_radio, local_radio, sudbury_radio;

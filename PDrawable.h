@@ -13,7 +13,7 @@
 #define __PDrawable_h__
 
 #include <Xm/Xm.h>
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
 #include <X11/Xft/Xft.h>
 #endif
 
@@ -45,7 +45,7 @@ class PDrawable
 {
 public:
 	PDrawable() : mColours(NULL), mFont(0),
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
 	              mXftFont(0),
 #endif
                   mScaling(1) { }
@@ -53,7 +53,7 @@ public:
 	virtual ~PDrawable()   { }
 	
 	XFontStruct	  *	GetFont()	    { return mFont; }
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
 	XftFont       * GetXftFont()    { return mXftFont; }
 #endif
 	
@@ -70,7 +70,7 @@ public:
 	virtual void	SetLineWidth(float width)					{ }
 	virtual void	SetLineType(ELineType type)					{ }
 	virtual void	SetFont(XFontStruct *font)					{ mFont = font; }
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
 	virtual void	SetFont(XftFont *font)					    { mXftFont = font; }
 	virtual void    SetSmoothText(int on)                       { mSmoothText = on; }
 	virtual void    SetSmoothLines(int on)                      { mSmoothLines = on; }
@@ -82,7 +82,7 @@ public:
 	int             GetFontAscent()  { return mFont? mFont->ascent : 0; }
 	int             GetFontDescent() { return mFont ? mFont->descent : 0; }
 #endif
-	virtual void	DrawSegments(XSegment *segments, int num, int smooth=0) { }
+	virtual void	DrawSegments(XSegment *segments, int num, int smooth=1) { }
 	virtual void	DrawPoint(int x, int y)						{ }
 	virtual void	DrawLine(int x1,int y1,int x2,int y2) 		{ }
 	virtual void	DrawRectangle(int x,int y,int w,int h)		{ }
@@ -105,7 +105,7 @@ protected:
 	
 private:
 	XFontStruct	  *	mFont;
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
     XftFont       * mXftFont;
     int             mSmoothText;
     int             mSmoothLines;

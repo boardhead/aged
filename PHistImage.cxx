@@ -628,7 +628,7 @@ void PHistImage::DrawSelf()
 	// start drawing
 	SetForeground(TEXT_COL);
 	SetFont(PResourceManager::sResource.hist_font);
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
 	SetFont(PResourceManager::sResource.xft_hist_font);
 #endif
 	
@@ -861,7 +861,7 @@ void PHistImage::DrawSelf()
 	if (mLabel) {
 		SetForeground(TEXT_COL);
 		SetFont(PResourceManager::sResource.hist_font);
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
 	    SetFont(PResourceManager::sResource.xft_hist_font);
 #endif
 		DrawString(x2,y1+HIST_LABEL_Y,mLabel,kTextAlignTopRight);

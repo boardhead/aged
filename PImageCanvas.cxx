@@ -277,7 +277,7 @@ void PImageCanvas::DrawLabel(int x,int y,ETextAlign_q align)
 		y -= GetScaling() * mLabelHeight;
 		for (TextSpec *ts=mLabelText; ts->string; ++ts) {
 			SetFont(ts->font);
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
 	        SetFont(ts->xftFont);
 #endif
 	        y += GetScaling() * GetFontAscent();
@@ -294,7 +294,7 @@ void PImageCanvas::Prepare()
 {
 	// resize drawing area according to current label size
 	ImageData *data = mOwner->GetData();
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
     mDrawable->SetSmoothText(data->smooth & kSmoothText);
     mDrawable->SetSmoothLines(data->smooth & kSmoothLines);
 #endif

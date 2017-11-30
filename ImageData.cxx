@@ -52,7 +52,7 @@ void initData(ImageData *data, int load_settings)
 		data->open_windows 	= 0;
 		data->open_windows2 = 0;
 		data->hex_id 		= 0;
-#ifndef SMOOTH_LINES
+#ifndef ANTI_ALIAS
 		data->time_zone 	= 0;
 #endif
 		data->angle_rad 	= 0;
@@ -136,7 +136,6 @@ void clearEvent(ImageData *data)
 {
 	if (data->hits.num_nodes) {
 		data->hits.num_nodes = 0;
-		data->event_nhit = 0;
 		free(data->hits.nodes);
 		data->hits.nodes = NULL;
 		free(data->hits.hit_info);

@@ -5,7 +5,7 @@
 
 struct TextSpec {
 	XFontStruct	  *	font;
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
     XftFont       * xftFont;
 #endif
 	char		  *	string;

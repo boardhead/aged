@@ -9,7 +9,7 @@ BASE          = .
 
 INCLUDE       = -I$(BASE)
 
-PROJFLAGS     = $(VERFLAGS) -DSMOOTH_FONTS -DSMOOTH_LINES
+PROJFLAGS     = $(VERFLAGS) -DANTI_ALIAS
 
 CFLAGS        = -g -O0 -D_BSD=43 $(PROJFLAGS)
 CXXFLAGS      = -g -O0 -Wno-write-strings -Wall $(PROJFLAGS)
@@ -33,7 +33,7 @@ XLIBS         = -L/usr/X11R6/lib -lXm -lXp -lXmu -lXft -lXt -lXrender -lX11
 
 ROOTINCS      = -I$(ROOTSYS)/include -I$(ANALYSIS_TPC)/include -I$(AGANA) -I$(GARFIELDPP)\
                 -I$(AGTPC_ANALYSIS) -I$(SOURCE_TPC)/include -I$(ROOTANASYS)/include
-ROOTFLAGS     = -std=c++11 $(ROOTINCS)
+ROOTFLAGS     = -std=c++11 -fPIC $(ROOTINCS)
 ROOTLIBS      = $(shell root-config --libs) -lMinuit
 
 OS_OBJS       =

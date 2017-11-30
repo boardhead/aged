@@ -66,7 +66,7 @@ void PProjImage::DrawAngles(int horiz,int angleFlags)
 	
 	SetForeground(TEXT_COL);
 	SetFont(PResourceManager::sResource.hist_font);
-#ifdef SMOOTH_FONTS
+#ifdef ANTI_ALIAS
 	SetFont(PResourceManager::sResource.xft_hist_font);
 #endif
 
