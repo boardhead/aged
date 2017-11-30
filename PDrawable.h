@@ -70,6 +70,7 @@ public:
 	virtual void	SetLineWidth(float width)					{ }
 	virtual void	SetLineType(ELineType type)					{ }
 	virtual void	SetFont(XFontStruct *font)					{ mFont = font; }
+	virtual int     GetTextWidth(char *str)                     { return 0; }
 #ifdef ANTI_ALIAS
 	virtual void	SetFont(XftFont *font)					    { mXftFont = font; }
 	virtual void    SetSmoothText(int on)                       { mSmoothText = on; }

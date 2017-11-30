@@ -364,6 +364,23 @@ void PDrawXPixmap::DrawString(int x, int y, char *str, ETextAlign_q align)
 #endif
 }
 
+int PDrawXPixmap::GetTextWidth(char *str)
+{
+    int width;
+#ifdef ANTI_ALIAS
+    if (IsSmoothText()) {
+        XGlyphInfo    extents;
+        XftTextExtents8(mDpy, GetXftFont(), (XftChar8 *)str, strlen(str), &extents );
+        width = extents.width - extents.x;
+    } else {
+#endif
+	width = XTextWidth(GetFont(), str, strlen(str));
+#ifdef ANTI_ALIAS
+    }
+#endif
+    return(width);
+}
+
 void PDrawXPixmap::DrawArc(int cx,int cy,int rx,int ry,float ang1,float ang2)
 {
 #ifdef ANTI_ALIAS

@@ -90,6 +90,9 @@ PColourPicker::~PColourPicker()
 void PColourPicker::Listen(int message, void *dataPt)
 {
 	switch (message) {
+		case kMessageSmoothTextChanged:
+		    SetDirty(kDirtyPix);
+		    break;
 		case kMessageColoursChanged:
 			if (SetCurrentColours()) {
 				((PColourWindow *)mOwner)->PickerColourChanged();
@@ -289,14 +292,7 @@ void PColourPicker::AfterDrawing()
 	
 	// underline text for this colour
 	char *name = sColourName[mColourNum];
-#ifdef ANTI_ALIAS
-    XGlyphInfo    extents;
-    ImageData *data = mOwner->GetData();
-    XftTextExtents8(dpy, data->xft_hist_font, (XftChar8 *)name, strlen(name), &extents );
-	int width = extents.width - extents.x;
-#else
-	int width = XTextWidth(mDrawable->GetFont(), name, strlen(name));
-#endif
+    int width = mDrawable->GetTextWidth(name);
 	x += kW + kTextMargin;
 	y += kH - 1;
 	XDrawLine(dpy,XtWindow(mCanvas),gc,x,y,x+width,y);
