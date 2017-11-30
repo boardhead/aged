@@ -3,7 +3,7 @@
 
 #include <Xm/Xm.h>
 
-#ifdef LESSTIF
+#if defined(LESSTIF) || defined(ANTI_ALIAS)
 #define RADIO_OFFSET	0
 #else
 #define RADIO_OFFSET	2

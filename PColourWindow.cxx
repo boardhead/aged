@@ -138,7 +138,7 @@ PColourWindow::PColourWindow(ImageData *data)
 
 	n = 0;
 	XtSetArg(wargs[n], XmNx, 262); ++n;
-	XtSetArg(wargs[n], XmNy, 36+RGB_YPOS); ++n;
+	XtSetArg(wargs[n], XmNy, 35+RGB_YPOS); ++n;
 	XtSetArg(wargs[n], XmNwidth, 50); ++n;
 	XtSetArg(wargs[n], XmNalignment, XmALIGNMENT_END); ++n;
 	XtCreateManagedWidget("Red:", xmLabelWidgetClass, w, wargs, n);
@@ -147,13 +147,12 @@ PColourWindow::PColourWindow(ImageData *data)
 	XtSetArg(wargs[n], XmNx, 320); ++n;
 	XtSetArg(wargs[n], XmNy, 30+RGB_YPOS); ++n;
 	XtSetArg(wargs[n], XmNwidth, 80); ++n;
-	XtSetArg(wargs[n], XmNheight, 32); ++n;
 	XtSetArg(wargs[n], XmNmarginHeight, 3); ++n;
 	mText[0] = XtCreateManagedWidget("red", xmTextWidgetClass, w, wargs, n);
 
 	n = 0;
 	XtSetArg(wargs[n], XmNx, 262); ++n;
-	XtSetArg(wargs[n], XmNy, 86+RGB_YPOS); ++n;
+	XtSetArg(wargs[n], XmNy, 85+RGB_YPOS); ++n;
 	XtSetArg(wargs[n], XmNwidth, 50); ++n;
 	XtSetArg(wargs[n], XmNalignment, XmALIGNMENT_END); ++n;
 	XtCreateManagedWidget("Green:", xmLabelWidgetClass, w, wargs, n);
@@ -162,13 +161,12 @@ PColourWindow::PColourWindow(ImageData *data)
 	XtSetArg(wargs[n], XmNx, 320); ++n;
 	XtSetArg(wargs[n], XmNy, 80+RGB_YPOS); ++n;
 	XtSetArg(wargs[n], XmNwidth, 80); ++n;
-	XtSetArg(wargs[n], XmNheight, 32); ++n;
 	XtSetArg(wargs[n], XmNmarginHeight, 3); ++n;
 	mText[1] = XtCreateManagedWidget("green", xmTextWidgetClass, w, wargs, n);
 
 	n = 0;
 	XtSetArg(wargs[n], XmNx, 262); ++n;
-	XtSetArg(wargs[n], XmNy, 136+RGB_YPOS); ++n;
+	XtSetArg(wargs[n], XmNy, 135+RGB_YPOS); ++n;
 	XtSetArg(wargs[n], XmNwidth, 50); ++n;
 	XtSetArg(wargs[n], XmNalignment, XmALIGNMENT_END); ++n;
 	XtCreateManagedWidget("Blue:", xmLabelWidgetClass, w, wargs, n);
@@ -177,7 +175,6 @@ PColourWindow::PColourWindow(ImageData *data)
 	XtSetArg(wargs[n], XmNx, 320); ++n;
 	XtSetArg(wargs[n], XmNy, 130+RGB_YPOS); ++n;
 	XtSetArg(wargs[n], XmNwidth, 80); ++n;
-	XtSetArg(wargs[n], XmNheight, 32); ++n;
 	XtSetArg(wargs[n], XmNmarginHeight, 3); ++n;
 	mText[2] = XtCreateManagedWidget("blue", xmTextWidgetClass, w, wargs, n);
 
