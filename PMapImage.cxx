@@ -9,7 +9,7 @@
 #include "menu.h"
 #include "colours.h"
 
-#define PROJ_PMT_SIZE				0.004		// hit size (relative to image size)
+#define PROJ_HIT_SIZE				0.004		// hit size (relative to image size)
 #define CONE_SEGMENT_TOL2			(20 * 20)	// maximum cone segment length (pixels squared)
 #define CONE_SEGMENT_SPLIT_MAX		8			// maximum number of times to split a segment
 #define MOLLWEIDE_TOLERANCE			1e-6		// tolerance for Mollweide conversion
@@ -25,7 +25,6 @@ static MenuStruct tp_arg_menu[] = {
 	{ "Elliptical - Hammer", 	0, XK_H,IDM_PROJ_HAMMER, 	 	 NULL, 0, MENU_RADIO },
 	{ "Extended Hammer", 		0, XK_x,IDM_PROJ_EXTENDED_HAMMER,NULL, 0, MENU_RADIO },
 	{ "Polar - Linear", 		0, XK_P,IDM_PROJ_POLAR,  		 NULL, 0, MENU_RADIO },
-//	{ "Polar - Cosine", 		0, 0,	IDM_PROJ_POLAR_COS, 	 NULL, 0, MENU_RADIO },
 	{ "Polar - Equal Area", 	0, XK_A,IDM_PROJ_POLAR_EQUAL, 	 NULL, 0, MENU_RADIO },
 	{ NULL, 					0, 0,	0,						 NULL, 0, 0 },
 	{ "Dual Sinusoidal", 		0, XK_u,IDM_PROJ_DUAL_SINUSOID,	 NULL, 0, MENU_RADIO },
@@ -33,28 +32,18 @@ static MenuStruct tp_arg_menu[] = {
 	{ "Dual Elliptical - Mollweide",0,XK_w,IDM_PROJ_DUAL_MOLLWEIDE, NULL,0,MENU_RADIO },
 	{ "Dual Elliptical - Hammer",0,XK_e,IDM_PROJ_DUAL_HAMMER,  	 NULL, 0, MENU_RADIO },
 	{ "Dual Polar - Linear",	0, XK_o,IDM_PROJ_DUAL_POLAR,	 NULL, 0, MENU_RADIO },
-//	{ "Dual Polar - Cosine",	0, 0,	IDM_PROJ_DUAL_POLAR_COS, NULL, 0, MENU_RADIO },
 	{ "Dual Polar - Equal Area",0, XK_q,IDM_PROJ_DUAL_POLAR_EQUAL,NULL, 0, MENU_RADIO },
 };
 static MenuStruct tp_move_menu[] = {
 	{ "To Home" , 				0, XK_H,IDM_PROJ_TO_HOME, 		 NULL, 0, 0},
 };
-//static MenuStruct tp_vw_menu[] = {
-//	{ "Detector Coordinates",  	0, XK_D,IDM_DETECTOR_COORD, 	 NULL, 0, MENU_RADIO },
-//	{ "Relative to Fit", 		0, XK_R,IDM_FIT_RELATIVE, 		 NULL, 0, MENU_RADIO },
-//};
 static MenuStruct tp_hit_menu[] = {
-//	{ "Fixed Size",  			0, XK_F,IDM_SIZE_FIXED, 		 NULL, 0, MENU_RADIO },
-//	{ "Charge (Qhs)", 			0, XK_Q,IDM_SIZE_HEIGHT, 		 NULL, 0, MENU_RADIO },
-//	{ "Solid Angle", 			0, XK_A,IDM_SIZE_SOLID_ANGLE, 	 NULL, 0, MENU_RADIO },
-//	{ NULL, 					0, 0,	0,						 NULL, 0, 0 },
 	{ "Squares", 				0, XK_S,IDM_HIT_SQUARE, 	 	 NULL, 0, MENU_RADIO },
 	{ "Circles", 				0, XK_C,IDM_HIT_CIRCLE, 	 	 NULL, 0, MENU_RADIO }
 };
 static MenuStruct tp_main_menu[] = {
 	{ "Projection", 			0, 0,	0, tp_arg_menu,  XtNumber(tp_arg_menu),  0 },
 	{ "Move", 					0, 0,	0, tp_move_menu, XtNumber(tp_move_menu), 0 },
-//	{ "View", 					0, 0,	0, tp_vw_menu,   XtNumber(tp_vw_menu),   0 },
 	{ "Hits", 					0, 0,	0, tp_hit_menu,  XtNumber(tp_hit_menu),  0 },
 };
 
@@ -208,9 +197,6 @@ ProjCyl:
 		case IDM_PROJ_POLAR:
 			v1[2] = acos(v1[2]) / PI;
 			goto ProjPolar;
-//		case IDM_PROJ_POLAR_COS:
-//			v1[2] = (1. - v1[2]) /2.;
-//			goto ProjPolar;
 		case IDM_PROJ_POLAR_EQUAL:
 			v1[2] = sqrt((1. - v1[2]) / 2.);
 ProjPolar:
@@ -238,10 +224,6 @@ ProjPolar:
 			goto ProjDualPolar2;
 		case IDM_PROJ_DUAL_POLAR:
 			v1[2] = acos(v1[2]) / PI;
-//			goto ProjDualPolar;
-//		case IDM_PROJ_DUAL_POLAR_COS:
-//			v1[2] = (1 - v1[2]) / 2.;
-//ProjDualPolar:
 			if (v1[2] > 0.5) {
 				n1->x = pp->xscl / 2;
 				v1[2] = 1 - v1[2];
@@ -295,13 +277,8 @@ ProjDualPolar2:
 			break;
 			
 		case IDM_PROJ_DUAL_ELLIPTICAL:
-//		case IDM_PROJ_DUAL_ELLIPTICAL_COS:
 			a = atan2( v1[1], v1[0] ) / PI;
-//			if (pp->proj_type == IDM_PROJ_DUAL_ELLIPTICAL_COS) {
-//				b = v1[2];
-//			} else {
-				b = 1. - 2. * acos(v1[2]) / PI;
-//			}
+			b = 1. - 2. * acos(v1[2]) / PI;
 			if (a < -0.5) {
 				n1->x = xcen + pp->xscl/2 + (int)((a + 1) * sqrt(1-b*b) * pp->xscl);
 			} else if (a >= 0.5) {
@@ -565,7 +542,6 @@ void PMapImage::SetProjection(int proj_type)
 			mImageSizeY = 1.0;
 			break;
 		case IDM_PROJ_POLAR:
-//		case IDM_PROJ_POLAR_COS:
 		case IDM_PROJ_POLAR_EQUAL:
 			mScaleProportional = 1;
 			mMarginPix = 8;
@@ -573,7 +549,6 @@ void PMapImage::SetProjection(int proj_type)
 			mImageSizeY = 1.0;
 			break;
 		case IDM_PROJ_DUAL_POLAR:
-//		case IDM_PROJ_DUAL_POLAR_COS:
 		case IDM_PROJ_DUAL_POLAR_EQUAL:
 			mScaleProportional = 1;
 			mMarginPix = 8;
@@ -758,14 +733,12 @@ Do_Proj_Hammer:
 			break;
 			
 		case IDM_PROJ_POLAR:
-//		case IDM_PROJ_POLAR_COS:
 		case IDM_PROJ_POLAR_EQUAL:
 			num = 6;
 			loops = 1;
 			goto Do_Proj_Polar;
 
 		case IDM_PROJ_DUAL_POLAR:
-//		case IDM_PROJ_DUAL_POLAR_COS:
 		case IDM_PROJ_DUAL_POLAR_EQUAL:
 			num = 3;	/* number of circles */
 			loops = 2;
@@ -780,12 +753,6 @@ Do_Proj_Polar:
 				for (j=1; j<num; ++j) {
 					a = j / (float)num;
 					switch (mProj.proj_type) {
-//						case IDM_PROJ_POLAR_COS:
-//							a = 0.5 - 0.5 * cos(a*PI);
-//							break;
-//						case IDM_PROJ_DUAL_POLAR_COS:
-//							a = 1. - cos(a*(0.5*PI));
-//							break;
 						case IDM_PROJ_POLAR_EQUAL:
 							a = sqrt(0.5 - 0.5 * cos(a*PI));
 							break;
@@ -934,12 +901,7 @@ Do_Proj_Elliptical:
 							y = ycen - (int)(yscl * sin(b));
 							theta = PI/2 - b;
 							break;
-/*						case IDM_PROJ_ELLIPTICAL_COS:
-						case IDM_PROJ_DUAL_ELLIPTICAL_COS:
-							theta = PI * i / (float)num1;
-							y = ycen + (int)(yscl * cos(theta));
-							break;
-*/					}
+					}
 					x = (int)(xscl * sin(theta));
 					sp->x1 = xcen - x;
 					sp->y1 = y;
@@ -977,7 +939,7 @@ Do_Proj_Elliptical:
 		int d1, d2;
 		hi = data->hits.hit_info;
 		n0 = data->hits.nodes;
-		float scale = mProj.xscl * PROJ_PMT_SIZE * data->hit_size;
+		float scale = mProj.xscl * PROJ_HIT_SIZE * data->hit_size;
 
         d1 = (int)scale;
         if (d1 < 1) d1 = 1;

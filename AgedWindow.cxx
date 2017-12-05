@@ -21,6 +21,7 @@
 #include "PHitInfoWindow.h"
 #include "PEventInfoWindow.h"
 #include "PEventControlWindow.h"
+#include "PWaveformWindow.h"
 #include "PPrintWindow.h"
 #include "PColourWindow.h"
 #include "PSettingsWindow.h"
@@ -84,6 +85,7 @@ static MenuStruct window_menu[] = {
 	{ "Event Info",			0,   XK_E,	EVT_INFO_WINDOW,	NULL, 0, 0},
 	{ "Hit Info",  			0,   XK_H,	HIT_INFO_WINDOW,	NULL, 0, 0},
 	{ "Histogram", 			0,   XK_i,	HIST_WINDOW,		NULL, 0, 0},
+	{ "Waveforms",		    0,   XK_W,	WAVE_WINDOW,		NULL, 0, 0},
 	{ "Projections",		0,   XK_P,	PROJ_WINDOW,		NULL, 0, 0},
 };
 static MenuStruct main_menu[] = {
@@ -327,27 +329,8 @@ void AgedWindow::Listen(int message, void *dataPt)
 		case kMessageSmoothTextChanged:
 		    LabelFormatChanged();
 		    break;
-		case kMessageAngleFormatChanged:
-			if (data->show_label && (mLabelFlags & kLabelSunAngle)) {
-				SetLabelDirty();
-			}
-			break;
-		case kMessageFitChanged:
-			if (data->show_label && (mLabelFlags & (kLabelFitPos | kLabelFitDir | kLabelFitRadius |
-						kLabelFitTime | kLabelFitQuality | kLabelNfit | kLabelSunAngle)))
-			{
-				SetLabelDirty();
-			}
-			break;
-		case kMessageNextTimeAvailable:
-			if (data->show_label && (mLabelFlags & kLabelNextTime)) {
-				// set label dirty without sending message to update displays
-				// (the display update would be too annoying for this case)
-				mLabelDirty = 1;
-			}
-			break;
 		case kMessageHitsChanged:
-			if (data->show_label && (mLabelFlags & (kLabelDataType | kLabelDataMin | kLabelDataMax | kLabelNhit))) {
+			if (data->show_label && (mLabelFlags & kLabelNhit)) {
 				SetLabelDirty();
 			}
 			break;
@@ -523,10 +506,10 @@ long AgedWindow::BuildLabelString(ImageData *data, TextSpec *aTextOut,
 	long			labelFlags;
 	
 	// these label formats are in the same order as the ELabelFlags bits
-	static char *labelFormats[] = { "rn","ev","ti","da","nh","no","ow","lg",
-									"fe","bu","ne","dt","dm","dx","pk","in",
-									"df","tr","en","fn","fp","fd","fr","ft",
-									"fq","nf","sd","sa","pt","nt","sr",NULL };
+	static char *labelFormats[] = { "rn","ev","ti","da","nh",NULL,NULL,NULL,
+									NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
+									NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
+									NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL };
 	
 	labelFlags = 0;	// initialize label flags
 	
@@ -742,7 +725,6 @@ void AgedWindow::SetHitMaskMenuToggles()
 {
 	ImageData	*data = GetData();
 	
-//	GetMenu()->SetToggle(IDM_CUT_NORMAL,	 !(data->bit_mask & HIT_NORMAL));
 	GetMenu()->SetToggle(IDM_CUT_UNDERSCALE, !(data->bit_mask & HIT_UNDERSCALE));
 	GetMenu()->SetToggle(IDM_CUT_OVERSCALE,	 !(data->bit_mask & HIT_OVERSCALE));
 }
@@ -882,6 +864,10 @@ void AgedWindow::CreateWindow(int anID)
 		(void)new PMapImage(pwin);
 		break;
 
+      case WAVE_WINDOW:
+        data->mWindow[anID] = new PWaveformWindow(data);
+        break;
+
 	  case HIST_WINDOW:	// Create histogram window
 		n = 0;
 		XtSetArg(wargs[n], XmNtitle, "Event Histogram"); ++n;
@@ -911,9 +897,7 @@ void AgedWindow::CreateWindow(int anID)
 		// resize necessary windows
 		if (!data->mWindow[anID]->WasResized()) {
 			switch (anID) {
-				case DISP_WINDOW:
 				case PRINT_WINDOW:
-				case PASSWORD_WINDOW:
 					n = 0;
 					XtSetArg(wargs[n], XmNminWidth, &min_width); ++n;
 					XtSetArg(wargs[n], XmNminHeight, &min_height); ++n;
@@ -941,22 +925,9 @@ int AgedWindow::CheckMenuCommand(int anID, int flags)
 
 void aged_next(ImageData *data, int direction)
 {
-//	if (step>0 && !data->history_evt && !data->history_all) {
-	
-		/* step forward in real time */
-		PEventControlWindow::SetEventFilter(data);
-		setTriggerFlag(data,TRIGGER_SINGLE);
-		
-//	} else {
-//	
-//		/* turn off triggers */
-//		if (data->trigger_flag != TRIGGER_OFF) {
-//			setTriggerFlag(data,TRIGGER_OFF);
-//		}
-		
-		/* negative is backward in history, so change sign */
-//		showHistory(data, -step);
-//	}
+    /* step forward in real time */
+    PEventControlWindow::SetEventFilter(data);
+    setTriggerFlag(data,TRIGGER_SINGLE);
 }
 
 //--------------------------------------------------------------------------------------

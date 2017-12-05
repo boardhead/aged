@@ -32,7 +32,8 @@ enum ETextAlign_q {
 enum ELineType {
 	kLineTypeSolid,
 	kLineTypeDot,
-	kLineTypeDash
+	kLineTypeDash,
+    kLineTypeOnOffDash  // X11 only
 };
 
 enum EDevice {

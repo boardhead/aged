@@ -99,6 +99,7 @@ static void dispatchEvent(XEvent *event)
 	XtDispatchEvent(event);
 }
 
+// callback from timer to show the next event
 static void do_next(ImageData *data)
 {
     if (data->trigger_flag == TRIGGER_CONTINUOUS) {
@@ -114,13 +115,14 @@ static void do_next(ImageData *data)
     }
 }
 
-void Aged::ShowEvent(AgAnalysisFlow* analysis_flow, TARunInfo* runinfo)
+// Show ALPHA-g event in the display
+void Aged::ShowEvent(AgAnalysisFlow* anaFlow, AgSignalsFlow* sigFlow, TARunInfo* runinfo)
 {
     ImageData *data = fData;
 
     if (data) clearEvent(data);
 
-    TStoreEvent *anEvent = analysis_flow->fEvent;
+    TStoreEvent *anEvent = anaFlow->fEvent;
 
     if (!anEvent) return;
 
@@ -208,7 +210,8 @@ void Aged::ShowEvent(AgAnalysisFlow* analysis_flow, TARunInfo* runinfo)
         calcHitVals(data);
     
         data->agEvent = anEvent;
-        data->agFlow = analysis_flow;
+        data->anaFlow = anaFlow;
+        data->sigFlow = sigFlow;
         data->run_number = runinfo->fRunNo;
         data->event_id = anEvent->GetEventNumber();
     

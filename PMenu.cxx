@@ -13,7 +13,7 @@
 #include "PUtils.h"
 
 #define VERIFY_ACCELERATORS		// un-comment this to automatically test for
-								// duplcate accelerators/mnemonics
+								// duplicate accelerators/mnemonics
 
 MenuList	  *	PMenu::sCurMenuItem 	= NULL;	// last selected menu item
 int				PMenu::sWasAccelerator	= 0;

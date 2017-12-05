@@ -126,6 +126,40 @@ int PScale::GetPix(double val)
 }
 
 /*----------------------------------------------------------------------------
+** get absolute pixel location given absolute scale value,
+** constrained to be within the scale limits
+*/
+int PScale::GetPixConstrained(double val)
+{
+    if (val <= min_val) {
+        return pos1;
+    } else if (val >= max_val) {
+        return pos2;
+    } else {
+        return GetPix(val);
+    }
+}
+
+/*----------------------------------------------------------------------------
+** get absolute pixel location given absolute scale value,
+** constrained to be within the scale limits.  Bit 0 is set
+** in "out" if val was under scale, and bit 1 is set if it was
+** over scale.
+*/
+int PScale::GetPixConstrained(double val, int *out)
+{
+    if (val < min_val) {
+        *out |= 0x01;
+        return pos1;
+    } else if (val > max_val) {
+        *out |= 0x02;
+        return pos2;
+    } else {
+        return GetPix(val);
+    }
+}
+
+/*----------------------------------------------------------------------------
 ** drawLinScale - draw linear scale
 */
 void PScale::DrawLinScale()
@@ -236,7 +270,11 @@ void PScale::DrawLinScale()
 				if (dec) {
 					if (ival<0) sprintf(buff,"-%.1d.%.1d%c",(-ival)/10,(-ival)%10,suffix);
 					else		sprintf(buff,"%.1d.%.1d%c",ival/10,ival%10,suffix);
-				} else			sprintf(buff,"%d%c",ival,suffix);
+                } else if (suffix == 'm') {
+                    sprintf(buff,"%g",ival/1000.0);
+                } else {
+                    sprintf(buff,"%d%c",ival,suffix);
+                }
 				mDrawable->DrawString(x,y+5*scaling,buff,kTextAlignTopCenter);
 				ival += sep;
 				i = 1;
@@ -265,7 +303,11 @@ void PScale::DrawLinScale()
 				if (dec) {
 					if (ival<0) sprintf(buff,"-%.1d.%.1d%c",(-ival)/10,(-ival)%10,suffix);
 					else		sprintf(buff,"%.1d.%.1d%c",ival/10,ival%10,suffix);
-				} else			sprintf(buff,"%d%c",ival,suffix);
+                } else if (suffix == 'm') {
+                    sprintf(buff,"%g",ival/1000.0);
+                } else {
+                    sprintf(buff,"%d%c",ival,suffix);
+                }
 				mDrawable->DrawString(x+4*scaling, y,buff,kTextAlignMiddleLeft);
 				ival += sep;
 				i = 1;
@@ -292,7 +334,11 @@ void PScale::DrawLinScale()
 				if (dec) {
 					if (ival<0) sprintf(buff,"-%.1d.%.1d%c",(-ival)/10,(-ival)%10,suffix);
 					else		sprintf(buff,"%.1d.%.1d%c",ival/10,ival%10,suffix);
-				} else			sprintf(buff,"%d%c",ival,suffix);
+                } else if (suffix == 'm') {
+                    sprintf(buff,"%g",ival/1000.0);
+                } else {
+                    sprintf(buff,"%d%c",ival,suffix);
+                }
 				mDrawable->DrawString(x-5*scaling,y,buff,kTextAlignMiddleRight);
 				ival += sep;
 				i = 1;

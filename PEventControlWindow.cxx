@@ -18,7 +18,6 @@
 #include "PUtils.h"
 #include "menu.h"
 
-#define WIDGET_HEIGHT		30
 #define	WINDOW_WIDTH		350
 #define WINDOW_HEIGHT		113
 #define WINDOW_MIN_HEIGHT	109
@@ -152,7 +151,6 @@ PEventControlWindow::PEventControlWindow(ImageData *data)
 	XtSetArg(wargs[n], XmNx, 135); ++n;
 	XtSetArg(wargs[n], XmNy, 114); ++n;
 	XtSetArg(wargs[n], XmNwidth, 34); ++n;
-//	XtSetArg(wargs[n], XmNheight, WIDGET_HEIGHT); ++n;
 	but = XtCreateManagedWidget("-1",xmPushButtonWidgetClass,w,wargs,n);
 	XtAddCallback(but,XmNactivateCallback,(XtCallbackProc)backProc,data);
 
@@ -160,7 +158,6 @@ PEventControlWindow::PEventControlWindow(ImageData *data)
 	XtSetArg(wargs[n], XmNx, 171); ++n;
 	XtSetArg(wargs[n], XmNy, 114); ++n;
 	XtSetArg(wargs[n], XmNwidth, 34); ++n;
-//	XtSetArg(wargs[n], XmNheight, WIDGET_HEIGHT); ++n;
 	but = XtCreateManagedWidget("+1",xmPushButtonWidgetClass,w,wargs,n);
 	XtAddCallback(but,XmNactivateCallback,(XtCallbackProc)fwdProc,data);
 
@@ -168,7 +165,6 @@ PEventControlWindow::PEventControlWindow(ImageData *data)
 	XtSetArg(wargs[n], XmNx, 207); ++n;
 	XtSetArg(wargs[n], XmNy, 114); ++n;
 	XtSetArg(wargs[n], XmNwidth, 38); ++n;
-//	XtSetArg(wargs[n], XmNheight, WIDGET_HEIGHT); ++n;
 	but = XtCreateManagedWidget("-10",xmPushButtonWidgetClass,w,wargs,n);
 	XtAddCallback(but,XmNactivateCallback,(XtCallbackProc)fbackProc,data);
 
@@ -176,7 +172,6 @@ PEventControlWindow::PEventControlWindow(ImageData *data)
 	XtSetArg(wargs[n], XmNx, 247); ++n;
 	XtSetArg(wargs[n], XmNy, 114); ++n;
 	XtSetArg(wargs[n], XmNwidth, 38); ++n;
-//	XtSetArg(wargs[n], XmNheight, WIDGET_HEIGHT); ++n;
 	but = XtCreateManagedWidget("+10",xmPushButtonWidgetClass,w,wargs,n);
 	XtAddCallback(but,XmNactivateCallback,(XtCallbackProc)ffwdProc,data);
 
@@ -192,7 +187,6 @@ PEventControlWindow::PEventControlWindow(ImageData *data)
 	XtSetArg(wargs[n], XmNrightAttachment, XmATTACH_FORM); ++n;
 	XtSetArg(wargs[n], XmNrightOffset, 16); ++n;
 	XtSetArg(wargs[n], XmNmarginHeight, 2); ++n;
-//	XtSetArg(wargs[n], XmNheight, WIDGET_HEIGHT); ++n;
 	thresh_text = XtCreateManagedWidget("Threshold",xmTextWidgetClass,w,wargs,n);
 	XtAddCallback(thresh_text,XmNactivateCallback,(XtCallbackProc)filterProc,data);
 	//SetNhitText();
@@ -209,7 +203,6 @@ PEventControlWindow::PEventControlWindow(ImageData *data)
 	XtSetArg(wargs[n], XmNrightAttachment, XmATTACH_FORM); ++n;
 	XtSetArg(wargs[n], XmNrightOffset, 16); ++n;
 	XtSetArg(wargs[n], XmNmarginHeight, 2); ++n;
-//	XtSetArg(wargs[n], XmNheight, WIDGET_HEIGHT); ++n;
 	trigger_text = XtCreateManagedWidget("Triggers",xmTextWidgetClass,w,wargs,n);
 	XtAddCallback(trigger_text,XmNactivateCallback,(XtCallbackProc)filterProc,data);
 	//SetTriggerMaskText();

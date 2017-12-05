@@ -46,37 +46,20 @@ PHitInfoWindow::PHitInfoWindow(ImageData *data)
 	XtSetArg(wargs[n], XmNrightAttachment,	XmATTACH_FORM); ++n;
 	rc2 = XtCreateManagedWidget("eiRC2",xmRowColumnWidgetClass,GetMainPane(),wargs,n);
 	
-//	XtCreateManagedWidget("EvID:",   xmLabelWidgetClass,rc1,NULL,0);
 	XtCreateManagedWidget("Time:",   xmLabelWidgetClass,rc1,NULL,0);
 	XtCreateManagedWidget("Height:", xmLabelWidgetClass,rc1,NULL,0);
-//	XtCreateManagedWidget("Qhl:",    xmLabelWidgetClass,rc1,NULL,0);
-//	hi_qlx_label.CreateLabel("Qlx:", rc1,NULL,0);
 	XtCreateManagedWidget("Wire:",   xmLabelWidgetClass,rc1,NULL,0);
 	XtCreateManagedWidget("Pad:",    xmLabelWidgetClass,rc1,NULL,0);
-//	XtCreateManagedWidget("Channel:",xmLabelWidgetClass,rc1,NULL,0);
-//	XtCreateManagedWidget("Cell:",   xmLabelWidgetClass,rc1,NULL,0);
-//	XtCreateManagedWidget("Type:",   xmLabelWidgetClass,rc1,NULL,0);
-//	XtCreateManagedWidget("Panel:",  xmLabelWidgetClass,rc1,NULL,0);
-//	XtCreateManagedWidget("PMT:",    xmLabelWidgetClass,rc1,NULL,0);
 	
 	// create XYZ labels invisible
 	hi_xyz_labels[0].CreateLabel("X:",  rc1,NULL,0);
 	hi_xyz_labels[1].CreateLabel("Y:",  rc1,NULL,0);
 	hi_xyz_labels[2].CreateLabel("Z:",  rc1,NULL,0);
 	
-//	hi_gt 		.CreateLabel("hiGT",     rc2,NULL,0);
-	hi_time  	.CreateLabel("hiTac",    rc2,NULL,0);
-	hi_height  	.CreateLabel("hiQhs",    rc2,NULL,0);
-//	hi_qhl 		.CreateLabel("hiQhl",    rc2,NULL,0);
-//	hi_qlx 		.CreateLabel("hiQlx",    rc2,NULL,0);
-//	hi_nhit		.CreateLabel("hiNhit",   rc2,NULL,0);
-	hi_wire 	.CreateLabel("hiCrate",  rc2,NULL,0);
-	hi_pad 	    .CreateLabel("hiCard",   rc2,NULL,0);
-//	hi_channel	.CreateLabel("hiChannel",rc2,NULL,0);
-//	hi_cell 	.CreateLabel("hiCell",   rc2,NULL,0);
-//	hi_type 	.CreateLabel("hiType",   rc2,NULL,0);
-//	hi_panel 	.CreateLabel("hiPanel",  rc2,NULL,0);
-//	hi_pmt  	.CreateLabel("hiPMT",    rc2,NULL,0);
+	hi_time  	.CreateLabel("hiTime",   rc2,NULL,0);
+	hi_height  	.CreateLabel("hiHeight", rc2,NULL,0);
+	hi_wire 	.CreateLabel("hiWire",   rc2,NULL,0);
+	hi_pad 	    .CreateLabel("hiPad",    rc2,NULL,0);
 	
 	// create XYZ labels invisible
 	hi_xyz[0].CreateLabel("hiX",  	rc2,NULL,0);
@@ -100,19 +83,10 @@ void PHitInfoWindow::ClearEntries()
 	int		i;
 	
 	char	*str = "-";
-//	hi_gt.SetString(str);
 	hi_time.SetString(str);
 	hi_height.SetString(str);
-//	hi_qhl.SetString(str);
-//	hi_qlx.SetString(str);
-//	hi_nhit.SetString(str);
 	hi_wire.SetString(str);
 	hi_pad.SetString(str);
-//	hi_channel.SetString(str);
-//	hi_cell.SetString(str);
-//	hi_type.SetString(str);
-//	hi_panel.SetString(str);
-//	hi_pmt.SetString(str);
 	for (i=0; i<3; ++i) {
 		hi_xyz[i].SetString(str);
 	}
@@ -135,8 +109,6 @@ void PHitInfoWindow::UpdateSelf()
 		ClearEntries();
 	} else {
 		hi = data->hits.hit_info + num;
-//		sprintf(buff,data->hex_id ? "0x%.6lx" : "%ld",hi->gt);
-//		hi_gt.SetString(buff);
 		sprintf(buff,"%g",hi->time);
 		hi_time.SetString(buff);
 		sprintf(buff,"%g",hi->height);
@@ -178,14 +150,14 @@ void PHitInfoWindow::ManageXYZ(int manage)
 // ResizeToFit - resize shell height to fit the labels
 void PHitInfoWindow::ResizeToFit()
 {
-/*	Widget		last_label;
+	Widget		last_label;
 
 	if (GetData()->hit_xyz) {
 		last_label = hi_xyz[2].GetWidget();
 	} else {
-		last_label = hi_pmt.GetWidget();
+		last_label = hi_pad.GetWidget();
 	}
-	PWindow::ResizeToFit(last_label);*/
+	PWindow::ResizeToFit(last_label);
 }
 
 // SetHitXYZ - show or hide XYZ labels according to data->hit_xyz setting

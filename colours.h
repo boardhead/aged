@@ -3,9 +3,9 @@
 **
 ** The basic Aged colours are defined in the enumerated type EColours below.
 **
-** The hit and vessel colour numbers are special, since they both use variable
+** The hit and detector colour numbers are special, since they both use variable
 ** length colour tables generated at run time.  The hit colours begin with
-** colour number NUM_COLOURS, followed by the vessel colours.
+** colour number NUM_COLOURS, followed by the detector colours.
 **
 ** When a new colour is added, a corresponding resource should be added to
 ** PResourceManager.cxx, and a new sColourName should be added to PColourPicker.cxx.
@@ -29,7 +29,7 @@ enum EColour {
 	FIT_ADDED_COL,
 	FIT_SECOND_COL,
 	FIT_PHOTON_COL,
-	DISCARDED_COL,
+	WAVEFORM_COL,
 	GRID_COL,
 	SCALE_UNDER,
 	SCALE_COL0,

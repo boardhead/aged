@@ -200,6 +200,8 @@ void PDrawPostscriptFile::SetLineType(ELineType type)
 			fprintf(mFile,"[%.2f %.2f] %.2f setdash\n",
 					3.0 * GetScaling(), 2.0 * GetScaling(), 4.0 * GetScaling());
 			break;
+        case kLineTypeOnOffDash:
+            break;
 	}
 }
 

@@ -40,6 +40,7 @@ public:
 	virtual ~PHistImage();
 	
 	virtual void	DrawSelf();
+    virtual void    AfterDrawing();
 	virtual void	Resize();
 	virtual void	HandleEvents(XEvent *event);
 	virtual void	SetCursorForPos(int x, int y);
@@ -86,6 +87,8 @@ public:
 	int				GetNumBins()				{ return mNumBins; }
 	int             GetNumPix()                 { return mNumPix; }
 	int				GetGrabFlag()				{ return mGrabFlag; }
+    int             GetHistBin(double val);
+    double          GetBinValue(int bin);
 	int             GetPix(long val);
 	long            GetNumTraces()              { return mNumTraces; }
 	
@@ -94,13 +97,17 @@ public:
 	void			SetIntegerXScale(int is_int);
 	int             CalcAutoScale(int *minPt, int *maxPt);
 	void            SetAutoScale(int on)        { mAutoScale = on; }
+    void            SetCursorTracking(int on)   { mCursorTracking = on; }
 
 	void            SetPlotCol(int col)         { mPlotCol = col; }
 	void            SetOverlayCol(int col)      { mOverlayCol = col; }
 	
+    static PHistImage *sCursorHist; // histogram currently under the cursor
+
 protected:
 	void			ReadScaleValues();
 	void			CheckScaleRange();
+    void            GetScaleBins(int *noffsetPt, int *nbinPt);
 
 	long		  *	mHistogram;		// pointer to histogram array
 	long		  *	mOverlay;		// pointer to overlay array
@@ -133,7 +140,9 @@ protected:
 	Widget          sp_ymin, sp_ymax;
 	PHistCalc     * mCalcObj;       // object used to recalculate 2D histogram
 	int             mAutoScale;     // flag to automatically scale when drawing
-	
+	int             mCursorTracking;// flag to enable cursor tracking feature
+    int             mCursorBin;     // current bin for cursor
+
 private:
 	static void		ScaleAutoProc(Widget w, PHistImage *hist, caddr_t call_data);
 	static void		ScaleFullProc(Widget w, PHistImage *hist, caddr_t call_data);

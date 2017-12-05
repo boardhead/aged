@@ -20,11 +20,13 @@
 const long MIN_LONG = -1 - 0x7fffffffL;
 const long MAX_LONG = 0x7fffffffL;
 
+PHistImage *PHistImage::sCursorHist = NULL;
+
 //---------------------------------------------------------------------------------------
 // PHistImage constructor
 //
 PHistImage::PHistImage(PImageWindow *owner, Widget canvas, int createCanvas)
-		  : PImageCanvas(owner,canvas,PointerMotionMask|ButtonPressMask|ButtonReleaseMask)
+          : PImageCanvas(owner,canvas,PointerMotionMask|ButtonPressMask|ButtonReleaseMask|EnterWindowMask|LeaveWindowMask)
 {
 	mXScale			= NULL;
 	mYScale			= NULL;
@@ -50,6 +52,8 @@ PHistImage::PHistImage(PImageWindow *owner, Widget canvas, int createCanvas)
 	mPlotCol        = TEXT_COL;
 	mFixedBins      = 0;
 	mCalcObj        = NULL;
+    mCursorTracking = 0;
+    mCursorBin      = -1;
 	mAutoScale      = 0;
 
 	if (!canvas && createCanvas) {
@@ -59,6 +63,7 @@ PHistImage::PHistImage(PImageWindow *owner, Widget canvas, int createCanvas)
 
 PHistImage::~PHistImage()
 {
+    if (sCursorHist == this) sCursorHist = NULL;
 	delete mXScale;
 	delete mYScale;
 	
@@ -342,15 +347,32 @@ void PHistImage::SetLog(int on)
 
 void PHistImage::SetCursorForPos(int x, int y)
 {
+    int cursorBin = -1;
+    sCursorHist = this;
 	if (IsInLabel(x, y)) {
 		PImageCanvas::SetCursorForPos(x,y);
 	} else if (y >= mHeight - HIST_MARGIN_BOTTOM) {
 		SetCursor(CURSOR_MOVE_H);
 	} else if (x <= HIST_MARGIN_LEFT) {
 		SetCursor(CURSOR_MOVE_V);
-	} else {
-		SetCursor(CURSOR_MOVE_4);
-	}
+    } else {
+        if (mCursorTracking) {
+            SetCursor(CURSOR_XHAIR);
+        } else {
+            SetCursor(CURSOR_MOVE_4);
+        }
+        if (mXScale && mCursorTracking) {
+            // get scale value at the center of this pixel
+            float val = mXScale->GetVal(x) + 0.5 * mXScale->GetRelVal(1);
+            cursorBin = GetHistBin(val);
+        }
+    }
+    if (mCursorBin != cursorBin) {
+        mCursorBin = cursorBin;
+        if (mCursorTracking) {
+            SetDirty(kDirtyCursor);
+        }
+    }
 }
 
 void PHistImage::HandleEvents(XEvent *event)
@@ -455,6 +477,7 @@ void PHistImage::HandleEvents(XEvent *event)
 			}
 			break;
 		case MotionNotify:
+        case EnterNotify:
 			if (mGrabFlag & GRABS_ACTIVE) {
 				if (!didDrag) {
 					dx = posX - event->xbutton.x;
@@ -568,6 +591,13 @@ void PHistImage::HandleEvents(XEvent *event)
 				SetCursorForPos(event->xbutton.x, event->xbutton.y);
 			}
 			break;
+        case LeaveNotify: {
+            sCursorHist = NULL;
+            if (mCursorBin != -1) {
+                mCursorBin = -1;
+                SetDirty(kDirtyCursor);
+            }
+        }   break;
 	}
 }
 
@@ -606,6 +636,8 @@ void PHistImage::DoGrabY(double newMin, double newMax)
 */
 void PHistImage::DrawSelf()
 {
+    if (IsDirty() == kDirtyCursor) return; // don't draw if just our cursor changed
+
 	int				i,j,n,x,y,dx,dy;
 	int				lastx, lasty;
 	int				x1,y1,x2,y2;
@@ -866,6 +898,84 @@ void PHistImage::DrawSelf()
 #endif
 		DrawString(x2,y1+HIST_LABEL_Y,mLabel,kTextAlignTopRight);
 	}
+}
+
+void PHistImage::AfterDrawing()
+{
+    // draw cursor if we are tracking
+    if ((mCursorBin != -1) && mHistogram && mCursorTracking) {
+        int noffset, nbin;
+        GetScaleBins(&noffset, &nbin);
+        // don't draw cursor if it is off the histogram
+        if (mCursorBin < noffset || mCursorBin >= noffset + nbin) return;
+        // draw dashed lines to mark the edges of this bin
+        float val = (mCursorBin - noffset) * (GetScaleMax() - GetScaleMin()) / nbin + GetScaleMin();
+        int xmin = mXScale->GetPix((int)(val+0.5));
+        int xmax = mXScale->GetPix((int)(val+1.5));
+        SetForeground(CURSOR_COL);
+        SetFont(PResourceManager::sResource.hist_font);
+        int x1 = HIST_MARGIN_LEFT;
+        int x2 = mWidth - HIST_MARGIN_RIGHT;
+        int y1 = HIST_MARGIN_TOP;
+        int y2 = mHeight - HIST_MARGIN_BOTTOM;
+        SetLineType(kLineTypeOnOffDash);
+        DrawLine(xmin,y1,xmin,y2);
+        DrawLine(xmax,y1,xmax,y2);
+        // draw dashed line showing the value of the histogram at this bin
+        int out = 0;
+        int y = mYScale->GetPixConstrained(mHistogram[mCursorBin], &out);
+        if (!out)  {
+            DrawLine(xmin, y, x1, y);
+            DrawLine(xmax, y, x2, y);
+        }
+        SetLineWidth(1);    // (sets line type back to default)
+        // show cursor bin and histogram value in text
+        char buff[64];
+        sprintf(buff,"(%d,%ld)",mCursorBin, mHistogram[mCursorBin]);
+        if (xmin > x1 + 100) {
+            DrawString(xmin-4, y1+2, buff, kTextAlignTopRight);
+        } else {
+            DrawString(xmax+4, y1+2, buff, kTextAlignTopLeft);
+        }
+    }
+}
+
+// get offset to first bin and number of bins for the current histogram
+void PHistImage::GetScaleBins(int *noffsetPt, int *nbinPt)
+{
+    int noffset, nbin;
+    if (mFixedBins) {
+        noffset = (long)GetScaleMin();
+        if (noffset < 0 || noffset >= mNumBins) noffset = 0;
+        nbin = (long)(GetScaleMax() + 0.5) - noffset;
+        if (nbin > mNumBins - noffset) nbin = mNumBins - noffset;
+    } else {
+        noffset = 0;
+        nbin = mNumBins;
+    }
+    *noffsetPt = noffset;
+    *nbinPt = nbin;
+}
+
+// get histogram bin number corresponding to a specific x-scale value
+// - returns -1 if value is outside bin range
+int PHistImage::GetHistBin(double val)
+{
+    int noffset, nbin;
+    if (!mNumBins) return(-1);
+    GetScaleBins(&noffset, &nbin);
+    int bin = (int)(noffset + (val - GetScaleMin()) / (GetScaleMax() - GetScaleMin()) * nbin);
+    if (bin < 0 || bin >= mNumBins) bin = -1;
+    return(bin);
+}
+
+// get histogram bin central value
+double PHistImage::GetBinValue(int bin)
+{
+    int noffset, nbin;
+    if (bin < 0 || bin >= mNumBins) return(0);
+    GetScaleBins(&noffset, &nbin);
+    return((bin - noffset + 0.5) * (GetScaleMax() - GetScaleMin()) / nbin + GetScaleMin());
 }
 
 void PHistImage::Resize()

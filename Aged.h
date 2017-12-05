@@ -6,10 +6,10 @@
 // Created:     2017-08-01 - Phil Harvey
 //-----------------------------------------------------------------------------
 
-class TStoreEvent;
-class PWindow;
 class AgAnalysisFlow;
+class AgSignalsFlow;
 class TARunInfo;
+class PWindow;
 struct ImageData;
 
 class Aged
@@ -18,7 +18,7 @@ public:
     Aged();
     ~Aged();
     
-    void ShowEvent(AgAnalysisFlow* analysis_flow, TARunInfo* runinfo);
+    void ShowEvent(AgAnalysisFlow* anaFlow, AgSignalsFlow* sigFlow, TARunInfo* runinfo);
 
 private:
     ImageData   *fData;

@@ -6,13 +6,6 @@
 #include "PListener.h"
 #include "PLabel.h"
 
-struct SPmtCount {
-	PLabel		label;	// label for PMT count
-	int			index;	// index for PMT type
-};
-
-const int kNumPmtCounts	= 6;
-
 class PEventInfoWindow : public PWindow, public PListener {
 public:
 	PEventInfoWindow(ImageData *data);
@@ -21,8 +14,8 @@ public:
 	virtual void	Listen(int message, void *message_data);
 	
 private:
-    PLabel tw_evt, tw_nhit, tw_run, tw_tracks, tw_lines;
-    PLabel tw_helices, tw_vertexX, tw_vertexY, tw_vertexZ;
+    PLabel          tw_evt, tw_nhit, tw_run, tw_tracks, tw_lines;
+    PLabel          tw_helices, tw_vertexX, tw_vertexY, tw_vertexZ;
 	
 	int				mTimeZone;
 };

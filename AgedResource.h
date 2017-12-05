@@ -66,10 +66,10 @@ struct AgedResource {
 	XFontStruct	  *	label_font;					// font for image labels
 	XFontStruct	  *	label_big_font;				// big label font
 #ifdef ANTI_ALIAS
-    XftFont       * xft_hist_font;
+    XftFont       * xft_hist_font;              // X FreeType fonts
     XftFont       * xft_label_font;
     XftFont       * xft_label_big_font;
-    char          * xft_hist_font_str;
+    char          * xft_hist_font_str;          // X FreeType font names
     char          * xft_label_font_str;
     char          * xft_label_big_font_str;
 #endif
@@ -99,9 +99,7 @@ struct AgedResource {
 	int				print_col;					// flag for print colours
 	int				print_label;				// flag to print labels
 	int				show_label;					// flag to show event label
-	int				projCoords;					// index for projection coordinates menu item
 	int				shapeOption;				// index for hit shape menu item
-	int				record_index;				// index for record type displayed
 	char		  *	version;					// Aged version that wrote the resources
 	int				save_config;				// flag to save settings on quit
 };

@@ -22,6 +22,8 @@ public:
 	virtual void	SetRng(double low,double high);
 	
 	int 		GetPix(double val);
+    int         GetPixConstrained(double val);
+    int         GetPixConstrained(double val, int *out);
 	double		GetRelVal(int pix);
 	double		GetVal(int pix);
 	double		GetMinVal()				{ return min_val;	}

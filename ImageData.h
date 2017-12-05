@@ -28,6 +28,8 @@
 #define NUM_AG_WIRES    256             //TEST
 #define NUM_AG_PADS     (32 * 576)      //TEST
 
+const int kMaxWaveformChannels = 8;
+
 enum HitInfoFlags {
 	HIT_NORMAL 		= 0x01,
 	HIT_ALL_MASK    = HIT_NORMAL,
@@ -102,6 +104,7 @@ struct SpacePoints {
 
 class TStoreEvent;
 class AgAnalysisFlow;
+class AgSignalsFlow;
 
 struct ImageData : AgedResource {
 	AgedWindow    *	mMainWindow;		// main Aged window
@@ -114,7 +117,8 @@ struct ImageData : AgedResource {
 	int             mNext;              // true to step to next event (exit event loop)
 
     TStoreEvent   * agEvent;            // the event we are displaying
-    AgAnalysisFlow* agFlow;             // the Ag flow
+    AgAnalysisFlow* anaFlow;            // the analysis flow
+    AgSignalsFlow * sigFlow;            // the signals flow
 
 	Widget			toplevel;			// top level Aged widget
 	SpacePoints		hits;				// tube hit information
@@ -144,6 +148,9 @@ struct ImageData : AgedResource {
 	long			run_number;			// run number for event
     int      		last_cur_x;			// last cursor x location
     int				last_cur_y;			// last cursor y location
+
+    int             wave_min[kMaxWaveformChannels]; // waveform Y scale minimum
+    int             wave_max[kMaxWaveformChannels]; // waveform Y scale maximum
 };
 
 // ImageData routines
