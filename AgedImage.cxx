@@ -171,9 +171,16 @@ void AgedImage::HandleEvents(XEvent *event)
 	ImageData	*data = mOwner->GetData();
 	static int	rotate_flag;
 	static int	update_flags;
+    static int  last_x, last_y;
+    static int  didDrag = 0;
 
 	switch (event->type) {
 	
+        case kTimerEvent:
+            SetCursor(CURSOR_MOVE_4);
+            didDrag = 1;
+            break;
+
 		case ButtonPress:
 			if (HandleButton3(event)) return;
 			if (!sButtonDown) {
@@ -204,13 +211,26 @@ void AgedImage::HandleEvents(XEvent *event)
 					} else {
 						CalcGrab2(event->xbutton.x, event->xbutton.y);
 					}
-					SetCursor(CURSOR_MOVE_4);
+                    last_x = event->xbutton.x;
+                    last_y = event->xbutton.y;
+                    didDrag = 0;
+                    ArmTimer();
 				}
 				update_flags = 0;
 			}
 			break;			
 		case ButtonRelease:
 			if (sButtonDown == (int)event->xbutton.button) {
+                ResetTimer();
+                if (!didDrag) {
+                    data->cursor_sticky ^= 1;
+                    data->cursor_hit = -1;
+                    data->last_cur_x = event->xmotion.x;
+                    data->last_cur_y = event->xmotion.y;
+                    FindNearestHit();
+                    if (data->cursor_hit == -1) data->cursor_sticky = 0;
+                    sendMessage(data, kMessageCursorHit, this);
+                }
 				SetCursor(CURSOR_XHAIR);
 				XUngrabPointer(data->display, CurrentTime);
 				sButtonDown = 0;
@@ -236,6 +256,15 @@ void AgedImage::HandleEvents(XEvent *event)
 
 			if (event->xmotion.is_hint) break;
 
+            if (!didDrag) {
+                int dx = last_x - event->xbutton.x;
+                int dy = last_y - event->xbutton.y;
+                // must surpass motion threshold before activating grab
+                if (dx>-4 && dx<4 && dy>-4 && dy<4) break;
+                SetCursor(CURSOR_MOVE_4);
+                didDrag = 1;
+                ResetTimer();
+            }
 			xl = mGrabX;
 			yl = mGrabY;
 			zl = mGrabZ;
@@ -791,7 +820,7 @@ void AgedImage::AfterDrawing()
 		    node = &tmp;
 		}
 		if (!(node->flags & NODE_OUT)) {
-            SetForeground(CURSOR_COL);
+            SetForeground(data->cursor_sticky ? SELECT_COL : CURSOR_COL);
             int sz = (int)(data->hit_size * 3 + 0.5);
             if (data->wSpStyle == IDM_SP_SQUARES) {
                 DrawRectangle(node->x-sz, node->y-sz, sz*2, sz*2);

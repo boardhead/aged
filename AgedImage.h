@@ -10,7 +10,6 @@ enum AgedImageDirtyFlags {
 	kDirtyDetector	= 0x08,
 	kDirtyFrame		= 0x10,
 	kDirtyAxes		= 0x20,
-	kDirtySun		= 0x40,
 	
 	kDirtyAll		= 0xfe
 };

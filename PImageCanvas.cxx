@@ -37,6 +37,7 @@ PImageCanvas::PImageCanvas(PImageWindow *owner, Widget canvas, EventMask eventMa
 	mLabelText		= NULL;
 	mLabelHeight	= 0;
 	mDirty			= kDirtyPix;
+    mTimer          = 0;
 
 	SetCanvas(canvas);
 	
@@ -75,6 +76,29 @@ void PImageCanvas::Listen(int message, void *dataPt)
 	}
 }
 	
+// this timer is used by derived object for delayed grabs
+static void timerProc(PImageCanvas *thisCanvas)
+{
+    XButtonEvent evt;
+    evt.type = kTimerEvent;
+    thisCanvas->HandleEvents((XEvent *)&evt);
+}
+
+void PImageCanvas::ArmTimer(unsigned millisec)
+{
+    ImageData *data = mOwner->GetData();
+    if (data->the_app) {
+        mTimer = XtAppAddTimeOut(data->the_app, millisec, (XtTimerCallbackProc)timerProc, this);
+    }
+}   
+
+void PImageCanvas::ResetTimer()
+{
+    if (mTimer) {
+        XtRemoveTimeOut(mTimer);
+        mTimer = 0;
+    }
+}   
 
 // SetDirty - mark the image as needing redrawing
 void PImageCanvas::SetDirty(int flag)

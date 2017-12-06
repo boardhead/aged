@@ -13,6 +13,7 @@ public:
 	virtual ~PMapImage();
 	
 	virtual void	DrawSelf();
+    virtual void    AfterDrawing();
 	
 	virtual void	Listen(int message, void *dataPt);
 	virtual void	SetScrolls();

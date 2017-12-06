@@ -107,6 +107,9 @@ public:
 protected:
 	void			ReadScaleValues();
 	void			CheckScaleRange();
+    void            SetScales(double x1,double x2,double y1, double y2);
+    void            GetScales(double *x1,double *x2,double *y1,double *y2);
+    void            GetAutoScales(double *x1,double *x2,double *y1,double *y2);
     void            GetScaleBins(int *noffsetPt, int *nbinPt);
 
 	long		  *	mHistogram;		// pointer to histogram array

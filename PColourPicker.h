@@ -3,7 +3,7 @@
 
 #include "PImageCanvas.h"
 
-const int   kNumPickerColours = 22;
+const int   kNumPickerColours = 23;
 
 class PColourPicker : public PImageCanvas {
 public:

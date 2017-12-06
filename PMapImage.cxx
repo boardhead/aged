@@ -567,6 +567,8 @@ void PMapImage::SetProjection(int proj_type)
 */
 void PMapImage::DrawSelf()
 {
+    if (IsDirty() == kDirtyCursor) return; // don't draw if just our cursor changed
+
 	ImageData	*data = mOwner->GetData();
 	XSegment	segments[MAX_EDGES], *sp;
 	HitInfo		*hi;
@@ -954,6 +956,31 @@ Do_Proj_Elliptical:
             }
 		}
 	}
+}
+
+// highlight selected PMT
+void PMapImage::AfterDrawing()
+{
+    ImageData   *data = mOwner->GetData();
+    int num = data->hits.num_nodes;
+    int i = data->cursor_hit;
+    if (i >= 0 && i < num && !(data->hits.hit_info[i].flags & HiddenHitMask())) {
+        // remap only the node for this single hit
+        Node n0 = data->hits.nodes[i];
+        ReMapProj(&n0, mVec, mRot1, &mProj, &n0);
+        int d1, d2;
+		float scale = mProj.xscl * PROJ_HIT_SIZE * data->hit_size;
+        d1 = (int)scale;
+        if (d1 < 1) d1 = 1;
+        d2 = d1 * 2 + 1;
+        if (mShapeOption == IDM_HIT_SQUARE) {
+            SetForeground(data->cursor_sticky ? SELECT_COL : CURSOR_COL);
+            DrawRectangle(n0.x-d1-1, n0.y-d1-1,d2+1,d2+1);
+        } else {
+            SetForeground(data->cursor_sticky ? SELECT_COL : CURSOR_COL);
+            DrawArc(n0.x, n0.y, d1, d1);
+        }
+    }
 }
 
 //----------------------------------------------------------------------------------------------

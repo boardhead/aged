@@ -20,6 +20,8 @@
 const long MIN_LONG = -1 - 0x7fffffffL;
 const long MAX_LONG = 0x7fffffffL;
 
+const int  MIN_Y_RNG    = 10;   // minimum range for integer Y-axis scale
+
 PHistImage *PHistImage::sCursorHist = NULL;
 
 //---------------------------------------------------------------------------------------
@@ -39,7 +41,7 @@ PHistImage::PHistImage(PImageWindow *owner, Widget canvas, int createCanvas)
 	mNumCols		= 0;
 	mHistCols		= NULL;
 	mYMin           = 0;
-	mYMax			= 10;
+	mYMax			= MIN_Y_RNG;
 	mXMin			= 0;
 	mXMax			= 10;
 	mXScaleFlag		= INTEGER_SCALE;
@@ -400,6 +402,20 @@ void PHistImage::HandleEvents(XEvent *event)
 	x2 = mWidth - HIST_MARGIN_RIGHT;
 	
 	switch (event->type) {
+        case kTimerEvent:
+            if ((mGrabFlag & GRABS_ACTIVE) && !didDrag) {
+                if ((mGrabFlag & GRABS_ACTIVE) == GRABS_ACTIVE) {
+                    // the mouse button has been down for a while in the plot area, so start dragging
+                    SetCursor(CURSOR_MOVE_4);
+                } else if (mGrabFlag & GRAB_Y_ACTIVE) {
+                    SetCursor(CURSOR_MOVE_V);
+                } else {
+                    SetCursor(CURSOR_MOVE_H);
+                }
+                didDrag = 1;
+            }
+            break;
+
 		case ButtonPress:
 			if (!(mGrabFlag & GRABS_ACTIVE)) {
 				lastGrabFlag = mGrabFlag;
@@ -452,10 +468,14 @@ void PHistImage::HandleEvents(XEvent *event)
 				scaleMax = scaleMax0 = mXScale->GetMaxVal();
 				yscaleMin = yscaleMin0 = (long)mYScale->GetMinVal();
 				yscaleMax = yscaleMax0 = (long)mYScale->GetMaxVal();
+                if (mGrabFlag & GRABS_ACTIVE) {
+                    ArmTimer();
+                }
 			}
 			break;
 		case ButtonRelease:
 			if (mGrabFlag & GRABS_ACTIVE) {
+                ResetTimer();
 				if (wasChanged) {
 					// update the scale window
 					UpdateScaleInfo();
@@ -470,8 +490,14 @@ void PHistImage::HandleEvents(XEvent *event)
 					} else if (mGrabFlag) {
 						// reset the grab flags (allowing derived classes to rescale if necessary)
 						ResetGrab(1);
+                        // do autoscale with a single click
+                        double xmin,xmax,ymin,ymax;
+                        GetScales(&xmin,&xmax,&ymin,&ymax);
+                        GetAutoScales(&xmin,&xmax,&ymin,&ymax);
+                        SetScales(xmin,xmax,ymin,ymax);
 					}
 				}
+                SetCursorForPos(event->xbutton.x, event->xbutton.y);
 				mGrabFlag &= ~GRABS_ACTIVE;
 				XUngrabPointer(mDpy, CurrentTime);
 			}
@@ -484,7 +510,13 @@ void PHistImage::HandleEvents(XEvent *event)
 					dy = posY - event->xbutton.y;
 					// must surpass motion threshold before changing scale
 					if (dx>-4 && dx<4 && dy>-4 && dy<4) break;
-					didDrag = 1;
+                    if ((mGrabFlag & GRAB_X_ACTIVE) && (mGrabFlag & GRAB_Y_ACTIVE)) {
+                        SetCursor(CURSOR_MOVE_4);
+                    } else if (mGrabFlag & GRAB_Y_ACTIVE) {
+                        SetCursor(CURSOR_MOVE_V);
+                    }
+                    didDrag = 1;
+                    ResetTimer();
 				}
 				doUpdate = 0;
 				if (mGrabFlag & GRAB_X_ACTIVE) {	// change X scale?
@@ -554,7 +586,7 @@ void PHistImage::HandleEvents(XEvent *event)
 					    } else {
 					        newRng = MAX_LONG - (double)MIN_LONG;
 					    }
-					    if (newRng < 10) newRng = 10;   // set minimum range
+					    if (newRng < MIN_Y_RNG) newRng = MIN_Y_RNG;   // set minimum range
 
 					    newMax = (y0 - y1) * newRng / (double)(y2 - y1);
 					    if (newMax > MAX_LONG) {
@@ -593,6 +625,7 @@ void PHistImage::HandleEvents(XEvent *event)
 			break;
         case LeaveNotify: {
             sCursorHist = NULL;
+            ResetTimer();
             if (mCursorBin != -1) {
                 mCursorBin = -1;
                 SetDirty(kDirtyCursor);
@@ -611,19 +644,19 @@ void PHistImage::DoGrab(float xmin, float xmax)
 void PHistImage::DoGrabY(double newMin, double newMax)
 {
     // range check new scale
-    if (newMax - newMin < 10) {
-        newMax = newMin + 10;
+    if (newMax - newMin < MIN_Y_RNG) {
+        newMax = newMin + MIN_Y_RNG;
     }
     if (newMax > MAX_LONG) {
         newMax = MAX_LONG;
-        if (newMax - newMin < 10) {
-            newMin = newMax - 10;
+        if (newMax - newMin < MIN_Y_RNG) {
+            newMin = newMax - MIN_Y_RNG;
         }
     }
     if (newMin < MIN_LONG) {
         newMin = MIN_LONG;
-        if (newMax - newMin < 10) {
-            newMax = newMin + 10;
+        if (newMax - newMin < MIN_Y_RNG) {
+            newMax = newMin + MIN_Y_RNG;
         }
     }
     // do update only if scale maximum was changed
@@ -670,6 +703,7 @@ void PHistImage::DrawSelf()
 		if (!mXScale) return;
 	}
 	/* set the scale range (also draws it) */
+	CheckScaleRange();
     mXScale->SetRng(GetScaleMin(),GetScaleMax());
 
 	if (!mYScale) {
@@ -1015,6 +1049,19 @@ void PHistImage::ReadScaleValues()
 	SetLog(isLog);
 
 	// check scale range
+    SetScales(xmin,xmax,ymin,ymax);
+}
+
+void PHistImage::GetScales(double *xmin,double *xmax,double *ymin,double *ymax)
+{
+    *xmin = mXScale->GetMinVal();
+    *xmax = mXScale->GetMaxVal();
+    *ymin = mYScale->GetMinVal();
+    *ymax = mYScale->GetMaxVal();
+}
+
+void PHistImage::SetScales(double xmin,double xmax,double ymin,double ymax)
+{
 	SetScaleLimits();
 	mGrabFlag |= GRAB_X_ACTIVE | GRAB_X;
 	DoGrab(xmin, xmax);
@@ -1025,11 +1072,65 @@ void PHistImage::ReadScaleValues()
 	UpdateScaleInfo();
 }
 
+// Get scale limits for automatic scaling
+void PHistImage::GetAutoScales(double *x1,double *x2,double *y1,double *y2)
+{
+    double xmin = *x1;
+    double xmax = *x2;
+/*
+ * auto-scale y
+ */
+    if (mNumBins) {
+        long min=LONG_MAX, max=LONG_MIN, counts;
+        int noffset, nbin;
+        if (mFixedBins) {
+            noffset = (long)xmin;
+            if (noffset < 0 || noffset > mNumBins) noffset = 0;
+            nbin = (long)(xmax + 1.5) - noffset;
+            if (nbin > mNumBins - noffset) nbin = mNumBins - noffset;
+        } else {
+            noffset = 0;
+            nbin = mNumBins;
+        }
+        if (mHistogram) {
+            for (int i=0; i<nbin; ++i) {
+                counts = mHistogram[i+noffset];
+                if (max < counts) max = counts;
+                if (min > counts) min = counts;
+            }
+        }
+        if (mOverlay) {
+            for (int i=0; i<nbin; ++i) {
+                counts = mOverlay[i+noffset];
+                if (max < counts) max = counts;
+                if (min > counts) min = counts;
+            }
+        }
+        if (mHistogram || mOverlay) {
+            int rng = max - min;
+            if (rng < MIN_Y_RNG && mYScale->IsInteger()) {
+                int grow = (MIN_Y_RNG + 1 - rng) / 2;
+                if (min >= 0 && min - grow < 0) grow = min;
+                min -= grow;
+                max = min + MIN_Y_RNG;
+            } else {
+                int pad = rng / 8;
+                max += pad;
+                if (min >= 0 && min - pad < 0) pad = min;
+                min -= pad;
+            }
+            *y1 = min;
+            *y2 = max;
+        }
+    }
+}
+
 int PHistImage::GetPix(long val)
 {
     return mHeight - HIST_MARGIN_BOTTOM - mYScale->GetPix((double)val);
 }
 
+// check scale X range to be sure it doesn't exceed limits
 void PHistImage::CheckScaleRange()
 {
 	if (mXMin < mXMinMin) {

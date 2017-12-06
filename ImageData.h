@@ -136,6 +136,7 @@ struct ImageData : AgedResource {
 	char		  *	projName;			// name of current projection
 	char		  *	dispName;			// name of data display type
 	int				cursor_hit;			// hit index for current cursor location
+    int             cursor_sticky;      // flag for sticky hit cursor
 	char			print_string[2][FILELEN];// print command(0)/filename(1) strings
 	char			label_format[FORMAT_LEN];// format of event label
 	long			event_id;			// global trigger ID of currently displayed event

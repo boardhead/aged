@@ -354,11 +354,11 @@ void PEventHistogram::GetLimits(ImageData *data,float *min_pt, float *max_pt, fl
 	/* get histogram scales */
 	switch (data->wDataType) {
 		case IDM_TIME:
-            xmin = 0;
+            xmin = -4096;
             xmax = 4096;
 			break;
 		case IDM_HEIGHT:
-            xmin = 0;
+            xmin = -4096;
             xmax = 4096;
 			break;
 		case IDM_ERROR:

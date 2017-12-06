@@ -71,6 +71,7 @@ void initData(ImageData *data, int load_settings)
 	data->projName			= XtMalloc(20);
 	strcpy(data->projName, "Rectangular");
 	data->cursor_hit 		= -1;
+	data->cursor_sticky 	= 0;
 	data->angle_conv 		= 180 / PI;
 	data->sun_dir.x3        = 1 / sqrt(2);
 	data->sun_dir.y3        = data->sun_dir.x3;
@@ -144,6 +145,7 @@ void clearEvent(ImageData *data)
 	data->cursor_hit = -1;
 	data->run_number = 0;
 	data->event_id = 0;
+    data->cursor_sticky = 0;
 	//setEventTime(data,0);
 	data->display_time = 0;
 	data->agEvent = 0;

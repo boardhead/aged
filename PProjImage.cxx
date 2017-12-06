@@ -172,8 +172,6 @@ int PProjImage::FindNearestHit()
 {
 	ImageData		*data = mOwner->GetData();
 
-    if (sButtonDown) return 0;  // don't move hit if button is down
-
 	if (data->mLastImage != this) {
 		TransformHits();	// must transform hits to this projection
 	}
@@ -205,6 +203,7 @@ int PProjImage::FindNearestHit()
 		}
 		if (data->cursor_hit != num) {
 			data->cursor_hit = num;
+			if (num < 0) data->cursor_sticky = 0;
             sendMessage(data, kMessageCursorHit, this);
 			return(1);
 		}
@@ -240,9 +239,15 @@ void PProjImage::HandleEvents(XEvent *event)
 	ImageData		*data = mOwner->GetData();
 	static int		last_x, last_y;
 	static float	xc, yc;
+    static int      didDrag = 0;
 
 	switch (event->type) {
 	
+        case kTimerEvent:
+            SetCursor(CURSOR_MOVE_4);
+            didDrag = 1;
+            break;
+
 		case ButtonPress:
 			if (HandleButton3(event)) return;
 			if (!sButtonDown) {
@@ -255,16 +260,28 @@ void PProjImage::HandleEvents(XEvent *event)
 							 PointerMotionMask | ButtonPressMask | ButtonReleaseMask,
 							 GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
 				sButtonDown = event->xbutton.button;
-				last_x = event->xbutton.x;
-				last_y = event->xbutton.y;
+                // delay activating the drag to allow a quick press
+                last_x = event->xbutton.x;
+                last_y = event->xbutton.y;
+                didDrag = 0;
+                ArmTimer();
 				xc = mProj.pt[0] + (last_x - mProj.xcen)/(float)mProj.xscl;
 				yc = mProj.pt[1] - (last_y - mProj.ycen)/(float)mProj.yscl;
-				SetCursor(CURSOR_MOVE_4);
 			}
 			break;
 				
 		case ButtonRelease:
 			if (sButtonDown == (int)event->xbutton.button) {
+                ResetTimer();
+                if (!didDrag) {
+                    data->cursor_sticky ^= 1;
+                    data->cursor_hit = -1;
+                    data->last_cur_x = event->xmotion.x;
+                    data->last_cur_y = event->xmotion.y;
+                    FindNearestHit();
+                    if (data->cursor_hit == -1) data->cursor_sticky = 0;
+                    sendMessage(data, kMessageCursorHit, this);
+                }
 				SetCursor(CURSOR_XHAIR);
 				XUngrabPointer(data->display, CurrentTime);
 				sButtonDown = 0;
@@ -278,39 +295,50 @@ void PProjImage::HandleEvents(XEvent *event)
 				data->last_cur_x = event->xmotion.x;
 				data->last_cur_y = event->xmotion.y;
 				data->mCursorImage = this;
-				/* send message indicating a new hit is near the cursor */
-				if (FindNearestHit()) {
-					sendMessage(data, kMessageCursorHit, this);
-				}
-				
-			} else if (!event->xmotion.is_hint) {
-	
-				if (last_x != event->xbutton.x ||
-					last_y != event->xbutton.y)
-				{
-					last_x = event->xbutton.x;
-					last_y = event->xbutton.y;
-				
-					float xn = mProj.pt[0] + (last_x - mProj.xcen)/(float)mProj.xscl;
-					float yn = mProj.pt[1] - (last_y - mProj.ycen)/(float)mProj.yscl;
-	
-					mProj.pt[0] += xc - xn;
-					mProj.pt[1] += yc - yn;
-							
-					SetDirty();
-					SetScrolls();
-				}
-			}
+                /* find the hit nearest the new cursor location */
+                if (!data->cursor_sticky) FindNearestHit();
+                break;
+                
+            }
+            
+            if (event->xmotion.is_hint) break;
+
+            if (!didDrag) {
+                int dx = last_x - event->xbutton.x;
+                int dy = last_y - event->xbutton.y;
+                // must surpass motion threshold before activating grab
+                if (dx>-4 && dx<4 && dy>-4 && dy<4) break;
+                SetCursor(CURSOR_MOVE_4);
+                didDrag = 1;
+                ResetTimer();
+            }
+            if (last_x != event->xbutton.x ||
+                last_y != event->xbutton.y)
+            {
+                last_x = event->xbutton.x;
+                last_y = event->xbutton.y;
+            
+                float xn = mProj.pt[0] + (last_x - mProj.xcen)/(float)mProj.xscl;
+                float yn = mProj.pt[1] - (last_y - mProj.ycen)/(float)mProj.yscl;
+
+                mProj.pt[0] += xc - xn;
+                mProj.pt[1] += yc - yn;
+                        
+                SetDirty();
+                SetScrolls();
+            }
 			break;
 			
 		case LeaveNotify:
-			if (data->cursor_hit >= 0) {
-				data->cursor_hit = -1;
-				sendMessage(data, kMessageCursorHit, this);
-			}
+            ResetTimer();
 		    if (data->mCursorImage == this) {
 		        data->mCursorImage = NULL;
 		    }
+        /*  if (data->cursor_hit >= 0) {
+                data->cursor_hit = data->cursor_pmt = -1;
+                data->cursor_sticky = 0;
+                sendMessage(data, kMessageCursorHit, this);
+            }*/
 			break;
 	}
 }
