@@ -19,6 +19,7 @@ public:
 	virtual void	SetForegroundPixel(Pixel pixel);
 	virtual void	SetFont(XFontStruct *font);
 	virtual void	SetLineWidth(float width);
+    virtual void    SetLineType(ELineType type);
 	virtual int     GetTextWidth(char *str);
 	virtual void	DrawSegments(XSegment *segments, int num, int smooth=1);
 	virtual void	DrawPoint(int x,int y);

@@ -183,6 +183,14 @@ void PDrawXPixmap::SetLineWidth(float width)
 #endif
 }
 
+void PDrawXPixmap::SetLineType(ELineType type)
+{
+    if (type == kLineTypeOnOffDash) {
+        // (this will only work for non-anti-aliased lines)
+        XSetLineAttributes(mDpy, mGC, mLineWidth, LineOnOffDash, CapRound, JoinMiter);
+    }
+}
+
 void PDrawXPixmap::DrawRectangle(int x,int y,int w,int h)
 {
 	XDrawRectangle(mDpy, mDrawable, mGC, x, y, w, h);
