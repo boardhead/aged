@@ -2,8 +2,9 @@
 #define __PColourPicker_h__
 
 #include "PImageCanvas.h"
+#include "colours.h"
 
-const int   kNumPickerColours = 23;
+const int   kNumPickerColours = NUM_COLOURS;
 
 class PColourPicker : public PImageCanvas {
 public:

@@ -479,7 +479,7 @@ void AgedImage::SetToHome(int n)
         mProj.rot[2][0] = 1;  mProj.rot[2][1] = 0;  mProj.rot[2][2] = 0;
     } else {
         // set to top position - x right, y up
-        mProj.rot[0][0] = -1;  mProj.rot[0][1] = 0;  mProj.rot[0][2] = 0;
+        mProj.rot[0][0] = -1; mProj.rot[0][1] = 0;  mProj.rot[0][2] = 0;
         mProj.rot[1][0] = 0;  mProj.rot[1][1] = 1;  mProj.rot[1][2] = 0;
         mProj.rot[2][0] = 0;  mProj.rot[2][1] = 0;  mProj.rot[2][2] = -1;
     }
@@ -494,17 +494,24 @@ void AgedImage::SetToHome(int n)
 */
 void AgedImage::CalcDetectorShading()
 {	
-	Face		*face, *lface;
-	Node		*n2;
-	float		dot;
 	ImageData	*data = mOwner->GetData();
 
-	face = mDet.faces;
-	lface= face + mDet.num_faces;
-	n2   = &data->sun_dir;
+	Face *face  = mDet.faces;
+	Face *lface = face + mDet.num_faces;
+	Face *mface = face + mDet.num_faces / 2;
+	Node *n2    = &data->sun_dir;
+	// half the colours to use on each cylinder
+	int   hcol  = data->det_cols * 3 / 8;
+	// first colour for lighter outside cylinder
+	int   col0  = data->det_cols - hcol * 2;
+	for (; face<mface; ++face) {
+		double dot = face->norm.x*n2->x3 + face->norm.y*n2->y3 + face->norm.z*n2->z3;
+		face->flags = (((int)((dot + 1) * hcol) + col0) << FACE_COL_SHFT) 
+						| (face->flags & FACE_HID);	/* preserve hidden flags */
+	}
 	for (; face<lface; ++face) {
-		dot = face->norm.x*n2->x3 + face->norm.y*n2->y3 + face->norm.z*n2->z3;
-		face->flags = ((int)((dot + 1) * data->det_cols / 2) << FACE_COL_SHFT) 
+		double dot = face->norm.x*n2->x3 + face->norm.y*n2->y3 + face->norm.z*n2->z3;
+		face->flags = ((int)((dot + 1) * hcol) << FACE_COL_SHFT) 
 						| (face->flags & FACE_HID);	/* preserve hidden flags */
 	}
 }
