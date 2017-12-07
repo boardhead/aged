@@ -169,6 +169,14 @@ static XtResource sResourceList[] = {
  		XtRString, (XtPointer) "lpr " },
  {"print_filename","PrintFilename",XtRString,sizeof(String),XtOffset(AgedResPtr,print_string_pt[1]),
  		XtRString, (XtPointer) "aged_image.eps" },
+ {"wave0_min","Wave0Min",XtRInt,sizeof(int),XtOffset(AgedResPtr,wave_min[0]),
+ 		XtRString, (XtPointer) "-1500" },
+ {"wave0_max","Wave0Max",XtRInt,sizeof(int),XtOffset(AgedResPtr,wave_max[0]),
+ 		XtRString, (XtPointer) "500" },
+ {"wave1_min","Wave0Min",XtRInt,sizeof(int),XtOffset(AgedResPtr,wave_min[1]),
+ 		XtRString, (XtPointer) "-35000" },
+ {"wave1_max","Wave0Max",XtRInt,sizeof(int),XtOffset(AgedResPtr,wave_max[1]),
+ 		XtRString, (XtPointer) "30000" },
 
  // colours
  {"bkg_col",	"BkgCol",   XtRPixel, sizeof(Pixel),XtOffset(AgedResPtr,colset[0][BKG_COL]),

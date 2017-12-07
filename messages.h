@@ -47,9 +47,10 @@ enum {
 	// messages with data
 	kMessage3dCursorMotion,				// data is (PProjImage *)
 	kMessageCursorHit,					// data is (PProjImage *)
-	kMessageCursorNcd,					// data is (PProjImage *)
 	kMessageHitDiscarded,				// data is (PProjImage *)
-	
+
+    kMessageHistScalesChanged,          // data is (PHistImage *)
+
 	kLastMessageID	// not used, but saves trying to remember about commas on the last enum
 };
 

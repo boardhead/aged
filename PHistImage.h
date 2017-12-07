@@ -47,7 +47,7 @@ public:
 	
 	virtual void	DoGrab(float xmin, float xmax);
 	virtual void    DoGrabY(double ymin, double ymax);
-	virtual void	DoneGrab()					{ }
+	virtual void	DoneGrab();
 	
 	virtual void	ResetGrab(int do_update)	{ mGrabFlag = 0; }
 

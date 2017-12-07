@@ -33,7 +33,9 @@ enum EGotoBy {
 	kGotoTime
 };
 
-const short     kCaenRsrcNum = 8;               // number of CAEN channels saved
+const short kCaenRsrcNum = 8;           // number of CAEN channels saved
+const int   kMaxWaveformChannels = 8;   // maximum number of channels in the waveform window
+
 
 // masks for colour set bits
 const short		kWhiteBkg	= 0x01;
@@ -102,6 +104,8 @@ struct AgedResource {
 	int				shapeOption;				// index for hit shape menu item
 	char		  *	version;					// Aged version that wrote the resources
 	int				save_config;				// flag to save settings on quit
+    int             wave_min[kMaxWaveformChannels]; // waveform Y scale minimum
+    int             wave_max[kMaxWaveformChannels]; // waveform Y scale maximum
 };
 
 typedef AgedResource *AgedResPtr;

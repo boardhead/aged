@@ -1072,6 +1072,11 @@ void PHistImage::SetScales(double xmin,double xmax,double ymin,double ymax)
 	UpdateScaleInfo();
 }
 
+void PHistImage::DoneGrab()
+{
+    sendMessage(mOwner->GetData(), kMessageHistScalesChanged, this);
+}
+
 // Get scale limits for automatic scaling
 void PHistImage::GetAutoScales(double *x1,double *x2,double *y1,double *y2)
 {
@@ -1125,6 +1130,19 @@ void PHistImage::GetAutoScales(double *x1,double *x2,double *y1,double *y2)
     }
 }
 
+int PHistImage::CalcAutoScale(int *minPt, int *maxPt)
+{
+	if (mNumBins) {
+        double xmin,xmax,ymin,ymax;
+        GetScales(&xmin,&xmax,&ymin,&ymax);
+        GetAutoScales(&xmin,&xmax,&ymin,&ymax);
+        *minPt = floor(ymin);
+        *maxPt = ceil(ymax);
+        return 1;
+	}
+	return 0;
+}
+
 int PHistImage::GetPix(long val)
 {
     return mHeight - HIST_MARGIN_BOTTOM - mYScale->GetPix((double)val);
@@ -1159,60 +1177,6 @@ void PHistImage::ScaleFullProc(Widget w, PHistImage *hist, caddr_t call_data)
 
 	sprintf(buff,"%g",hist->mXMaxMax);
 	setTextString(hist->sp_max,buff);
-}
-
-int PHistImage::CalcAutoScale(int *minPt, int *maxPt)
-{
-	int min=0x7fffffff, max=0, counts;
-
-	if (mNumBins) {
-		int noffset, nbin;
-		int ok = 0;
-		if (mFixedBins) {
-		    noffset = (long)GetScaleMin();
-		    if (noffset < 0) noffset = 0;
-		    nbin = (long)(GetScaleMax() + 0.5) - noffset;
-		    if (nbin > mNumBins) nbin = mNumBins;
-	    } else {
-		    noffset = 0;
-		    nbin = mNumBins;
-		}
-        if (mCalcObj && mCalcObj->GetRange(this, noffset, nbin, &min, &max)) {
-            ok = 1;
-        } else if (mHistogram) {
-            for (int i=0; i<nbin; ++i) {
-                counts = mHistogram[i+noffset];
-                if (max < counts) max = counts;
-                if (min > counts) min = counts;
-            }
-            ok = 1;
-		}
-		if (mOverlay) {
-			for (int i=0; i<nbin; ++i) {
-				counts = mOverlay[i+noffset];
-				if (max < counts) max = counts;
-				if (min > counts) min = counts;
-			}
-			ok = 1;
-		}
-		if (ok) {
-			int rng = max - min;
-			if (rng < 10) {
-				min = max - 9;
-				if (min < 0) min = 0;
-				max = min + 10;
-			} else {
-				int pad = rng / 10;
-				min -= pad;
-				if (min < 0) min = 0;
-				max += pad;
-			}
-		    *minPt = min;
-		    *maxPt = max;
-		    return 1;
-		}
-	}
-	return 0;
 }
 
 void PHistImage::ScaleAutoProc(Widget w, PHistImage *hist, caddr_t call_data)

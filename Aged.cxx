@@ -115,6 +115,34 @@ static void do_next(ImageData *data)
     }
 }
 
+#if 1 //TEST
+void findWaveforms(TStoreEvent *anEvent, AgSignalsFlow* sigFlow)
+{
+    const TObjArray *points = anEvent->GetSpacePoints();
+    int num = points->GetEntries();
+    for (int i=0; i<num; ++i) {
+        int found = 0;
+        TSpacePoint* spi = (TSpacePoint*)points->At(i);
+        printf("spacepoint %d wire=%d pad=%d\n", i,spi->GetWire(),spi->GetPad());
+        for (auto it=sigFlow->AWwf.begin(); it!=sigFlow->AWwf.end(); ++it) {
+            if (it->i == spi->GetWire()) {
+                found |= 0x01;
+                break;
+            }
+        }
+        for (auto it=sigFlow->PADwf.begin(); it!=sigFlow->PADwf.end(); ++it) {
+            int pad = TPCBase::TPCBaseInstance()->SectorAndPad2Index(it->sec, it->i);
+            if (pad  == spi->GetPad()) {
+                found |= 0x02;
+                break;
+            }
+        }
+        if (!(found & 0x01)) printf(" - no wire\n");
+        if (!(found & 0x02)) printf(" - no pad\n");
+    }
+}
+#endif
+
 // Show ALPHA-g event in the display
 void Aged::ShowEvent(AgAnalysisFlow* anaFlow, AgSignalsFlow* sigFlow, TARunInfo* runinfo)
 {
@@ -127,6 +155,8 @@ void Aged::ShowEvent(AgAnalysisFlow* anaFlow, AgSignalsFlow* sigFlow, TARunInfo*
     if (!anEvent) return;
 
 #if 1 //TEST
+    findWaveforms(anEvent, sigFlow); //TEST
+
     const TObjArray *points = anEvent->GetSpacePoints();
     if (points) {
         int num = points->GetEntries();

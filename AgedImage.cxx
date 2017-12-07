@@ -820,13 +820,15 @@ void AgedImage::AfterDrawing()
 		    node = &tmp;
 		}
 		if (!(node->flags & NODE_OUT)) {
+            SetLineWidth(2);
             SetForeground(data->cursor_sticky ? SELECT_COL : CURSOR_COL);
-            int sz = (int)(data->hit_size * 3 + 0.5);
+            int sz = (int)(data->hit_size * 4 + 0.5);
             if (data->wSpStyle == IDM_SP_SQUARES) {
-                DrawRectangle(node->x-sz, node->y-sz, sz*2, sz*2);
+                DrawRectangle(node->x-sz, node->y-sz, sz*2+1, sz*2+1);
             } else {
                 DrawArc(node->x, node->y, sz, sz);
             }
+            SetLineWidth(1);
         }
     }
 }

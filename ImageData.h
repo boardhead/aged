@@ -28,8 +28,6 @@
 #define NUM_AG_WIRES    256             //TEST
 #define NUM_AG_PADS     (32 * 576)      //TEST
 
-const int kMaxWaveformChannels = 8;
-
 enum HitInfoFlags {
 	HIT_NORMAL 		= 0x01,
 	HIT_ALL_MASK    = HIT_NORMAL,
@@ -149,9 +147,6 @@ struct ImageData : AgedResource {
 	long			run_number;			// run number for event
     int      		last_cur_x;			// last cursor x location
     int				last_cur_y;			// last cursor y location
-
-    int             wave_min[kMaxWaveformChannels]; // waveform Y scale minimum
-    int             wave_max[kMaxWaveformChannels]; // waveform Y scale maximum
 };
 
 // ImageData routines
