@@ -394,19 +394,20 @@ void PDrawXPixmap::DrawArc(int cx,int cy,int rx,int ry,float ang1,float ang2)
 #ifdef ANTI_ALIAS
     if (IsSmoothLines()) {
         int num = rx + ry;
-        if (num < kMinArcPoints) num = kMinArcPoints;
-        if (num > kMaxArcPoints) num = kMaxArcPoints;
-        double ang = ang1 * PI / 180;
-        double x1 = cx + rx * cos(ang);
-        double y1 = cy + ry * sin(ang);
-        double step = (ang2 * PI / 180 - ang) / num;
-        for (int i=1; i<=num; ++i) {
-            ang += step;
-            double x2 = cx + rx * cos(ang);
-            double y2 = cy + ry * sin(ang);
-            DrawSmoothLine(x1,y1,x2,y2);
-            x1 = x2;
-            y1 = y2;
+        if (num) {
+            if (num < kMinArcPoints) num = kMinArcPoints;
+            if (num > kMaxArcPoints) num = kMaxArcPoints;
+            double ang = ang1 * PI / 180;
+            double step = (ang2 * PI / 180 - ang) / num;
+            double halfPix = 0.5 / sqrt(rx*rx + ry*ry);
+            for (int i=1; i<=num; ++i) {
+                double x1 = cx + rx * cos(ang - halfPix);
+                double y1 = cy + ry * sin(ang - halfPix);
+                ang += step;
+                double x2 = cx + rx * cos(ang + halfPix);
+                double y2 = cy + ry * sin(ang + halfPix);
+                DrawSmoothLine(x1,y1,x2,y2);
+            }
         }
     } else {
 #endif

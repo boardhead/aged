@@ -886,7 +886,7 @@ void PHistImage::DrawSelf()
 					lastx = x;
 					lasty = y;
 				}
-				DrawSegments(segments, sp-segments);
+				DrawSegments(segments, sp-segments, 0);
 				SetForeground(TEXT_COL);
 			}
 			if (mHistogram) {
@@ -915,7 +915,7 @@ void PHistImage::DrawSelf()
 					lastx = x;
 					lasty = y;
 				}
-				DrawSegments(segments, sp-segments);
+				DrawSegments(segments, sp-segments, 0);
 				SetForeground(TEXT_COL);
 			}
 			delete [] segments;
