@@ -28,7 +28,7 @@ LDSO_FLAGS    = -shared -elf
 CC_LD_FLAGS   = -shared -elf
 
 XINCS         = -I/usr/X11R6/include/X11/ -I/usr/X11R6/include
-XFLAGS        = $(XINCS) -I$(shell freetype-config --cflags)
+XFLAGS        = $(XINCS) $(shell freetype-config --cflags)
 XLIBS         = -L/usr/X11R6/lib -lXm -lXp -lXmu -lXft -lXt -lXrender -lX11
 
 ROOTINCS      = -I$(ROOTSYS)/include -I$(ANALYSIS_TPC)/include -I$(AGANA) -I$(GARFIELDPP)\
