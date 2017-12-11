@@ -207,14 +207,14 @@ PSettingsWindow::PSettingsWindow(ImageData *data)
 	n = 0;
 	XtSetArg(wargs[n], XmNx, 16); ++n;
 	XtSetArg(wargs[n], XmNy, 104); ++n;
-	XtCreateManagedWidget("Hit Info:",xmLabelWidgetClass,w,wargs,n);
+	XtCreateManagedWidget("Space Pt:",xmLabelWidgetClass,w,wargs,n);
 	
 	n = 0;
 	XtSetArg(wargs[n], XmNx, 100); ++n;
 	XtSetArg(wargs[n], XmNy, 100 + RADIO_OFFSET); ++n;
 	XtSetArg(wargs[n], XmNmarginHeight, 2); ++n;
 	XtSetArg(wargs[n], XmNset, data->hit_xyz != 0); ++n;
-	but = XtCreateManagedWidget("Show Hit XYZ",xmToggleButtonWidgetClass,w,wargs,n);
+	but = XtCreateManagedWidget("Show Space Point XYZ",xmToggleButtonWidgetClass,w,wargs,n);
 	XtAddCallback(but,XmNvalueChangedCallback,(XtCallbackProc)XYZProc, data);
 	
 	n = 0;
@@ -233,7 +233,7 @@ PSettingsWindow::PSettingsWindow(ImageData *data)
 	n = 0;
 	XtSetArg(wargs[n], XmNx, 16); ++n;
 	XtSetArg(wargs[n], XmNy, 170); ++n;
-	XtCreateManagedWidget("Hit Size:",xmLabelWidgetClass,w,wargs,n);
+	XtCreateManagedWidget("SpcPt Size:",xmLabelWidgetClass,w,wargs,n);
 	
 	n = 0;
 	XtSetArg(wargs[n], XmNx, 100); ++n;
@@ -662,7 +662,7 @@ void PSettingsWindow::FitChangedProc(Widget w, ImageData *data, XmScaleCallbackS
 	sUpdateTime = 0;
 }
 
-// SetHitXYZ - turn on or off the hit XYZ display of the Hit Info window
+// SetHitXYZ - turn on or off the XYZ display of the Space Point window
 void PSettingsWindow::SetHitXYZ(ImageData *data, int on)
 {
 	if (data->hit_xyz != on) {

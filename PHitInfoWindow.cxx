@@ -1,6 +1,7 @@
 #include <Xm/RowColumn.h>
 #include <Xm/Label.h>
 #include <Xm/Form.h>
+#include <Xm/PushB.h>
 #include "ImageData.h"
 #include "PHitInfoWindow.h"
 #include "PImageWindow.h"
@@ -18,34 +19,53 @@ PHitInfoWindow::PHitInfoWindow(ImageData *data)
 	Widget	rc1, rc2;
 	int		n;
 	Arg		wargs[16];
+	Widget  w, but;
 		
 	mLastNum = -1;
 	
 	n = 0;
-	XtSetArg(wargs[n], XmNtitle, "Hit Info"); ++n;
+	XtSetArg(wargs[n], XmNtitle, "Space Point"); ++n;
 	XtSetArg(wargs[n], XmNx, 200); ++n;
 	XtSetArg(wargs[n], XmNy, 200); ++n;
 	XtSetArg(wargs[n], XmNminWidth, 165); ++n;
 	XtSetArg(wargs[n], XmNminHeight, 100); ++n;
 	SetShell(CreateShell("hiPop",data->toplevel,wargs,n));
-	SetMainPane(XtCreateManagedWidget("agedForm", xmFormWidgetClass,GetShell(),NULL,0));
+	SetMainPane(w = XtCreateManagedWidget("agedForm", xmFormWidgetClass,GetShell(),NULL,0));
 
 	n = 0;
+	XtSetArg(wargs[n], XmNx, 16); ++n;
+	XtSetArg(wargs[n], XmNy, 8); ++n;
+	XtSetArg(wargs[n], XmNwidth, 60); ++n;
+	but = XtCreateManagedWidget("Next",xmPushButtonWidgetClass,w,wargs,n);
+    XtAddCallback(but, XmNactivateCallback, (XtCallbackProc)NextProc, this);
+
+	n = 0;
+	XtSetArg(wargs[n], XmNy, 8); ++n;
+	XtSetArg(wargs[n], XmNrightAttachment,	XmATTACH_FORM); ++n;
+	XtSetArg(wargs[n], XmNrightOffset, 16); ++n;
+	XtSetArg(wargs[n], XmNwidth, 60); ++n;
+	but = XtCreateManagedWidget("Prev",xmPushButtonWidgetClass,w,wargs,n);
+    XtAddCallback(but, XmNactivateCallback, (XtCallbackProc)PrevProc, this);
+
+	n = 0;
+	XtSetArg(wargs[n], XmNtopOffset, 35); ++n;
 	XtSetArg(wargs[n], XmNpacking, 			XmPACK_COLUMN); ++n;
 	XtSetArg(wargs[n], XmNleftAttachment, 	XmATTACH_FORM); ++n;
-	XtSetArg(wargs[n], XmNtopAttachment, 	XmATTACH_FORM); ++n;
+	XtSetArg(wargs[n], XmNtopAttachment,    XmATTACH_FORM);  ++n;
 	XtSetArg(wargs[n], XmNbottomAttachment, XmATTACH_FORM); ++n;
-	rc1 = XtCreateManagedWidget("hiRC1",xmRowColumnWidgetClass,GetMainPane(),wargs,n);
+	rc1 = XtCreateManagedWidget("hiRC1",xmRowColumnWidgetClass,w,wargs,n);
 
 	n = 0;
+	XtSetArg(wargs[n], XmNtopOffset, 35); ++n;
 	XtSetArg(wargs[n], XmNpacking, 			XmPACK_COLUMN); ++n;
 	XtSetArg(wargs[n], XmNleftAttachment, 	XmATTACH_WIDGET); ++n;
 	XtSetArg(wargs[n], XmNleftWidget, rc1); ++n;
-	XtSetArg(wargs[n], XmNtopAttachment, 	XmATTACH_FORM); ++n;
+	XtSetArg(wargs[n], XmNtopAttachment,    XmATTACH_FORM);  ++n;
 	XtSetArg(wargs[n], XmNbottomAttachment, XmATTACH_FORM); ++n;
 	XtSetArg(wargs[n], XmNrightAttachment,	XmATTACH_FORM); ++n;
-	rc2 = XtCreateManagedWidget("eiRC2",xmRowColumnWidgetClass,GetMainPane(),wargs,n);
+	rc2 = XtCreateManagedWidget("eiRC2",xmRowColumnWidgetClass,w,wargs,n);
 	
+	XtCreateManagedWidget("Num:",    xmLabelWidgetClass,rc1,NULL,0);
 	XtCreateManagedWidget("Time:",   xmLabelWidgetClass,rc1,NULL,0);
 	XtCreateManagedWidget("Height:", xmLabelWidgetClass,rc1,NULL,0);
 	XtCreateManagedWidget("Wire:",   xmLabelWidgetClass,rc1,NULL,0);
@@ -56,6 +76,7 @@ PHitInfoWindow::PHitInfoWindow(ImageData *data)
 	hi_xyz_labels[1].CreateLabel("Y:",  rc1,NULL,0);
 	hi_xyz_labels[2].CreateLabel("Z:",  rc1,NULL,0);
 	
+	hi_num   	.CreateLabel("hiNum",    rc2,NULL,0);
 	hi_time  	.CreateLabel("hiTime",   rc2,NULL,0);
 	hi_height  	.CreateLabel("hiHeight", rc2,NULL,0);
 	hi_wire 	.CreateLabel("hiWire",   rc2,NULL,0);
@@ -78,11 +99,34 @@ PHitInfoWindow::~PHitInfoWindow()
 {
 }
 
+void PHitInfoWindow::NextProc(Widget w, PHitInfoWindow *win, caddr_t call_data)
+{
+	ImageData *data = win->GetData();
+    if (data->hits.num_nodes) {
+        data->cursor_hit += 1;
+        if (data->cursor_hit >= data->hits.num_nodes) data->cursor_hit = 0;
+        data->cursor_sticky = 1;
+        sendMessage(data, kMessageCursorHit);
+    }
+}
+
+void PHitInfoWindow::PrevProc(Widget w, PHitInfoWindow *win, caddr_t call_data)
+{
+	ImageData *data = win->GetData();
+    if (data->hits.num_nodes) {
+        data->cursor_hit -= 1;
+        if (data->cursor_hit < 0) data->cursor_hit = data->hits.num_nodes-1;
+        data->cursor_sticky = 1;
+        sendMessage(data, kMessageCursorHit);
+    }
+}
+
 void PHitInfoWindow::ClearEntries()
 {
 	int		i;
 	
 	char	*str = "-";
+	hi_num.SetString(str);
 	hi_time.SetString(str);
 	hi_height.SetString(str);
 	hi_wire.SetString(str);
@@ -109,6 +153,8 @@ void PHitInfoWindow::UpdateSelf()
 		ClearEntries();
 	} else {
 		hi = data->hits.hit_info + num;
+		sprintf(buff,"%d",num);
+		hi_num.SetString(buff);
 		sprintf(buff,"%g",hi->time);
 		hi_time.SetString(buff);
 		sprintf(buff,"%g",hi->height);

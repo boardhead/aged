@@ -41,6 +41,9 @@ static MenuStruct file_menu[] = {
 	{ "Next Event", 		'>', XK_N,	IDM_NEXT_EVENT,		NULL, 0, 0},
 	{ "Clear Event",		'l', XK_l,	IDM_CLEAR_EVENT,	NULL, 0, 0},
 	{ NULL, 				0,   0,		0,					NULL, 0, 0},
+	{ "Next Space Point",   '+', XK_x,	IDM_NEXT_SPCPT,		NULL, 0, 0},
+	{ "Prev Space Point",   '-', XK_v,	IDM_PREV_SPCPT,		NULL, 0, 0},
+	{ NULL, 				0,   0,		0,					NULL, 0, 0},
 	{ "Print Image...", 	'p', XK_P,	IDM_PRINT_IMAGE,	NULL, 0, 0},
 	{ "Print Window...", 	0,   XK_W,  IDM_PRINT_WINDOW,	NULL, 0, 0},
 	{ NULL, 				0,   0,		0,					NULL, 0, 0},
@@ -83,7 +86,7 @@ static MenuStruct data_menu[] = {
 };
 static MenuStruct window_menu[] = {
 	{ "Event Info",			0,   XK_E,	EVT_INFO_WINDOW,	NULL, 0, 0},
-	{ "Hit Info",  			0,   XK_H,	HIT_INFO_WINDOW,	NULL, 0, 0},
+	{ "Space Point",    	0,   XK_S,	HIT_INFO_WINDOW,	NULL, 0, 0},
 	{ "Histogram", 			0,   XK_i,	HIST_WINDOW,		NULL, 0, 0},
 	{ "Waveforms",		    0,   XK_W,	WAVE_WINDOW,		NULL, 0, 0},
 	{ "Projections",		0,   XK_P,	PROJ_WINDOW,		NULL, 0, 0},
@@ -979,6 +982,24 @@ void AgedWindow::DoMenuCommand(int anID)
 			
 		case IDM_NEXT_EVENT:
 		    aged_next(data, 1);
+			break;
+			
+		case IDM_NEXT_SPCPT:
+            if (data->hits.num_nodes) {
+                data->cursor_hit += 1;
+                if (data->cursor_hit >= data->hits.num_nodes) data->cursor_hit = 0;
+                data->cursor_sticky = 1;
+                sendMessage(data, kMessageCursorHit);
+            }
+            break;
+			
+		case IDM_PREV_SPCPT:
+            if (data->hits.num_nodes) {
+                data->cursor_hit -= 1;
+                if (data->cursor_hit < 0) data->cursor_hit = data->hits.num_nodes-1;
+                data->cursor_sticky = 1;
+                sendMessage(data, kMessageCursorHit);
+            }
 			break;
 			
 //		case IDM_PREV_EVENT:

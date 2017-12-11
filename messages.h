@@ -36,6 +36,7 @@ enum {
 	kMessageWillWriteSettings,		// we are about to write our settings to file
 	kMessageWriteSettingsDone,		// we are done writing our settings to file
 	kMessageHitXYZChanged,			// the hit XYZ setting has changed
+	kMessageCursorHit,				// the hit cursor has moved
 
 	// messages from the global speaker (the resource manager)
 	// (via PResourceManager::sSpeaker, not ImageData->mSpeaker)
@@ -46,7 +47,6 @@ enum {
 
 	// messages with data
 	kMessage3dCursorMotion,				// data is (PProjImage *)
-	kMessageCursorHit,					// data is (PProjImage *)
 	kMessageHitDiscarded,				// data is (PProjImage *)
 
     kMessageHistScalesChanged,          // data is (PHistImage *)

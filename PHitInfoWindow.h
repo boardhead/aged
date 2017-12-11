@@ -16,12 +16,15 @@ public:
 	virtual void	Listen(int message, void *message_data);
 	
 private:
+	static void		NextProc(Widget w, PHitInfoWindow *win, caddr_t call_data);
+	static void		PrevProc(Widget w, PHitInfoWindow *win, caddr_t call_data);
+
 	void			ClearEntries();
 	void			SetHitXYZ();
 	void			ManageXYZ(int manage);
 	void			ResizeToFit();
 	
-	PLabel			hi_time, hi_height, hi_hit_label;
+	PLabel			hi_num, hi_time, hi_height, hi_hit_label;
 	PLabel			hi_wire, hi_pad, hi_type;
 	PLabel			hi_xyz_labels[3], hi_xyz[3];
 	int				mLastNum;

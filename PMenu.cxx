@@ -101,6 +101,9 @@ MenuList *PMenu::CreateMenu(char *title, Widget menu, MenuStruct *menuDef, int n
 			case '>':
 				item->accelerator = '.';
 				break;
+		    case '+':
+		        item->accelerator = '=';
+		        break;
 		}
 		
 		// insert item into linked list
@@ -515,6 +518,16 @@ int PMenu::DoAccelerator(KeySym ks)
 // - returns non-zero if accelerator found
 int PMenu::DoAccelerator(KeySym ks, MenuList *menu)
 {
+    // translate numeric keypad codes
+    switch (ks) {
+        case XK_KP_Add:
+        case '+':
+            ks = '=';
+            break;
+        case XK_KP_Subtract:
+            ks = '-';
+            break;
+    }
 	while (menu) {
 		if (menu->accelerator == ks) {
 			// only select item if it is sensitive
