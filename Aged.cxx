@@ -268,10 +268,6 @@ void Aged::ShowEvent(AgAnalysisFlow* anaFlow, AgSignalsFlow* sigFlow, TARunInfo*
         // update windows now if necessary (but only after all X events have been dispatched)
         if (!XPending(data->display)) PWindow::HandleUpdates();
     }
-    PEventControlWindow *pe_win = (PEventControlWindow *)data->mWindow[EVT_NUM_WINDOW];
-    if (pe_win) {
-        pe_win->Update();
-    }
     data->mNext = 0;
 }
 
