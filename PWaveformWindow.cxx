@@ -305,8 +305,8 @@ void PWaveformWindow::UpdateSelf()
                     long *pt = mHist[i]->GetDataPt();
                     if (pt) {
                         mHist[i]->SetScaleLimits(0, wf->size(), 10);
-                        for (vector<const int16_t>::iterator it=wf->begin(); it!=wf->end(); ++it) {
-                            *pt++ = *it;
+                        for (int i=0; i<wf->size(); ++i) {
+                            *pt++ = wf->at(i);
                         }
                     }
                 } else if (i == 1) {
@@ -315,8 +315,8 @@ void PWaveformWindow::UpdateSelf()
                     long *pt = mHist[i]->GetDataPt();
                     if (pt) {
                         mHist[i]->SetScaleLimits(0, wf->size(), 10);
-                        for (vector<const int>::iterator it=wf->begin(); it!=wf->end(); ++it) {
-                            *pt++ = *it;
+                        for (int i=0; i<wf->size(); ++i) {
+                            *pt++ = wf->at(i);
                         }
                     }
                 }
