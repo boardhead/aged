@@ -8,12 +8,12 @@ class PImageWindow;
 
 class PNotifyRaised {
 public:
-	PNotifyRaised();
-	virtual ~PNotifyRaised();
-	
-	virtual void	NotifyRaised(PImageWindow *aWindow)	= 0;
+    PNotifyRaised();
+    virtual ~PNotifyRaised();
+    
+    virtual void	NotifyRaised(PImageWindow *aWindow)	= 0;
 
-	void			ArmNotifyRaised();
+    void			ArmNotifyRaised();
 };
 
 #endif // __PNotifyRaised_h__

@@ -19,8 +19,8 @@ unsigned long LIB$WAIT( float* );
 */
 void setProgname(char *aFilename, char *aPathname)
 {
-	progname = aFilename;
-	progpath = aPathname;
+    progname = aFilename;
+    progpath = aPathname;
 }
 
 /*
@@ -28,11 +28,11 @@ void setProgname(char *aFilename, char *aPathname)
  */
 double double_time(void)
 {
-	/* add support for systems without clock_gettime() or ftime() - PH 01/20/99 */
-	struct timeval tv;
-	struct timezone tz;
-	gettimeofday(&tv,&tz);
-	return(tv.tv_sec + 1e-6 * tv.tv_usec);
+    /* add support for systems without clock_gettime() or ftime() - PH 01/20/99 */
+    struct timeval tv;
+    struct timezone tz;
+    gettimeofday(&tv,&tz);
+    return(tv.tv_sec + 1e-6 * tv.tv_usec);
 }
 
 
@@ -40,31 +40,31 @@ double double_time(void)
 void usleep_(unsigned long usec)
 {
 #ifdef USE_NANOSLEEP
-	struct timespec ts;
-	ts.tv_sec = usec / 1000000UL;
-	ts.tv_nsec = (usec - ts.tv_sec * 1000000UL) * 1000;
-	nanosleep(&ts,NULL);
+    struct timespec ts;
+    ts.tv_sec = usec / 1000000UL;
+    ts.tv_nsec = (usec - ts.tv_sec * 1000000UL) * 1000;
+    nanosleep(&ts,NULL);
 #elif VAX
-	float secs;
-	secs = usec * 0.000001;
-	LIB$WAIT(&secs);
+    float secs;
+    secs = usec * 0.000001;
+    LIB$WAIT(&secs);
 #else
-	usleep(usec);
+    usleep(usec);
 #endif
 }
 
 
 /* Printf buffer variables */
 static char *sPrintfBuffer = NULL;
-static int	 sPrintfBufferMax = 0;
-static int	 sPrintfBufferLen = 0;
+static int   sPrintfBufferMax = 0;
+static int   sPrintfBufferLen = 0;
 
 void SetPrintfOutput(char *buff, int size)
 {
-	sPrintfBuffer = buff;
-	sPrintfBufferMax = size;
-	sPrintfBufferLen = 0;
-	if (buff && size) *buff = '\0';	/* start with null string in buffer */
+    sPrintfBuffer = buff;
+    sPrintfBufferMax = size;
+    sPrintfBufferLen = 0;
+    if (buff && size) *buff = '\0';	/* start with null string in buffer */
 }
 
 #ifdef VAX
@@ -74,32 +74,32 @@ int vaxPrintf(char *fmt,...)
 int Printf(char *fmt,...)
 #endif
 {
-	int		len = 0;
-	va_list	varArgList;
-	
-	va_start(varArgList,fmt);
-	if (sPrintfBuffer) {
-		/* check to see if buffer is getting too full */
-		if (sPrintfBufferLen + 80 > sPrintfBufferMax) {
-			printf("%s: Printf buffer too full!\n", progname);
-		} else {
-			/* add output to buffer */
-			char *pt = strchr(sPrintfBuffer, '\0');
-			len = sprintf(pt,"%s: ",progname);
-			len += vsprintf(pt+len,fmt,varArgList);
-			sPrintfBufferLen = pt - sPrintfBuffer + len;
-		}
-	} else {
-		len = printf("%s: ", progname);
-		len += vprintf(fmt,varArgList);
-	}
-	va_end(varArgList);
-	return(len);
+    int		len = 0;
+    va_list	varArgList;
+    
+    va_start(varArgList,fmt);
+    if (sPrintfBuffer) {
+    	/* check to see if buffer is getting too full */
+    	if (sPrintfBufferLen + 80 > sPrintfBufferMax) {
+    		printf("%s: Printf buffer too full!\n", progname);
+    	} else {
+    		/* add output to buffer */
+    		char *pt = strchr(sPrintfBuffer, '\0');
+    		len = sprintf(pt,"%s: ",progname);
+    		len += vsprintf(pt+len,fmt,varArgList);
+    		sPrintfBufferLen = pt - sPrintfBuffer + len;
+    	}
+    } else {
+    	len = printf("%s: ", progname);
+    	len += vprintf(fmt,varArgList);
+    }
+    va_end(varArgList);
+    return(len);
 }
 
 void quit(char *msg)
 {
-	printf("%s: %s\n",progname,msg);
-	exit(0);
+    printf("%s: %s\n",progname,msg);
+    exit(0);
 }
 

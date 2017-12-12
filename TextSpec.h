@@ -4,11 +4,11 @@
 #include <X11/Xlib.h>
 
 struct TextSpec {
-	XFontStruct	  *	font;
+    XFontStruct	  *	font;
 #ifdef ANTI_ALIAS
     XftFont       * xftFont;
 #endif
-	char		  *	string;
+    char		  *	string;
 };
 
 #endif // __TextSpec_h__

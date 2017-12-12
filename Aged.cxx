@@ -17,16 +17,16 @@
 #include "AgFlow.h"
 #include "TStoreHelix.hh" // TEMPORARY
 
-#define AnyModMask			(Mod1Mask | Mod2Mask | Mod3Mask | Mod4Mask | Mod5Mask)
+#define AnyModMask  		(Mod1Mask | Mod2Mask | Mod3Mask | Mod4Mask | Mod5Mask)
 
 Aged::Aged()
 {
-  	Printf((char *)"Version " AGED_VERSION "\n");
+    Printf((char *)"Version " AGED_VERSION "\n");
 /*
 ** Create main window and menus
 */
-	fWindow = new AgedWindow(1);
-	fData = fWindow->GetData();
+    fWindow = new AgedWindow(1);
+    fData = fWindow->GetData();
 }
 
 Aged::~Aged()
@@ -39,64 +39,64 @@ Aged::~Aged()
 // - handles menu accelerator key events internally
 static void dispatchEvent(XEvent *event)
 {
-	const int		kBuffSize = 10;
-	char 			buff[kBuffSize];
-	KeySym			ks;
-	XComposeStatus	cs;
-	static int 		altPressed = 0;
-	
-	switch (event->type) {
-		case KeyPress:
-			XLookupString(&event->xkey, buff, kBuffSize, &ks, &cs);
-			switch (ks) {
-				case XK_Alt_L:
-					altPressed |= 0x01;
-					break;
-				case XK_Alt_R:
-					altPressed |= 0x02;
-					break;
-				default:
-					// handle as an accelerator if alt is pressed
-					if (event->xkey.state & AnyModMask &&	// any modifier pressed?
-						altPressed &&						// was it Alt?
-						PWindow::sMainWindow &&				// main window initialized?
-						PWindow::sMainWindow->GetMenu() &&	// main window menu initialized?
-						// do the accelerator
-						PWindow::sMainWindow->GetMenu()->DoAccelerator(ks))
-					{
-						// return now since the event was an accelerator
-						// and we handled it internally
-						return;
-					}
-					break;
-			}
-			break;
-		case KeyRelease:
-			XLookupString(&event->xkey, buff, kBuffSize, &ks, &cs);
-			switch (ks) {
-				case XK_Alt_L:
-					altPressed &= ~0x01;
-					break;
-				case XK_Alt_R:
-					altPressed &= ~0x02;
-					break;
-			}
-			break;
-		case ConfigureNotify:
-			// check window offset at every configure event
-			// - This is odd I know, but it seems to work with different X clients
-			// - The problem was that some X clients will move the window after it
-			//   is created.  So we monitor the configureNotify messages and capture
-			//   the first one to figure out how the client places the windows.
-			if (PWindow::sMainWindow &&
-				event->xconfigure.window == XtWindow(PWindow::sMainWindow->GetShell()))
-			{
-				PWindow::sMainWindow->CheckWindowOffset(event->xconfigure.border_width);
-			}
-			break;
-	}
-	// give the event to X
-	XtDispatchEvent(event);
+    const int		kBuffSize = 10;
+    char 			buff[kBuffSize];
+    KeySym			ks;
+    XComposeStatus	cs;
+    static int 		altPressed = 0;
+    
+    switch (event->type) {
+    	case KeyPress:
+    		XLookupString(&event->xkey, buff, kBuffSize, &ks, &cs);
+    		switch (ks) {
+    			case XK_Alt_L:
+    				altPressed |= 0x01;
+    				break;
+    			case XK_Alt_R:
+    				altPressed |= 0x02;
+    				break;
+    			default:
+    				// handle as an accelerator if alt is pressed
+    				if (event->xkey.state & AnyModMask &&	// any modifier pressed?
+    					altPressed &&						// was it Alt?
+    					PWindow::sMainWindow &&				// main window initialized?
+    					PWindow::sMainWindow->GetMenu() &&	// main window menu initialized?
+    					// do the accelerator
+    					PWindow::sMainWindow->GetMenu()->DoAccelerator(ks))
+    				{
+    					// return now since the event was an accelerator
+    					// and we handled it internally
+    					return;
+    				}
+    				break;
+    		}
+    		break;
+    	case KeyRelease:
+    		XLookupString(&event->xkey, buff, kBuffSize, &ks, &cs);
+    		switch (ks) {
+    			case XK_Alt_L:
+    				altPressed &= ~0x01;
+    				break;
+    			case XK_Alt_R:
+    				altPressed &= ~0x02;
+    				break;
+    		}
+    		break;
+    	case ConfigureNotify:
+    		// check window offset at every configure event
+    		// - This is odd I know, but it seems to work with different X clients
+    		// - The problem was that some X clients will move the window after it
+    		//   is created.  So we monitor the configureNotify messages and capture
+    		//   the first one to figure out how the client places the windows.
+    		if (PWindow::sMainWindow &&
+    			event->xconfigure.window == XtWindow(PWindow::sMainWindow->GetShell()))
+    		{
+    			PWindow::sMainWindow->CheckWindowOffset(event->xconfigure.border_width);
+    		}
+    		break;
+    }
+    // give the event to X
+    XtDispatchEvent(event);
 }
 
 // callback from timer to show the next event
@@ -110,7 +110,7 @@ static void do_next(ImageData *data)
             memset(&xev, 0, sizeof(xev));
             xev.type = ClientMessage;
             xev.format = 8;
-	        XSendEvent(data->display, XtWindow(data->mMainWindow->GetShell()), True, 0, (XEvent *)&xev);
+            XSendEvent(data->display, XtWindow(data->mMainWindow->GetShell()), True, 0, (XEvent *)&xev);
         }
     }
 }
@@ -168,7 +168,7 @@ void Aged::ShowEvent(AgAnalysisFlow* anaFlow, AgSignalsFlow* sigFlow, TARunInfo*
             if (x*x+y*y>100) continue;
             printf("%d) %16lx %16lx %16lx %g %g %g time=%g h=%g r=%g phi=%g wire=%d pad=%d\n",
                 i, *(unsigned long *)&x, *(unsigned long *)&y, *(unsigned long *)&z,
-				x,y,z,
+    			x,y,z,
                 spi->GetTime(),spi->GetHeight(),spi->GetR(),spi->GetPhi(),spi->GetWire(),spi->GetPad());
         }
     }
@@ -189,7 +189,7 @@ void Aged::ShowEvent(AgAnalysisFlow* anaFlow, AgSignalsFlow* sigFlow, TARunInfo*
 #endif
 
     if (data) {
-        PEventControlWindow	*pe_win = (PEventControlWindow *)data->mWindow[EVT_NUM_WINDOW];
+        PEventControlWindow *pe_win = (PEventControlWindow *)data->mWindow[EVT_NUM_WINDOW];
         if (pe_win) {
             pe_win->Show();
         } else {
@@ -254,7 +254,7 @@ void Aged::ShowEvent(AgAnalysisFlow* anaFlow, AgSignalsFlow* sigFlow, TARunInfo*
         }
     }
     // main event loop
-	while (data && data->mMainWindow!=NULL && !data->mNext) {
+    while (data && data->mMainWindow!=NULL && !data->mNext) {
         if (!data->the_app) return;
         XEvent theEvent;
         XtAppNextEvent(data->the_app, &theEvent);
@@ -264,14 +264,14 @@ void Aged::ShowEvent(AgAnalysisFlow* anaFlow, AgSignalsFlow* sigFlow, TARunInfo*
             while (XCheckTypedEvent(data->display, MotionNotify, &theEvent)) { }
         }
         // dispatch the X event
-        dispatchEvent(&theEvent);		
+        dispatchEvent(&theEvent);   	
         // update windows now if necessary (but only after all X events have been dispatched)
         if (!XPending(data->display)) PWindow::HandleUpdates();
-	}
-    PEventControlWindow	*pe_win = (PEventControlWindow *)data->mWindow[EVT_NUM_WINDOW];
+    }
+    PEventControlWindow *pe_win = (PEventControlWindow *)data->mWindow[EVT_NUM_WINDOW];
     if (pe_win) {
         pe_win->Update();
     }
-	data->mNext = 0;
+    data->mNext = 0;
 }
 
