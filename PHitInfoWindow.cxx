@@ -65,7 +65,7 @@ PHitInfoWindow::PHitInfoWindow(ImageData *data)
 	XtSetArg(wargs[n], XmNrightAttachment,	XmATTACH_FORM); ++n;
 	rc2 = XtCreateManagedWidget("eiRC2",xmRowColumnWidgetClass,w,wargs,n);
 	
-	XtCreateManagedWidget("Num:",    xmLabelWidgetClass,rc1,NULL,0);
+	XtCreateManagedWidget("Index:",  xmLabelWidgetClass,rc1,NULL,0);
 	XtCreateManagedWidget("Time:",   xmLabelWidgetClass,rc1,NULL,0);
 	XtCreateManagedWidget("Height:", xmLabelWidgetClass,rc1,NULL,0);
 	XtCreateManagedWidget("Wire:",   xmLabelWidgetClass,rc1,NULL,0);
@@ -153,7 +153,7 @@ void PHitInfoWindow::UpdateSelf()
 		ClearEntries();
 	} else {
 		hi = data->hits.hit_info + num;
-		sprintf(buff,"%d",num);
+		sprintf(buff,"%d of %d",num,data->hits.num_nodes);
 		hi_num.SetString(buff);
 		sprintf(buff,"%g",hi->time);
 		hi_time.SetString(buff);
