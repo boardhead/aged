@@ -20,6 +20,12 @@ const int   kDirtyEvent     = 0x02;
 const int   kDirtyAll       = 0x04;
 const int   kShowChannels   = 0x03;     // show only channels 0 and 1 to start
 
+enum {
+    kWireHist,      // index for anode wire histogram in Waveform window
+    kPadHist,       // index for pad histogram in Waveform window
+    kNumHists
+};
+
 static MenuStruct channels_menu[] = {
     { "<dummy>",0,XK_d,0,  NULL, 0, 0 },
     //{ "Channels with Data",0, XK_D,IDM_WAVE_AUTO, NULL, 0, 0 },
@@ -277,19 +283,19 @@ void PWaveformWindow::UpdateSelf()
             AgSignalsFlow *sigFlow = data->sigFlow;
             for (auto it=sigFlow->AWwf.begin(); it!=sigFlow->AWwf.end(); ++it) {
                 if (it->i == hi->wire) {
-                    wave[0] = (void *)it->wf;
+                    wave[kWireHist] = (void *)it->wf;
                     break;
                 }
             }
             for (auto it=sigFlow->PADwf.begin(); it!=sigFlow->PADwf.end(); ++it) {
                 int pad = TPCBase::TPCBaseInstance()->SectorAndPad2Index(it->sec,it->i);
                 if (pad  == hi->pad) {
-                    wave[1] = (void *)it->wf;
+                    wave[kPadHist] = (void *)it->wf;
                     break;
                 }
             }
         }
-        // update necessary plots
+        // update data for displayed histograms
         for (i=0; i<kMaxWaveformChannels; ++i) {
             if (!(mChanMask & (1 << i))) continue;
             if (!wave[i]) {
@@ -299,7 +305,7 @@ void PWaveformWindow::UpdateSelf()
                 }
             } else if (IsDirty() & kDirtyEvent) {
                 mHist[i]->SetDirty();
-                if (i == 0) {
+                if (i == kWireHist) {
                     const vector<int16_t> *wf = (const vector<int16_t> *)wave[0];
                     mHist[i]->CreateData(wf->size());
                     long *pt = mHist[i]->GetDataPt();
@@ -309,7 +315,7 @@ void PWaveformWindow::UpdateSelf()
                             *pt++ = wf->at(i);
                         }
                     }
-                } else if (i == 1) {
+                } else if (i == kPadHist) {
                     const vector<int> *wf = (const vector<int> *)wave[1];
                     mHist[i]->CreateData(wf->size());
                     long *pt = mHist[i]->GetDataPt();
@@ -321,9 +327,10 @@ void PWaveformWindow::UpdateSelf()
                     }
                 }
             }
+            // add wire/pad number to histogram label
             char *pt = hist_label[i];
-            if (hi && i < 2) {
-                if (i==0) {
+            if (hi && i < kNumHists) {
+                if (i==kWireHist) {
                     sprintf(buff, "%s %d", pt, hi->wire);
                 } else {
                     sprintf(buff, "%s %d", pt, hi->pad);

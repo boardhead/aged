@@ -166,7 +166,7 @@ void Aged::ShowEvent(AgAnalysisFlow* anaFlow, AgSignalsFlow* sigFlow, TARunInfo*
             TSpacePoint* spi = (TSpacePoint*) points->At(i);
             double x=spi->GetX(),y=spi->GetY(),z=spi->GetZ();
             if (x*x+y*y>100) continue;
-            printf("%d) %16lx %16lx %16lx %g %g %g time=%g h=%g r=%g phi=%g wire=%d pad=%d\n",
+            printf("BAD %d) %16lx %16lx %16lx %g %g %g time=%g h=%g r=%g phi=%g wire=%d pad=%d\n",
                 i, *(unsigned long *)&x, *(unsigned long *)&y, *(unsigned long *)&z,
     			x,y,z,
                 spi->GetTime(),spi->GetHeight(),spi->GetR(),spi->GetPhi(),spi->GetWire(),spi->GetPad());
