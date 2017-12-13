@@ -27,8 +27,8 @@ enum {
 };
 
 static MenuStruct channels_menu[] = {
-    { "<dummy>",0,XK_d,0,  NULL, 0, 0 },
-    //{ "Channels with Data",0, XK_D,IDM_WAVE_AUTO, NULL, 0, 0 },
+//      { "Add Overlay",      0, XK_A, IDM_WAVE_ADD_OVERLAY,   NULL, 0, 0 },
+      { "Clear Overlays",   0, XK_C, IDM_WAVE_CLEAR_OVERLAY, NULL, 0, 0 },
     //{ NULL,               0, 0,       0,                  NULL, 0, 0},
 };
 
@@ -116,7 +116,7 @@ PWaveformWindow::PWaveformWindow(ImageData *data)
 //        mHist[i]->SetOverlayCol(SCOPE0_COL);
 //        mHist[i]->SetAutoScale(1);
         mHist[i]->SetCursorTracking(1);
-        mHist[i]->SetLabel(hist_label[i]);
+//        mHist[i]->SetLabel(hist_label[i]);
     }
     // arrange our channel histogram widgets in the window
     SetChannels(kShowChannels);
@@ -142,6 +142,9 @@ void PWaveformWindow::Listen(int message, void *message_data)
     switch (message) {
         case kMessageNewEvent:
         case kMessageEventCleared:
+            for (int i=0; i<kMaxWaveformChannels; ++i) {
+                if (mChanMask & (1 << i)) mHist[i]->ClearOverlays();
+            }
             SetDirty(kDirtyEvent);
             break;
         case kMessageColoursChanged:
@@ -152,7 +155,15 @@ void PWaveformWindow::Listen(int message, void *message_data)
             break;
         case kMessageCursorHit:
             // only dirty if this is a different hit
-            if (mLastNum != mData->cursor_hit) {
+            if (GetData()->cursor_sticky) {
+                GetData()->cursor_sticky = 0;
+                for (int i=0; i<kMaxWaveformChannels; ++i) {
+                    if (mChanMask & (1 << i)) {
+                        mHist[i]->AddOverlay();
+                    }
+                }
+                SetDirty(kDirtyEvent);
+            } else if (mLastNum != mData->cursor_hit) {
                 SetDirty(kDirtyEvent);
             }
             break;
@@ -171,7 +182,27 @@ void PWaveformWindow::Listen(int message, void *message_data)
 
 void PWaveformWindow::DoMenuCommand(int anID)
 {
-//    ImageData *data = GetData();
+    switch (anID) {
+
+        case IDM_WAVE_ADD_OVERLAY:
+            for (int i=0; i<kMaxWaveformChannels; ++i) {
+                if (mChanMask & (1 << i)) {
+                    mHist[i]->AddOverlay();
+                }
+            }
+            SetDirty(kDirtyEvent);
+            break;
+
+        case IDM_WAVE_CLEAR_OVERLAY:
+            for (int i=0; i<kMaxWaveformChannels; ++i) {
+                if (mChanMask & (1 << i)) {
+                    mHist[i]->ClearOverlays();
+                    mHist[i]->SetDirty();
+                }
+            }
+            SetDirty(kDirtyEvent);
+            break;
+    }
 }
 
 // set our displayed channels
@@ -328,16 +359,21 @@ void PWaveformWindow::UpdateSelf()
                 }
             }
             // add wire/pad number to histogram label
-            char *pt = hist_label[i];
+            char *pt = NULL;
             if (hi && i < kNumHists) {
                 if (i==kWireHist) {
-                    sprintf(buff, "%s %d", pt, hi->wire);
+                    sprintf(buff, "%s %d", hist_label[i], hi->wire);
                 } else {
-                    sprintf(buff, "%s %d", pt, hi->pad);
+                    sprintf(buff, "%s %d", hist_label[i], hi->pad);
                 }
                 pt = buff;
             }
-            if (strcmp(pt, mHist[i]->GetLabel())) {
+            if (pt) {
+                if (!mHist[i]->GetLabel() || strcmp(pt, mHist[i]->GetLabel())) {
+                    mHist[i]->SetLabel(pt);
+                    mHist[i]->SetDirty();
+                }
+            } else if (mHist[i]->GetLabel()) {
                 mHist[i]->SetLabel(pt);
                 mHist[i]->SetDirty();
             }

@@ -36,7 +36,7 @@ PEventHistogram::PEventHistogram(PImageWindow *owner, Widget canvas)
     
     mNumCols = data->num_cols;
     mHistCols = new int[mNumCols];
-    mOverlayCol = NUM_COLOURS + mNumCols;
+    mOverlayCol[0] = NUM_COLOURS + mNumCols;
     mIsLog = data->log_scale;	// restore log scale setting
     if (!mHistCols) quit("No memory for allocating colour array!");
     for (int i=0; i<mNumCols; ++i) {
@@ -103,24 +103,24 @@ void PEventHistogram::MakeHistogram()
 */
     if (mHistogram && nbin!=mNumBins) {
     	delete [] mHistogram;
-    	delete [] mOverlay;
+    	ClearOverlays();
     	mHistogram = NULL;
-    	mOverlay = NULL;
     }
-    if (!mHistogram || !mOverlay) {
+    if (!mHistogram || !mOverlay[0]) {
         if (mHistogram) delete [] mHistogram;
-        if (mOverlay) delete [] mOverlay;
+        if (mOverlay[0]) delete [] mOverlay[0];
     	// allocate histogram and overlay arrays
     	mHistogram = new long[nbin];
-    	mOverlay = new long[nbin];
-    	if (!mHistogram || !mOverlay) {
+    	mOverlay[0] = new long[nbin];
+    	if (!mHistogram || !mOverlay[0]) {
     		Printf("Out of memory for histogram\n");
     		return;
     	}
     	mNumBins = nbin;				// set number of bins
+    	mNumOverlays = 1;
     }
     memset(mHistogram, 0, nbin * sizeof(long));
-    memset(mOverlay, 0, nbin * sizeof(long));
+    memset(mOverlay[0], 0, nbin * sizeof(long));
     
     num = data->hits.num_nodes;
     max = 0;
@@ -153,7 +153,7 @@ void PEventHistogram::MakeHistogram()
     	}
     	if ((mHistogram[n] += incr) > max) max = mHistogram[n];
     	// keep track of discarded hits in each bin
-    	if (hi->flags & HIT_DISCARDED) mOverlay[n] += incr;
+    	if (hi->flags & HIT_DISCARDED) mOverlay[0][n] += incr;
     }
     /* calculate a nice even maximum value for the y axis */
     if (!(mGrabFlag & GRAB_Y)) {

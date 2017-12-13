@@ -22,6 +22,7 @@ class PScale;
 class PHistImage;
 
 const int kDirtyHistCalc = 0x80;  // indicates the 2D hist may require calculating
+const int kMaxOverlays   = 6;
 
 class PHistCalc {
 public:
@@ -80,10 +81,11 @@ public:
     void            SetCalcObj(PHistCalc *obj)  { mCalcObj = obj; }
     
     void			CreateData(int numbins, int twoD=0);
-    void            CreateOverlay(int numbins);
+    long          * AddOverlay();
+    void            ClearOverlays();
     void            SetFixedBins(int on=1)      { mFixedBins = on; }
     long		  *	GetDataPt()					{ return mHistogram; }
-    long          * GetOverlayPt()              { return mOverlay; }
+    long          * GetOverlayPt(int n=0)       { return n < kMaxOverlays ? mOverlay[n] : NULL; }
     int				GetNumBins()				{ return mNumBins; }
     int             GetNumPix()                 { return mNumPix; }
     int				GetGrabFlag()				{ return mGrabFlag; }
@@ -100,7 +102,6 @@ public:
     void            SetCursorTracking(int on)   { mCursorTracking = on; }
 
     void            SetPlotCol(int col)         { mPlotCol = col; }
-    void            SetOverlayCol(int col)      { mOverlayCol = col; }
     
     static PHistImage *sCursorHist; // histogram currently under the cursor
 
@@ -113,8 +114,7 @@ protected:
     void            GetScaleBins(int *noffsetPt, int *nbinPt);
 
     long		  *	mHistogram;		// pointer to histogram array
-    long		  *	mOverlay;		// pointer to overlay array
-    double			mOverlayScale;	// scaling factor for overlay plot
+    long		  *	mOverlay[kMaxOverlays];		// pointer to overlay array
     long			mOverscale;		// number of overscale entries
     long			mUnderscale;	// number of underscale entries
     int				mNumBins;		// number of histogram bins
@@ -122,9 +122,11 @@ protected:
     long            mNumTraces;     // number of traces for 2D plot
     int			  *	mHistCols;		// colours for drawing histogram (underscale,regular,overscale)
     int             mPlotCol;       // plot color for kHistStyleLines
-    int				mOverlayCol;	// pixel value for overlay colour
+    int				mOverlayCol[kMaxOverlays];	// pixel value for overlay colour
+    int             mNumOverlays;   // number of overlays
     int				mNumCols;		// number of histogram colours
     char		  *	mLabel;			// histogram label
+    char          * mOverlayLabel[kMaxOverlays];
     PScale		  *	mXScale;		// pointer to X scale object
     PScale		  *	mYScale;		// pointer to Y scale object
     float			mXMin;			// x scale minimum
