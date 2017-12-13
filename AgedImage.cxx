@@ -223,12 +223,19 @@ void AgedImage::HandleEvents(XEvent *event)
     		if (sButtonDown == (int)event->xbutton.button) {
                 ResetTimer();
                 if (!didDrag) {
+                    int oldSticky = data->cursor_sticky;
+                    int oldCursor = data->cursor_hit;
                     data->cursor_sticky ^= 1;
                     data->cursor_hit = -1;
                     data->last_cur_x = event->xmotion.x;
                     data->last_cur_y = event->xmotion.y;
                     FindNearestHit();
                     if (data->cursor_hit == -1) data->cursor_sticky = 0;
+                    if (oldCursor >= 0 && oldCursor == data->cursor_hit &&
+                        !data->cursor_sticky && oldSticky)
+                    {
+                        sendMessage(data, kMessageAddOverlay);
+                    }
                     sendMessage(data, kMessageCursorHit, this);
                 }
     			SetCursor(CURSOR_XHAIR);
@@ -250,7 +257,7 @@ void AgedImage::HandleEvents(XEvent *event)
     		if (!sButtonDown) {
     			// let the base class handle pointer motion
     			PProjImage::HandleEvents(event);
-    			data->mSpeaker->Speak(kMessage3dCursorMotion,(void *)this);
+    			sendMessage(data, kMessage3dCursorMotion, (void *)this);
     			break;
     		}
 

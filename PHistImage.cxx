@@ -130,6 +130,7 @@ void PHistImage::ClearOverlays()
             mOverlayLabel[i] = NULL;
         }
     }
+    mNumOverlays = 0;
 }
 
 // AddOverlay - add current data as overlay
@@ -155,8 +156,24 @@ long * PHistImage::AddOverlay()
             char *lbl = mOverlayLabel[0] = new char[strlen(mLabel) + 1];
             if (lbl) strcpy(lbl, mLabel);
         }
+        if (++mNumOverlays > kMaxOverlays) mNumOverlays = kMaxOverlays;
     }
     return(pt);
+}
+
+void PHistImage::DeleteOverlay(int n)
+{
+    if (n < mNumOverlays) {
+        delete [] mOverlay[n];
+        delete [] mOverlayLabel[n];
+        while (++n < mNumOverlays) {
+            mOverlay[n-1] = mOverlay[n];
+            mOverlayLabel[n-1] = mOverlayLabel[n];
+        }
+        --mNumOverlays;
+        mOverlay[mNumOverlays] = NULL;
+        mOverlayLabel[mNumOverlays] = NULL;
+    }
 }
 
 void PHistImage::SetIntegerXScale(int is_int)

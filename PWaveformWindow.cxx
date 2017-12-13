@@ -121,7 +121,7 @@ PWaveformWindow::PWaveformWindow(ImageData *data)
     // arrange our channel histogram widgets in the window
     SetChannels(kShowChannels);
         
-    SetDirty(kDirtyAll);
+    SetDirty(kDirtyEvent);
 }
 
 PWaveformWindow::~PWaveformWindow()
@@ -154,25 +154,43 @@ void PWaveformWindow::Listen(int message, void *message_data)
             }
             break;
         case kMessageCursorHit:
-            // only dirty if this is a different hit
-            if (GetData()->cursor_sticky) {
-                GetData()->cursor_sticky = 0;
+            if (mLastNum != mData->cursor_hit) {
+                // only dirty if this is a different hit
+                SetDirty(kDirtyEvent);
+            }
+            break;
+        case kMessageAddOverlay:
+            if (mData->cursor_hit >= 0) {
+                // add to overlays if not done already
                 for (int i=0; i<kMaxWaveformChannels; ++i) {
                     if (mChanMask & (1 << i)) {
-                        mHist[i]->AddOverlay();
+                        char *lbl = mHist[i]->GetLabel();
+                        int j;
+                        if (lbl) {
+                            for (j=mHist[i]->GetNumOverlays()-1; j>=0; --j) {
+                                char *pt = mHist[i]->GetOverlayLabel(j);
+                                if (pt && !strcmp(pt, lbl)) {
+                                    break;
+                                }
+                            }
+                            if (j > 0) {
+                                mHist[i]->DeleteOverlay(j);
+                            }
+                            if (j != 0) {
+                                mHist[i]->AddOverlay();
+                                SetDirty(kDirtyEvent);
+                            }
+                        }
                     }
                 }
-                SetDirty(kDirtyEvent);
-            } else if (mLastNum != mData->cursor_hit) {
-                SetDirty(kDirtyEvent);
             }
             break;
         case kMessageHistScalesChanged: {
             // update current Y scale settings
             for (int i=0; i<kMaxWaveformChannels; ++i) {
                 if (mHist[i] == (PHistImage *)message_data) {
-                    GetData()->wave_min[i] = mHist[i]->GetYMin();
-                    GetData()->wave_max[i] = mHist[i]->GetYMax();
+                    mData->wave_min[i] = mHist[i]->GetYMin();
+                    mData->wave_max[i] = mHist[i]->GetYMax();
                     break;
                 }
             }
@@ -359,22 +377,24 @@ void PWaveformWindow::UpdateSelf()
                 }
             }
             // add wire/pad number to histogram label
-            char *pt = NULL;
-            if (hi && i < kNumHists) {
-                if (i==kWireHist) {
-                    sprintf(buff, "%s %d", hist_label[i], hi->wire);
-                } else {
-                    sprintf(buff, "%s %d", hist_label[i], hi->pad);
+            buff[0] = '\0';
+            if (mData->cursor_hit>=0) {
+                switch (i) {
+                    case kWireHist:
+                        sprintf(buff, "%s %d", hist_label[i], mData->hits.hit_info[mData->cursor_hit].wire);
+                        break;
+                    case kPadHist:
+                        sprintf(buff, "%s %d", hist_label[i], mData->hits.hit_info[mData->cursor_hit].pad);
+                        break;
                 }
-                pt = buff;
             }
-            if (pt) {
-                if (!mHist[i]->GetLabel() || strcmp(pt, mHist[i]->GetLabel())) {
-                    mHist[i]->SetLabel(pt);
+            if (buff[0]) {
+                if (!mHist[i]->GetLabel() || strcmp(buff, mHist[i]->GetLabel())) {
+                    mHist[i]->SetLabel(buff);
                     mHist[i]->SetDirty();
                 }
             } else if (mHist[i]->GetLabel()) {
-                mHist[i]->SetLabel(pt);
+                mHist[i]->SetLabel(NULL);
                 mHist[i]->SetDirty();
             }
         }

@@ -106,6 +106,7 @@ void PHitInfoWindow::NextProc(Widget w, PHitInfoWindow *win, caddr_t call_data)
         data->cursor_hit += 1;
         if (data->cursor_hit >= data->hits.num_nodes) data->cursor_hit = 0;
         data->cursor_sticky = 1;
+        sendMessage(data, kMessageAddOverlay);
         sendMessage(data, kMessageCursorHit);
     }
 }
@@ -117,6 +118,7 @@ void PHitInfoWindow::PrevProc(Widget w, PHitInfoWindow *win, caddr_t call_data)
         data->cursor_hit -= 1;
         if (data->cursor_hit < 0) data->cursor_hit = data->hits.num_nodes-1;
         data->cursor_sticky = 1;
+        sendMessage(data, kMessageAddOverlay);
         sendMessage(data, kMessageCursorHit);
     }
 }

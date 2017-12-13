@@ -82,10 +82,13 @@ public:
     
     void			CreateData(int numbins, int twoD=0);
     long          * AddOverlay();
+    void            DeleteOverlay(int n);
     void            ClearOverlays();
     void            SetFixedBins(int on=1)      { mFixedBins = on; }
     long		  *	GetDataPt()					{ return mHistogram; }
     long          * GetOverlayPt(int n=0)       { return n < kMaxOverlays ? mOverlay[n] : NULL; }
+    char          * GetOverlayLabel(int n)      { return n < kMaxOverlays ? mOverlayLabel[n] : NULL; }
+    int             GetNumOverlays()            { return mNumOverlays; }
     int				GetNumBins()				{ return mNumBins; }
     int             GetNumPix()                 { return mNumPix; }
     int				GetGrabFlag()				{ return mGrabFlag; }

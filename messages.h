@@ -37,6 +37,7 @@ enum {
     kMessageWriteSettingsDone,		// we are done writing our settings to file
     kMessageHitXYZChanged,			// the hit XYZ setting has changed
     kMessageCursorHit,				// the hit cursor has moved
+    kMessageAddOverlay,             // add waveform overlay
 
     // messages from the global speaker (the resource manager)
     // (via PResourceManager::sSpeaker, not ImageData->mSpeaker)
