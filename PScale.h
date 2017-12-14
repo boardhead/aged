@@ -28,7 +28,7 @@ public:
     double		GetVal(int pix);
     double		GetMinVal()				{ return min_val;	}
     double		GetMaxVal()				{ return max_val;	}
-    int			IsInteger()				{ return(integer);	}
+    int			IsInteger()				{ return integer;	}
     void		SetInteger(int is_int)	{ integer = is_int;	}
 
 private:

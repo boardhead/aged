@@ -21,6 +21,7 @@ const long MIN_LONG = -1 - 0x7fffffffL;
 const long MAX_LONG = 0x7fffffffL;
 
 const int  MIN_Y_RNG    = 10;   // minimum range for integer Y-axis scale
+const int  kOverlayDY   = 12;   // Y offset for each overlay
 
 PHistImage *PHistImage::sCursorHist = NULL;
 
@@ -62,10 +63,10 @@ PHistImage::PHistImage(PImageWindow *owner, Widget canvas, int createCanvas)
     }    
     mOverlayCol[0] = SCALE_COL2;
     mOverlayCol[1] = SCALE_COL3;
-    mOverlayCol[2] = SCALE_COL4;
-    mOverlayCol[3] = SCALE_COL0;
-    mOverlayCol[4] = SCALE_UNDER;
-    mOverlayCol[5] = SCALE_OVER;
+    mOverlayCol[2] = SCALE_OVER;
+    mOverlayCol[3] = SCALE_COL4;
+    mOverlayCol[4] = SCALE_COL0;
+    mOverlayCol[5] = SCALE_UNDER;
     if (!canvas && createCanvas) {
         CreateCanvas("ehCanvas");
     }
@@ -915,7 +916,7 @@ void PHistImage::DrawSelf()
                 for (i=0; i<nbin; ++i) {
                     counts = mOverlay[over][i+noffset];
                     x = x1 + ((i+1)*(x2-x1)+nbin/2)/nbin + 1;
-                    y = mYScale->GetPix(counts);
+                    y = mYScale->GetPix(counts) + (over+1) * kOverlayDY;
                     if (y==y2 && counts) --y;   // don't let bars disappear unless they are truly zero
                     // range-check y position
                     if (y < y1 - 1) y = y1 - 1;
@@ -939,7 +940,7 @@ void PHistImage::DrawSelf()
 #ifdef ANTI_ALIAS
                     SetFont(PResourceManager::sResource.xft_hist_font);
 #endif
-                    int y = y1 + HIST_LABEL_Y + (over + 1) * 12;
+                    int y = y1 + HIST_LABEL_Y + (over + 1) * kOverlayDY;
                     DrawString(x2, y, mOverlayLabel[over], kTextAlignTopRight);
                 }
             }
@@ -1146,7 +1147,8 @@ void PHistImage::GetAutoScales(double *x1,double *x2,double *y1,double *y2)
  * auto-scale y
  */
     if (mNumBins) {
-        long min=LONG_MAX, max=LONG_MIN, counts;
+        long counts, min, max;
+        long amin[kMaxOverlays+1], amax[kMaxOverlays+1];
         int noffset, nbin;
         if (mFixedBins) {
             noffset = (long)xmin;
@@ -1158,35 +1160,72 @@ void PHistImage::GetAutoScales(double *x1,double *x2,double *y1,double *y2)
             nbin = mNumBins;
         }
         if (mHistogram) {
+            min=LONG_MAX; max=LONG_MIN;
             for (int i=0; i<nbin; ++i) {
                 counts = mHistogram[i+noffset];
                 if (max < counts) max = counts;
                 if (min > counts) min = counts;
             }
+            amin[0] = min;  amax[0] = max;
         }
         for (int over=0; over<kMaxOverlays; ++over) {
             if (!mOverlay[over]) continue;
+            min=LONG_MAX; max=LONG_MIN;
             for (int i=0; i<nbin; ++i) {
                 counts = mOverlay[over][i+noffset];
                 if (max < counts) max = counts;
                 if (min > counts) min = counts;
             }
+            amin[over+1] = min;
+            amax[over+1] = max;
         }
         if (mHistogram || mNumOverlays) {
-            int rng = max - min;
-            if (rng < MIN_Y_RNG && mYScale->IsInteger()) {
-                int grow = (MIN_Y_RNG + 1 - rng) / 2;
-                if (min >= 0 && min - grow < 0) grow = min;
-                min -= grow;
-                max = min + MIN_Y_RNG;
-            } else {
-                int pad = rng / 8;
-                max += pad;
-                if (min >= 0 && min - pad < 0) pad = min;
-                min -= pad;
+            int height = mHeight - HIST_MARGIN_TOP - HIST_MARGIN_BOTTOM;
+            *y1 = LONG_MAX;
+            *y2 = LONG_MIN;
+            for (int iter=0; iter<10; ++iter) {
+                int changed = 0;
+                for (int i=0; i<kMaxOverlays+1; ++i) {
+                    if (i == 0) {
+                        if (!mHistogram) continue;
+                    } else if (!mOverlay[i-1]) {
+                        continue;
+                    }
+                    min = amin[i];
+                    max = amax[i];
+                    if (!iter) {
+                        int rng = max - min;
+                        if (rng < MIN_Y_RNG && mYScale->IsInteger()) {
+                            int grow = (MIN_Y_RNG + 1 - rng) / 2;
+                            if (min >= 0 && min - grow < 0) grow = min;
+                            min -= grow;
+                            max = min + MIN_Y_RNG;
+                        } else {
+                            int pad = rng / 8;
+                            max += pad;
+                            if (min >= 0 && min - pad < 0) pad = min;
+                            min -= pad;
+                        }
+                        amin[i] = min;
+                        amax[i] = max;
+                    }
+                    // shift due to overlay offset
+                    if (i) {
+                        long diff = (*y2 - *y1) * kOverlayDY * i / height;
+                        min -= diff;
+                        max -= diff;
+                    }
+                    if (*y1 > min) {
+                        *y1 = min;
+                        changed = i;    // (relative scale doesn't change for main histogram)
+                    }
+                    if (*y2 < max) {
+                        *y2 = max;
+                        changed = i;
+                    }
+                }
+                if (!changed) break;
             }
-            *y1 = min;
-            *y2 = max;
         }
     }
 }
