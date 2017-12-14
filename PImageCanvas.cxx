@@ -65,13 +65,13 @@ void PImageCanvas::Listen(int message, void *dataPt)
     switch (message) {
         case kMessageLabelChanged:
            if (mDrawLabel) {
-             SetDirty();
+                SetDirty();
            }
            break;
         case kMessageSmoothTextChanged:
             if (mLabelText) {
-             SetDirty();
-           }
+                SetDirty();
+            }
             break;
     }
 }

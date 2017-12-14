@@ -148,6 +148,8 @@ void PWaveformWindow::Listen(int message, void *message_data)
             SetDirty(kDirtyEvent);
             break;
         case kMessageColoursChanged:
+        case kMessageSmoothTextChanged:
+        case kMessageSmoothLinesChanged:
             SetDirty(kDirtyAll);
             for (int i=0; i<kMaxWaveformChannels; ++i) {
                 if (mChanMask & (1 << i)) mHist[i]->SetDirty();
