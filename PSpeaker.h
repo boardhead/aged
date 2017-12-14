@@ -13,17 +13,17 @@ public:
     PSpeaker();
     virtual ~PSpeaker();
     
-    void		Speak(int message, void *dataPt=0);
+    void       Speak(int message, void *dataPt=0);
     
-    void		AddListener(PListener *aListener);
-    void		RemoveListener(PListener *aListener);
+    void       AddListener(PListener *aListener);
+    void       RemoveListener(PListener *aListener);
     
-    int			GetNumListeners()	{ return mNumListeners;	}
+    int        GetNumListeners() { return mNumListeners; }
     
 private:
-    PListener	 **	mListeners;
-    int				mNumListeners;
-    int				mMaxListeners;
+    PListener    **   mListeners;
+    int          mNumListeners;
+    int          mMaxListeners;
 };
 
 #endif // __PSpeaker_h__

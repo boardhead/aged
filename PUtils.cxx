@@ -8,7 +8,7 @@
 /* set the string in a text widget */
 void setTextString(Widget text, char *string)
 {
-//  Arg			wargs[1];
+//  Arg        wargs[1];
     
     XmTextSetString(text,string);
     
@@ -29,23 +29,23 @@ void setTextString(Widget text, char *string)
 /* returns string length */
 int strncvtXm(char *out,XmString in,int n)
 {
-    XmStringContext		contxt;
-    XmStringCharSet		charset;
-    XmStringDirection	dir;
-    Boolean				separator;
-    char				*text;
-    int					len = 0;
+    XmStringContext     contxt;
+    XmStringCharSet     charset;
+    XmStringDirection   dir;
+    Boolean          separator;
+    char          *text;
+    int           len = 0;
     
     XmStringInitContext(&contxt, in);
     for (;;) {
-    	if (XmStringGetNextSegment(contxt,&text,&charset,&dir,&separator)) {
-    		strncpy(out+len,text,n-len);
-    		len += strlen(text);
-    		XtFree(text);
-    		if (len >= n) len = n;
-    		else if (!separator) continue;
-    	}
-    	break;
+        if (XmStringGetNextSegment(contxt,&text,&charset,&dir,&separator)) {
+           strncpy(out+len,text,n-len);
+           len += strlen(text);
+           XtFree(text);
+           if (len >= n) len = n;
+           else if (!separator) continue;
+        }
+        break;
     }
     XmStringFreeContext(contxt);
     return (len);
@@ -54,9 +54,9 @@ int strncvtXm(char *out,XmString in,int n)
 /* set the string in a label widget */
 void setLabelString(Widget label, char *string)
 {
-    int			n;
-    Arg			wargs[2];
-    XmString	new_str;
+    int        n;
+    Arg        wargs[2];
+    XmString    new_str;
     
     // XmStringCreateLtoR translates '\n' into string separators
     new_str = XmStringCreateLtoR(string,XmFONTLIST_DEFAULT_TAG);
@@ -75,9 +75,9 @@ void setLabelString(Widget label, char *string)
 // - Note: You must call XtFree to free returned string when finished
 char *getLabelString(Widget label)
 {
-    char		buff[256];
-    Arg			wargs[1];
-    XmString	str;
+    char       buff[256];
+    Arg        wargs[1];
+    XmString    str;
 
     XtSetArg(wargs[0], XmNlabelString, &str);
     XtGetValues(label,wargs,1);
@@ -86,7 +86,7 @@ char *getLabelString(Widget label)
     
     char *out = XtMalloc(len + 1);
     if (out) {
-    	memcpy(out, buff, len+1);
+        memcpy(out, buff, len+1);
     }
     return(out);
 }

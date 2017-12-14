@@ -1,17 +1,17 @@
 #include "PScrollingWindow.h"
 
 PScrollingWindow::PScrollingWindow(ImageData *data)
-    			: PWindow(data)
+             : PWindow(data)
 {
     for (int i=0; i<kNumScrollBars; ++i) {
-    	mScrollBar[i] = NULL;
+        mScrollBar[i] = NULL;
     }
 }
 
 PScrollingWindow::~PScrollingWindow()
 {
     for (int i=0; i<kNumScrollBars; ++i) {
-    	delete mScrollBar[i];
+        delete mScrollBar[i];
     }
 }
 
@@ -30,7 +30,7 @@ void PScrollingWindow::NewScrollBar(EScrollBar bar, char *name, Arg *wargs, int 
 
 void PScrollingWindow::SetScrollValue(EScrollBar bar, int value, int do_callback)
 {
-    Arg		wargs[1];
+    Arg     wargs[1];
     
     if (!GetScrollBar(bar)) return;
     
@@ -41,15 +41,15 @@ void PScrollingWindow::SetScrollValue(EScrollBar bar, int value, int do_callback
     XtSetValues(GetScrollBar(bar)->GetWidget(),wargs,1);
 
     if (do_callback) {
-    	GetScrollBar(bar)->GetHandler()->ScrollValueChanged(bar,value);
+        GetScrollBar(bar)->GetHandler()->ScrollValueChanged(bar,value);
     }
 }
 
 
 int PScrollingWindow::GetScrollValue(EScrollBar bar)
 {
-    Arg		wargs[1];
-    int		value;
+    Arg     wargs[1];
+    int     value;
     
     if (!GetScrollBar(bar)) return(0);
     
@@ -63,9 +63,9 @@ int PScrollingWindow::GetScrollValue(EScrollBar bar)
 void PScrollingWindow::SetScrollHandler(PScrollHandler *hand)
 {
     for (int i=0; i<kNumScrollBars; ++i) {
-    	if (mScrollBar[i]) {
-    		mScrollBar[i]->SetHandler(hand);
-    	}
+        if (mScrollBar[i]) {
+           mScrollBar[i]->SetHandler(hand);
+        }
     }
 }
 

@@ -2,9 +2,9 @@
 #include <string.h>
 #include "matrix.h"
 
-#define 	NEAR_ZERO	1.0e-20
+#define     NEAR_ZERO  1.0e-20
 
-#define 	MNUM	3
+#define     MNUM   3
 
 /*---------------------------------------------------------------------------
 ** Get the length of a vector
@@ -15,27 +15,27 @@ float vectorLen(float x, float y, float z)
 }
 int unitVector(Vector3 v)
 {
-    float	r = vectorLen(v[0],v[1],v[2]);
+    float   r = vectorLen(v[0],v[1],v[2]);
 
     if (r) { 
-    	v[0]/=r; 
-    	v[1]/=r; 
-    	v[2]/=r;
-    	return(0);
+        v[0]/=r; 
+        v[1]/=r; 
+        v[2]/=r;
+        return(0);
     } else {
-    	return(1);
+        return(1);
     }
 }
 /*
 ** Get the rotation matrix for the given angles:
-**  	theta - angle of rotation axis from the x axis measured ccw in the x-y plane
-**  	phi   - angle of rotation axis from the z axis
-**  	alpha - angle of cw rotation about the axis of rotation
+**      theta - angle of rotation axis from the x axis measured ccw in the x-y plane
+**      phi   - angle of rotation axis from the z axis
+**      alpha - angle of cw rotation about the axis of rotation
 */
 void getRotMatrix(Matrix3 rot, float theta, float phi, float alpha)
 {
-    float	st,sp,sa;
-    float	ct,cp,ca;
+    float   st,sp,sa;
+    float   ct,cp,ca;
 
     st = sin(theta); sp = sin(phi); sa = sin(alpha);
     ct = cos(theta); cp = cos(phi); ca = cos(alpha);
@@ -56,12 +56,12 @@ void getRotMatrix(Matrix3 rot, float theta, float phi, float alpha)
 */
 void get3DMatrix(Matrix3 rot, float alpha, float beta, float gamma)
 {
-    float	ca = cos(alpha);
-    float	sa = sin(alpha);
-    float	cb = cos(beta);
-    float	sb = sin(beta);
-    float	cg = cos(gamma);
-    float	sg = sin(gamma);
+    float   ca = cos(alpha);
+    float   sa = sin(alpha);
+    float   cb = cos(beta);
+    float   sb = sin(beta);
+    float   cg = cos(gamma);
+    float   sg = sin(gamma);
 /*
 ** alpha) about z axis, beta) about new x axis, gamma) about new z axis
     rot[0][0] =  cg*ca - cb*sa*sg;
@@ -127,14 +127,14 @@ void vectorMult(Matrix3 m, Vector3 in, Vector3 out)
 */
 void matrixMult(Matrix3 d, Matrix3 s)
 {
-    int		i,j;
-    Matrix3		t;
+    int     i,j;
+    Matrix3     t;
 
     memcpy(t,d,sizeof(Matrix3));
     for (i=0; i<3; ++i) {
-    	for (j=0; j<3; ++j) {
-    		d[j][i] = s[j][0]*t[0][i] + s[j][1]*t[1][i] + s[j][2]*t[2][i];
-    	}
+        for (j=0; j<3; ++j) {
+           d[j][i] = s[j][0]*t[0][i] + s[j][1]*t[1][i] + s[j][2]*t[2][i];
+        }
     }
 }
 /*
@@ -154,57 +154,57 @@ void matrixIdent(Matrix3 m)
 */
 void getRotAlign(Vector3 p, Matrix3 out)
 {
-    float	r = sqrt(1 - p[0]*p[0]);
+    float   r = sqrt(1 - p[0]*p[0]);
 
     if (!r) {
-    	out[0][0] =  0;
-    	out[0][1] =  0;
-    	out[0][2] =  1;
-    	out[1][0] =  0;
-    	out[1][1] =  1;
-    	out[1][2] =  0;
-    	out[2][0] = -1;
-    	out[2][1] =  0;
-    	out[2][2] =  0;
+        out[0][0] =  0;
+        out[0][1] =  0;
+        out[0][2] =  1;
+        out[1][0] =  0;
+        out[1][1] =  1;
+        out[1][2] =  0;
+        out[2][0] = -1;
+        out[2][1] =  0;
+        out[2][2] =  0;
     } else {
-    	out[0][0] =  r;
-    	out[0][1] =  0;
-    	out[0][2] =  p[0];
-    	out[1][0] = -p[0] * p[1] / r;
-    	out[1][1] =  p[2] / r;
-    	out[1][2] =  p[1];
-    	out[2][0] = -p[0] * p[2] / r;
-    	out[2][1] = -p[1] / r;
-    	out[2][2] =  p[2];
+        out[0][0] =  r;
+        out[0][1] =  0;
+        out[0][2] =  p[0];
+        out[1][0] = -p[0] * p[1] / r;
+        out[1][1] =  p[2] / r;
+        out[1][2] =  p[1];
+        out[2][0] = -p[0] * p[2] / r;
+        out[2][1] = -p[1] / r;
+        out[2][2] =  p[2];
     }
 }
 /* input vector doesn't need to be unit length here */
 void getRotAlignScaled(Vector3 p, Matrix3 out)
 {
-    float	len = vectorLen(p[0], p[1], p[2]);
-    float	fac = 1.0 / len;
-    float	r = sqrt(1 - p[0]*p[0]*fac*fac);
+    float   len = vectorLen(p[0], p[1], p[2]);
+    float   fac = 1.0 / len;
+    float   r = sqrt(1 - p[0]*p[0]*fac*fac);
 
     if (!r) {
-    	out[0][0] =  0;
-    	out[0][1] =  0;
-    	out[0][2] =  len;
-    	out[1][0] =  0;
-    	out[1][1] =  len;
-    	out[1][2] =  0;
-    	out[2][0] = -len;
-    	out[2][1] =  0;
-    	out[2][2] =  0;
+        out[0][0] =  0;
+        out[0][1] =  0;
+        out[0][2] =  len;
+        out[1][0] =  0;
+        out[1][1] =  len;
+        out[1][2] =  0;
+        out[2][0] = -len;
+        out[2][1] =  0;
+        out[2][2] =  0;
     } else {
-    	out[0][0] =  len * r;
-    	out[0][1] =  0;
-    	out[0][2] =  p[0];
-    	out[1][0] = -p[0] * p[1] * fac / r;
-    	out[1][1] =  p[2] / r;
-    	out[1][2] =  p[1];
-    	out[2][0] = -p[0] * p[2] * fac / r;
-    	out[2][1] = -p[1] / r;
-    	out[2][2] =  p[2];
+        out[0][0] =  len * r;
+        out[0][1] =  0;
+        out[0][2] =  p[0];
+        out[1][0] = -p[0] * p[1] * fac / r;
+        out[1][1] =  p[2] / r;
+        out[1][2] =  p[1];
+        out[2][0] = -p[0] * p[2] * fac / r;
+        out[2][1] = -p[1] / r;
+        out[2][2] =  p[2];
     }
 }
 /*
@@ -212,28 +212,28 @@ void getRotAlignScaled(Vector3 p, Matrix3 out)
 */
 void getRotAlignInv(Vector3 p, Matrix3 out)
 {
-    float	r = sqrt(1 - p[0]*p[0]);
+    float   r = sqrt(1 - p[0]*p[0]);
 
     if (!r) {
-    	out[0][0] =  0;
-    	out[0][1] =  0;
-    	out[0][2] = -1;
-    	out[1][0] =  0;
-    	out[1][1] =  1;
-    	out[1][2] =  0;
-    	out[2][0] =  1;
-    	out[2][1] =  0;
-    	out[2][2] =  0;
+        out[0][0] =  0;
+        out[0][1] =  0;
+        out[0][2] = -1;
+        out[1][0] =  0;
+        out[1][1] =  1;
+        out[1][2] =  0;
+        out[2][0] =  1;
+        out[2][1] =  0;
+        out[2][2] =  0;
     } else {
-    	out[0][0] =  r;
-    	out[0][1] = -p[0] * p[1] / r;
-    	out[0][2] = -p[0] * p[2] / r;
-    	out[1][0] =  0;
-    	out[1][1] =  p[2] / r;
-    	out[1][2] = -p[1] / r;
-    	out[2][0] =  p[0];
-    	out[2][1] =  p[1];
-    	out[2][2] =  p[2];
+        out[0][0] =  r;
+        out[0][1] = -p[0] * p[1] / r;
+        out[0][2] = -p[0] * p[2] / r;
+        out[1][0] =  0;
+        out[1][1] =  p[2] / r;
+        out[1][2] = -p[1] / r;
+        out[2][0] =  p[0];
+        out[2][1] =  p[1];
+        out[2][2] =  p[2];
     }
 }
 /*
@@ -241,12 +241,12 @@ void getRotAlignInv(Vector3 p, Matrix3 out)
 */
 void matrixTranspose(Matrix3 in, Matrix3 out)
 {
-    int		i,j;
+    int     i,j;
 
     for (j=0; j<3; ++j) {
-    	for (i=0; i<3; ++i) {
-    		out[j][i] = in[i][j];
-    	}
+        for (i=0; i<3; ++i) {
+           out[j][i] = in[i][j];
+        }
     }
 }
 /*
@@ -255,8 +255,8 @@ void matrixTranspose(Matrix3 in, Matrix3 out)
 */
 void combineVector4(float m[3][4], int row, int col, int src)
 {
-    int	i;
-    float	f, d = m[src][col];
+    int i;
+    float   f, d = m[src][col];
 
     if (!d) return;
 
@@ -270,105 +270,105 @@ void combineVector4(float m[3][4], int row, int col, int src)
 */
 void matrixSolve(Matrix3 m, Vector3 in, Vector3 out)
 {
-    int		i,j,k;
-    float	tmp[3][4], t;
+    int     i,j,k;
+    float   tmp[3][4], t;
 
     for (i=0; i<3; ++i) {
-    	memcpy(tmp[i],m[i],3*sizeof(float));
-    	tmp[i][3] = in[i];
+        memcpy(tmp[i],m[i],3*sizeof(float));
+        tmp[i][3] = in[i];
     }
     for (i=0; i<6; ++i) {
-    	j = i%3;
-    	k = 2-i/2;
-    	combineVector4(tmp, j, k, k);
-    	if (i>=3) {
-    		t = tmp[j][j];
-    		if (t) out[j] = tmp[j][3] / t;
-    		else   out[j] = tmp[j][3];
-    	}
+        j = i%3;
+        k = 2-i/2;
+        combineVector4(tmp, j, k, k);
+        if (i>=3) {
+           t = tmp[j][j];
+           if (t) out[j] = tmp[j][3] / t;
+           else   out[j] = tmp[j][3];
+        }
     }
 }
 void lubksb(float a[MNUM][MNUM],int indx[MNUM],float b[MNUM])
 {
-    int		i,ii=-1,ip,j;
-    float	sum;
+    int     i,ii=-1,ip,j;
+    float   sum;
 
     for (i=0; i<MNUM; ++i) {
-    	ip = indx[i];
-    	sum = b[ip];
-    	b[ip] = b[i];
-    	if (ii>=0) for (j=ii; j<i; ++j) sum -= a[i][j]*b[j];
-    	else if (sum) ii = i;
-    	b[i] = sum;
+        ip = indx[i];
+        sum = b[ip];
+        b[ip] = b[i];
+        if (ii>=0) for (j=ii; j<i; ++j) sum -= a[i][j]*b[j];
+        else if (sum) ii = i;
+        b[i] = sum;
     }
     for (i=MNUM-1; i>=0; --i) {
-    	sum = b[i];
-    	for (j=i+1; j<MNUM; ++j) sum -= a[i][j]*b[j];
-    	b[i] = sum/a[i][i];
+        sum = b[i];
+        for (j=i+1; j<MNUM; ++j) sum -= a[i][j]*b[j];
+        b[i] = sum/a[i][i];
     }
 }
 void ludcmp(float a[MNUM][MNUM],int indx[MNUM], float *d)
 {
-    int		i,imax=0,j,k;
-    float	big,dum,sum,temp;
-    float	vv[MNUM];
+    int     i,imax=0,j,k;
+    float   big,dum,sum,temp;
+    float   vv[MNUM];
 
     *d = 1.0;
     for (i=0; i<MNUM; ++i) {
-    	big = 0.0;
-    	for (j=0; j<MNUM; ++j) if ((temp=fabs(a[i][j])) > big) big=temp;
-    	if (big == 0.0) return;		/* ERROR: singular matrix!!! */
-    	vv[i] = 1.0/big;
+        big = 0.0;
+        for (j=0; j<MNUM; ++j) if ((temp=fabs(a[i][j])) > big) big=temp;
+        if (big == 0.0) return;       /* ERROR: singular matrix!!! */
+        vv[i] = 1.0/big;
     }
     for (j=0; j<MNUM; ++j) {
-    	for (i=0; i<j; ++i) {
-    		sum = a[i][j];
-    		for (k=0; k<i; ++k) sum -= a[i][k]*a[k][j];
-    		a[i][j] = sum;
-    	}
-    	big = 0.0;
-    	for (i=j; i<MNUM; ++i) {
-    		sum = a[i][j];
-    		for (k=0; k<j; ++k)
-    			sum -= a[i][k]*a[k][j];
-    		a[i][j] = sum;
-    		if ( (dum=vv[i]*fabs(sum)) >= big) {
-    			big = dum;
-    			imax = i;
-    		}
-    	}
-    	if (j != imax) {
-    		for (k=0; k<MNUM; ++k) {
-    			dum = a[imax][k];
-    			a[imax][k] = a[j][k];
-    			a[j][k] = dum;
-    		}
-    		*d = -(*d);
-    		vv[imax] = vv[j];
-    	}
-    	indx[j] = imax;
-    	if (a[j][j] == 0.0) a[j][j] = NEAR_ZERO;
-    	if (j != MNUM-1) {
-    		dum = 1.0/a[j][j];
-    		for (i=j+1; i<MNUM; ++i) a[i][j] *= dum;
-    	}
+        for (i=0; i<j; ++i) {
+           sum = a[i][j];
+           for (k=0; k<i; ++k) sum -= a[i][k]*a[k][j];
+           a[i][j] = sum;
+        }
+        big = 0.0;
+        for (i=j; i<MNUM; ++i) {
+           sum = a[i][j];
+           for (k=0; k<j; ++k)
+             sum -= a[i][k]*a[k][j];
+           a[i][j] = sum;
+           if ( (dum=vv[i]*fabs(sum)) >= big) {
+             big = dum;
+             imax = i;
+           }
+        }
+        if (j != imax) {
+           for (k=0; k<MNUM; ++k) {
+             dum = a[imax][k];
+             a[imax][k] = a[j][k];
+             a[j][k] = dum;
+           }
+           *d = -(*d);
+           vv[imax] = vv[j];
+        }
+        indx[j] = imax;
+        if (a[j][j] == 0.0) a[j][j] = NEAR_ZERO;
+        if (j != MNUM-1) {
+           dum = 1.0/a[j][j];
+           for (i=j+1; i<MNUM; ++i) a[i][j] *= dum;
+        }
     }
 }
 
 void matrixInvert(Matrix3 in, Matrix3 out)
 {
-    int		i,j,indx[MNUM];
-    float	d;
-    Matrix3	tmp;
-    Vector3	col;
+    int     i,j,indx[MNUM];
+    float   d;
+    Matrix3 tmp;
+    Vector3 col;
 
     memcpy(tmp,in,sizeof(Matrix3));
 
     ludcmp(tmp,indx,&d);
     for (j=0; j<MNUM; ++j) {
-    	for (i=0; i<MNUM; ++i) col[i] = 0.0;
-    	col[j] = 1.0;
-    	lubksb(tmp,indx,col);
-    	for (i=0; i<MNUM; ++i) out[i][j] = col[i];
+        for (i=0; i<MNUM; ++i) col[i] = 0.0;
+        col[j] = 1.0;
+        lubksb(tmp,indx,col);
+        for (i=0; i<MNUM; ++i) out[i][j] = col[i];
     }
 }

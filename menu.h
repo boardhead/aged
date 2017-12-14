@@ -1,7 +1,7 @@
 #ifndef __MENU_H__
 #define __MENU_H__
 
-#define MAX_EXTRA_NUM   	100 // max 100 extra hit data types
+#define MAX_EXTRA_NUM       100 // max 100 extra hit data types
 
 /*
 ** Menu ID definitions
@@ -16,8 +16,8 @@ enum {
     SCALE_WINDOW,
     SETTINGS_WINDOW,
     PRINT_WINDOW,
-    HIT_INFO_WINDOW,	// Note: this must come after all projection windows
-    					// for hit information to be available when window is drawn
+    HIT_INFO_WINDOW,    // Note: this must come after all projection windows
+                  // for hit information to be available when window is drawn
     COLOUR_WINDOW,
     NUM_WINDOWS,
     
@@ -77,8 +77,8 @@ enum {
 };
 
 // constants used to range check menu radio settings
-#define IMAX_DATATYPE   	(IDM_DISP_PAD - IDM_TIME)
-#define IMAX_PROJTYPE   	(IDM_PROJ_DUAL_POLAR_EQUAL - IDM_PROJ_RECTANGULAR)
+#define IMAX_DATATYPE       (IDM_DISP_PAD - IDM_TIME)
+#define IMAX_PROJTYPE       (IDM_PROJ_DUAL_POLAR_EQUAL - IDM_PROJ_RECTANGULAR)
 #define IMAX_SHAPEOPTION    (IDM_HIT_CIRCLE - IDM_HIT_SQUARE)
 
 #endif // __MENU_H__

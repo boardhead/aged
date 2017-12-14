@@ -65,8 +65,8 @@ PHistImage::PHistImage(PImageWindow *owner, Widget canvas, int createCanvas)
     mOverlayCol[1] = SCALE_COL3;
     mOverlayCol[2] = SCALE_OVER;
     mOverlayCol[3] = SCALE_COL4;
-    mOverlayCol[4] = SCALE_COL0;
-    mOverlayCol[5] = SCALE_UNDER;
+    mOverlayCol[4] = SCALE_UNDER;
+    mOverlayCol[5] = SCALE_COL0;
     if (!canvas && createCanvas) {
         CreateCanvas("ehCanvas");
     }
@@ -935,14 +935,6 @@ void PHistImage::DrawSelf()
                     lasty = y;
                 }
                 DrawSegments(segments, sp-segments, 0);
-                if (mOverlayLabel[over]) {
-                    SetFont(PResourceManager::sResource.hist_font);
-#ifdef ANTI_ALIAS
-                    SetFont(PResourceManager::sResource.xft_hist_font);
-#endif
-                    int y = y1 + HIST_LABEL_Y + (over + 1) * kOverlayDY;
-                    DrawString(x2, y, mOverlayLabel[over], kTextAlignTopRight);
-                }
             }
             if (mHistogram) {
                 SetForeground(mPlotCol);
@@ -976,19 +968,41 @@ void PHistImage::DrawSelf()
         }
     }
 /*
-** Draw histogram label
+** Draw labels
 */
-    if (mLabel) {
-        if (mStyle == kHistStyleSteps) {
-            SetForeground(mPlotCol);
-        } else {
-            SetForeground(TEXT_COL);
-        }
+    if (mLabel || mNumOverlays) {
         SetFont(PResourceManager::sResource.hist_font);
 #ifdef ANTI_ALIAS
         SetFont(PResourceManager::sResource.xft_hist_font);
 #endif
-        DrawString(x2,y1+HIST_LABEL_Y,mLabel,kTextAlignTopRight);
+        int max = 0;
+        if (mLabel) max = mDrawable->GetTextWidth(mLabel);
+        for (int over=0; over<mNumOverlays; ++over) {
+            if (mOverlayLabel[over]) {
+                int len = mDrawable->GetTextWidth(mOverlayLabel[over]);
+                if (len > max) max = len;
+            }
+        }
+        for (int over=0; over<mNumOverlays; ++over) {
+            if (!mOverlay[over] || !mOverlayLabel[over]) continue;
+            int y = y1 + HIST_LABEL_Y + (over + 1) * kOverlayDY;
+            int wid = mDrawable->GetTextWidth(mOverlayLabel[over]);
+            SetForeground(BKG_COL, 0x8000);
+            FillRectangle(x2-wid-1, y, wid+2, kOverlayDY);
+            SetForeground(mOverlayCol[over]);
+            DrawString(x2, y, mOverlayLabel[over], kTextAlignTopRight);
+        }
+        if (mLabel) {
+            int wid = mDrawable->GetTextWidth(mLabel);
+            SetForeground(BKG_COL, 0xc000);
+            FillRectangle(x2-wid-1, y1+HIST_LABEL_Y, wid+2, kOverlayDY);
+            if (mStyle == kHistStyleSteps) {
+                SetForeground(mPlotCol);
+            } else {
+                SetForeground(TEXT_COL);
+            }
+            DrawString(x2,y1+HIST_LABEL_Y,mLabel,kTextAlignTopRight);
+        }
     }
     SetForeground(TEXT_COL);
 }

@@ -13,7 +13,7 @@ void    setProgname(char *aFilename, char *aPathname);
 double  double_time(void);
 void    usleep_(unsigned long usec);
 void    quit(char *msg);
-int 	Printf(char *,...);
+int     Printf(char *,...);
 void    SetPrintfOutput(char *buff, int size);
 
 #ifdef  __cplusplus

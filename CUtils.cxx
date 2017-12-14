@@ -64,7 +64,7 @@ void SetPrintfOutput(char *buff, int size)
     sPrintfBuffer = buff;
     sPrintfBufferMax = size;
     sPrintfBufferLen = 0;
-    if (buff && size) *buff = '\0';	/* start with null string in buffer */
+    if (buff && size) *buff = '\0'; /* start with null string in buffer */
 }
 
 #ifdef VAX
@@ -74,24 +74,24 @@ int vaxPrintf(char *fmt,...)
 int Printf(char *fmt,...)
 #endif
 {
-    int		len = 0;
-    va_list	varArgList;
+    int     len = 0;
+    va_list varArgList;
     
     va_start(varArgList,fmt);
     if (sPrintfBuffer) {
-    	/* check to see if buffer is getting too full */
-    	if (sPrintfBufferLen + 80 > sPrintfBufferMax) {
-    		printf("%s: Printf buffer too full!\n", progname);
-    	} else {
-    		/* add output to buffer */
-    		char *pt = strchr(sPrintfBuffer, '\0');
-    		len = sprintf(pt,"%s: ",progname);
-    		len += vsprintf(pt+len,fmt,varArgList);
-    		sPrintfBufferLen = pt - sPrintfBuffer + len;
-    	}
+        /* check to see if buffer is getting too full */
+        if (sPrintfBufferLen + 80 > sPrintfBufferMax) {
+           printf("%s: Printf buffer too full!\n", progname);
+        } else {
+           /* add output to buffer */
+           char *pt = strchr(sPrintfBuffer, '\0');
+           len = sprintf(pt,"%s: ",progname);
+           len += vsprintf(pt+len,fmt,varArgList);
+           sPrintfBufferLen = pt - sPrintfBuffer + len;
+        }
     } else {
-    	len = printf("%s: ", progname);
-    	len += vprintf(fmt,varArgList);
+        len = printf("%s: ", progname);
+        len += vprintf(fmt,varArgList);
     }
     va_end(varArgList);
     return(len);

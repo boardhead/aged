@@ -12,7 +12,7 @@
 #include "PMenu.h"
 #include "AgedWindow.h"
 
-const short kPrintScaling		= 10;	// coordinate scaling for printed images
+const short kPrintScaling     = 10;    // coordinate scaling for printed images
 const short kLabelClickMargin   = 8;
 
 
@@ -21,22 +21,22 @@ const short kLabelClickMargin   = 8;
 //
 PImageCanvas::PImageCanvas(PImageWindow *owner, Widget canvas, EventMask eventMask)
 {
-    ImageData	*data = owner->GetData();
+    ImageData   *data = owner->GetData();
     
-    mDpy			= data->display;
-    mOwner			= owner;
-    mWidth  		= 0;
-    mHeight 		= 0;
-    mCanvasWidth	= 0;
-    mCanvasHeight	= 0;
-    mDrawable 		= 0;
-    mCanvas 		= NULL;
-    mEventMask 		= eventMask;
-    mDrawLabel		= 1;
+    mDpy         = data->display;
+    mOwner       = owner;
+    mWidth         = 0;
+    mHeight        = 0;
+    mCanvasWidth    = 0;
+    mCanvasHeight   = 0;
+    mDrawable    = 0;
+    mCanvas        = NULL;
+    mEventMask      = eventMask;
+    mDrawLabel   = 1;
     mAllowLabel     = 1;
-    mLabelText		= NULL;
-    mLabelHeight	= 0;
-    mDirty			= kDirtyPix;
+    mLabelText   = NULL;
+    mLabelHeight    = 0;
+    mDirty       = kDirtyPix;
     mTimer          = 0;
 
     SetCanvas(canvas);
@@ -51,27 +51,27 @@ PImageCanvas::~PImageCanvas()
     if (mDrawable) delete mDrawable;
     
     if (mCanvas) {
-    	XtRemoveCallback(mCanvas, XmNexposeCallback, (XtCallbackProc)CanvasExposeProc, this);
-    	XtRemoveCallback(mCanvas, XmNresizeCallback, (XtCallbackProc)CanvasResizeProc, this);
-    	
-    	if (mEventMask) {
-    		XtRemoveEventHandler(mCanvas, mEventMask, FALSE, (XtEventHandler)CanvasMotionProc, this);
-    	}
+        XtRemoveCallback(mCanvas, XmNexposeCallback, (XtCallbackProc)CanvasExposeProc, this);
+        XtRemoveCallback(mCanvas, XmNresizeCallback, (XtCallbackProc)CanvasResizeProc, this);
+        
+        if (mEventMask) {
+           XtRemoveEventHandler(mCanvas, mEventMask, FALSE, (XtEventHandler)CanvasMotionProc, this);
+        }
     }
 }
 
 void PImageCanvas::Listen(int message, void *dataPt)
 {
     switch (message) {
-    	case kMessageLabelChanged:
-    		if (mDrawLabel) {
-    			SetDirty();
-    		}
-    		break;
+        case kMessageLabelChanged:
+           if (mDrawLabel) {
+             SetDirty();
+           }
+           break;
         case kMessageSmoothTextChanged:
             if (mLabelText) {
-    			SetDirty();
-    		}
+             SetDirty();
+           }
             break;
     }
 }
@@ -103,8 +103,8 @@ void PImageCanvas::ResetTimer()
 // SetDirty - mark the image as needing redrawing
 void PImageCanvas::SetDirty(int flag)
 {
-    mDirty |= flag;				// set our dirty flags
-    mOwner->SetDirty(flag);		// set our owner's dirty flag
+    mDirty |= flag;          // set our dirty flags
+    mOwner->SetDirty(flag);     // set our owner's dirty flag
 }
 
 /* must be called AFTER widget is realized */
@@ -117,13 +117,13 @@ void PImageCanvas::SetCursor(int type)
 void PImageCanvas::SetCursorForPos(int x, int y)
 {
     if (IsInLabel(x,y)) {
-    	if (IsLabelOn()) {
-    		SetCursor(CURSOR_ARROW_DOWN);
-    	} else {
-    		SetCursor(CURSOR_ARROW_UP);
-    	}
+        if (IsLabelOn()) {
+           SetCursor(CURSOR_ARROW_DOWN);
+        } else {
+           SetCursor(CURSOR_ARROW_UP);
+        }
     } else {
-    	XUndefineCursor(mDpy, XtWindow(mCanvas));
+        XUndefineCursor(mDpy, XtWindow(mCanvas));
     }
 }
 
@@ -132,18 +132,18 @@ void PImageCanvas::SetCanvas(Widget canvas)
     mCanvas = canvas;
     
     if (canvas) {
-    	mDpy = XtDisplay(canvas);
-    	
-    	if (mDrawable) delete mDrawable;
-    	mDrawable = new PDrawXPixmap(mDpy, mOwner->GetData()->gc,
-    								 DefaultDepthOfScreen(XtScreen(canvas)), canvas);
-    	
-    	XtAddCallback(canvas, XmNexposeCallback, (XtCallbackProc)CanvasExposeProc, this);
-    	XtAddCallback(canvas, XmNresizeCallback, (XtCallbackProc)CanvasResizeProc, this);
-    	
-    	if (mEventMask) {
-    		XtAddEventHandler(canvas, mEventMask, FALSE, (XtEventHandler)CanvasMotionProc, this);
-    	}
+        mDpy = XtDisplay(canvas);
+        
+        if (mDrawable) delete mDrawable;
+        mDrawable = new PDrawXPixmap(mDpy, mOwner->GetData()->gc,
+                         DefaultDepthOfScreen(XtScreen(canvas)), canvas);
+        
+        XtAddCallback(canvas, XmNexposeCallback, (XtCallbackProc)CanvasExposeProc, this);
+        XtAddCallback(canvas, XmNresizeCallback, (XtCallbackProc)CanvasResizeProc, this);
+        
+        if (mEventMask) {
+           XtAddEventHandler(canvas, mEventMask, FALSE, (XtEventHandler)CanvasMotionProc, this);
+        }
     }
 }
 
@@ -155,45 +155,45 @@ int PImageCanvas::GetCanvasSize()
     if (!mCanvas || !XtIsRealized(mCanvas)) return(0);
 
     // get the current size of the canvas
-    Arg			wargs[10];
-    Dimension	width,height;
+    Arg        wargs[10];
+    Dimension   width,height;
     XtSetArg(wargs[0],XtNwidth, &width);
     XtSetArg(wargs[1],XtNheight,&height);
     XtGetValues(mCanvas,wargs,2);
 
     if (mCanvasWidth!=width || mCanvasHeight!=height) {
-    	ImageData	*data = mOwner->GetData();
-    	mCanvasWidth = mWidth = width;
-    	mCanvasHeight = mHeight = height;
-    	if (data->show_label) {
-    		mHeight -= GetScaling() * mLabelHeight;
-    		// handle case where mHeight is negative (remember, this is unsigned math)
-    		if (mHeight > height) mHeight = 0;
-    	}
-    	mDirty |= kDirtyPix;	// flag indicates pixmap requires redrawing
-    	Resize();				// call this whenever the image size changes
+        ImageData  *data = mOwner->GetData();
+        mCanvasWidth = mWidth = width;
+        mCanvasHeight = mHeight = height;
+        if (data->show_label) {
+           mHeight -= GetScaling() * mLabelHeight;
+           // handle case where mHeight is negative (remember, this is unsigned math)
+           if (mHeight > height) mHeight = 0;
+        }
+        mDirty |= kDirtyPix;   // flag indicates pixmap requires redrawing
+        Resize();          // call this whenever the image size changes
     }
     return((int)width);
 }
 
 void PImageCanvas::CanvasExposeProc(Widget w, PImageCanvas *anImage, XmDrawingAreaCallbackStruct *call_data)
 {
-    XExposeEvent  *	event = (XExposeEvent *)call_data->event;
+    XExposeEvent  * event = (XExposeEvent *)call_data->event;
 
     if (!anImage->mCanvasWidth) {
-    	anImage->GetCanvasSize();
+        anImage->GetCanvasSize();
     }
     // if pixmap is available and doesn't require drawing, copy the exposed area to screen
     if (!anImage->IsDirty() &&
-    	 anImage->mDrawable->CopyArea(event->x,event->y,event->width,event->height,XtWindow(anImage->mCanvas)))
+         anImage->mDrawable->CopyArea(event->x,event->y,event->width,event->height,XtWindow(anImage->mCanvas)))
     {
-    	if (event->count == 0) {
-    		// call this routine after last copy to screen
-    		anImage->AfterDrawing();
-    	}
-    } else if (event->count == 0) {	// only draw on last expose event
-    	// pixmap is dirty or unavailable -- draw the image from scratch
-    	anImage->Draw();
+        if (event->count == 0) {
+           // call this routine after last copy to screen
+           anImage->AfterDrawing();
+        }
+    } else if (event->count == 0) { // only draw on last expose event
+        // pixmap is dirty or unavailable -- draw the image from scratch
+        anImage->Draw();
     }
 }
 
@@ -202,10 +202,10 @@ void PImageCanvas::CanvasResizeProc(Widget w, PImageCanvas *anImage, XmDrawingAr
     int wasDrawn = (anImage->mCanvasWidth != 0);
 
     if (anImage->GetCanvasSize()) {
-    	if (wasDrawn) {
-    		// clear the canvas on the screen until we can redraw it
-    		//(causes flickering) XClearArea(anImage->mDpy,XtWindow(w),0,0,0,0,TRUE);
-    	}
+        if (wasDrawn) {
+           // clear the canvas on the screen until we can redraw it
+           //(causes flickering) XClearArea(anImage->mDpy,XtWindow(w),0,0,0,0,TRUE);
+        }
     }
 }
 
@@ -213,23 +213,23 @@ void PImageCanvas::CanvasMotionProc(Widget w, PImageCanvas *anImage, XEvent *eve
 {
     // are we waiting for a window to be selected?
     if (PImageWindow::IsPendingRaise()) {
-    	// must look for button presses too, in case the window manager
-    	// doesn't raise the window on a button click
-    	if (event->type == ButtonPress) {
-    		anImage->mOwner->WasRaised();
-    	}
+        // must look for button presses too, in case the window manager
+        // doesn't raise the window on a button click
+        if (event->type == ButtonPress) {
+           anImage->mOwner->WasRaised();
+        }
     } else {
-    	// handle events normally
-    	anImage->HandleEvents(event);
+        // handle events normally
+        anImage->HandleEvents(event);
     }
 }
 
 // Print - print image to postscript file
 int PImageCanvas::Print(char *filename, int flags)
 {
-    int	printOK = 0;
+    int printOK = 0;
     
-    PDrawPostscriptFile	drawable(filename, (flags & kPrintLandscape));
+    PDrawPostscriptFile drawable(filename, (flags & kPrintLandscape));
     
     PDrawable *oldDrawable = mDrawable;
     int oldWidth = mWidth;
@@ -245,14 +245,14 @@ int PImageCanvas::Print(char *filename, int flags)
     mHeight *= kPrintScaling;
     mCanvasWidth *= kPrintScaling;
     mCanvasHeight *= kPrintScaling;
-    Resize();		// call this whenever the image size changes
+    Resize();     // call this whenever the image size changes
     
     // draw image to postscript file
     if (drawable.BeginDrawing(mCanvasWidth,mCanvasHeight)) {
-    	Prepare();
-    	DrawSelf();
-    	drawable.EndDrawing();
-    	printOK = 1;
+        Prepare();
+        DrawSelf();
+        drawable.EndDrawing();
+        printOK = 1;
     }
     
     // restore original settings
@@ -261,7 +261,7 @@ int PImageCanvas::Print(char *filename, int flags)
     mHeight = oldHeight;
     mCanvasWidth = oldCanvasWidth;
     mCanvasHeight = oldCanvasHeight;
-    Resize();		// call this whenever the image size changes
+    Resize();     // call this whenever the image size changes
     
     return(printOK);
 }
@@ -273,21 +273,21 @@ void PImageCanvas::Draw()
 {
     // get our canvas dimensions if not done yet
     if (!mCanvasWidth) {
-    	if (!GetCanvasSize()) return;	// return if widget not realized
+        if (!GetCanvasSize()) return;  // return if widget not realized
     }
     if (mDrawable->BeginDrawing(mCanvasWidth, mCanvasHeight)) {
-    	Prepare();
-    	// set dirty pixmap flag too if we have arrived here without a pixmap
-    	if (!mDrawable->HasPixmap()) {
-    		mDirty |= kDirtyPix;
-    	}
-    	DrawSelf();
-    	mDrawable->EndDrawing();
-    	// copy the image to the screen
-    	mDrawable->CopyArea(0,0,mCanvasWidth,mCanvasHeight,XtWindow(mCanvas));
-    	// reset all dirty flags since we have just successfully drawn ourself
-    	mDirty = 0;
-    	AfterDrawing();		// call this after any drawing to screen
+        Prepare();
+        // set dirty pixmap flag too if we have arrived here without a pixmap
+        if (!mDrawable->HasPixmap()) {
+           mDirty |= kDirtyPix;
+        }
+        DrawSelf();
+        mDrawable->EndDrawing();
+        // copy the image to the screen
+        mDrawable->CopyArea(0,0,mCanvasWidth,mCanvasHeight,XtWindow(mCanvas));
+        // reset all dirty flags since we have just successfully drawn ourself
+        mDirty = 0;
+        AfterDrawing();       // call this after any drawing to screen
     }
 }
 
@@ -297,17 +297,17 @@ void PImageCanvas::Draw()
 void PImageCanvas::DrawLabel(int x,int y,ETextAlign_q align)
 {
     if (mLabelText && mLabelHeight) {
-    	SetForeground(TEXT_COL);
-    	y -= GetScaling() * mLabelHeight;
-    	for (TextSpec *ts=mLabelText; ts->string; ++ts) {
-    		SetFont(ts->font);
+        SetForeground(TEXT_COL);
+        y -= GetScaling() * mLabelHeight;
+        for (TextSpec *ts=mLabelText; ts->string; ++ts) {
+           SetFont(ts->font);
 #ifdef ANTI_ALIAS
             SetFont(ts->xftFont);
 #endif
             y += GetScaling() * GetFontAscent();
-    		DrawString(x, y, ts->string, align);
-    		y += GetScaling() * GetFontDescent();
-    	}
+           DrawString(x, y, ts->string, align);
+           y += GetScaling() * GetFontDescent();
+        }
     }
 }
 
@@ -324,20 +324,20 @@ void PImageCanvas::Prepare()
 #endif
     int newHeight;
     if (mDrawLabel && data->show_label) {
-    	AgedWindow *mainWindow = mOwner->GetData()->mMainWindow;
-    	mLabelText = mainWindow->GetLabelText();
-    	newHeight = mainWindow->GetLabelHeight();
+        AgedWindow *mainWindow = mOwner->GetData()->mMainWindow;
+        mLabelText = mainWindow->GetLabelText();
+        newHeight = mainWindow->GetLabelHeight();
     } else {
-    	mLabelText = NULL;
-    	newHeight = 0;
+        mLabelText = NULL;
+        newHeight = 0;
     }
     // get current number of lines in label
     if (mLabelHeight != newHeight) {
-    	// calculate new image height
-    	mHeight = mCanvasHeight - GetScaling() * newHeight;
-    	if (mHeight > mCanvasHeight) mHeight = 0;
-    	mLabelHeight = newHeight;
-    	Resize();	// call this whenever the image size changes
+        // calculate new image height
+        mHeight = mCanvasHeight - GetScaling() * newHeight;
+        if (mHeight > mCanvasHeight) mHeight = 0;
+        mLabelHeight = newHeight;
+        Resize();  // call this whenever the image size changes
     }
 }
 
@@ -352,7 +352,7 @@ void PImageCanvas::DrawSelf()
     FillRectangle(0, 0, mCanvasWidth, mCanvasHeight);
 
     if (mLabelText) {
-    	DrawLabel(mCanvasWidth/2, mCanvasHeight-2*GetScaling(), kTextAlignBottomCenter);
+        DrawLabel(mCanvasWidth/2, mCanvasHeight-2*GetScaling(), kTextAlignBottomCenter);
     }
 }
 
@@ -368,11 +368,11 @@ int PImageCanvas::IsInLabel(int x, int y)
 void PImageCanvas::ShowLabel(int on)
 {
     if (mDrawLabel != on) {
-    	mDrawLabel = on;
-    	if (mCanvas && XtIsRealized(mCanvas)) {
-    		Prepare();	// do this now so any subsequent cursor changes will use new configuration
-    		SetDirty();	// redraw ourself
-    	}
+        mDrawLabel = on;
+        if (mCanvas && XtIsRealized(mCanvas)) {
+           Prepare();    // do this now so any subsequent cursor changes will use new configuration
+           SetDirty();   // redraw ourself
+        }
     }
 }
 
@@ -385,97 +385,97 @@ void PImageCanvas::AllowLabel(int on)
 // utility to create image canvas plus specified scrollbars
 void PImageCanvas::CreateCanvas(char *name, int scrollBarMask)
 {
-    int				n;
-    Arg				wargs[16];
-    unsigned char	attach;
-    Widget			topWidget;
+    int          n;
+    Arg          wargs[16];
+    unsigned char   attach;
+    Widget       topWidget;
     
     if (mOwner->GetMenu()) {
-    	topWidget = mOwner->GetMenu()->GetWidget();
+        topWidget = mOwner->GetMenu()->GetWidget();
     } else {
-    	topWidget = 0;
+        topWidget = 0;
     }
     // get right attachment of top widget
     if (topWidget) {
-    	n = 0;
-    	XtSetArg(wargs[n], XmNrightAttachment, &attach);  ++n;
-    	XtGetValues(topWidget, wargs, n);
+        n = 0;
+        XtSetArg(wargs[n], XmNrightAttachment, &attach);  ++n;
+        XtGetValues(topWidget, wargs, n);
     }
     
     if (scrollBarMask & kScrollLeftMask) {
-    	n = 0;
-    	if (topWidget) {
-    		XtSetArg(wargs[n], XmNtopAttachment, XmATTACH_WIDGET);  ++n;
-    		XtSetArg(wargs[n], XmNtopWidget, topWidget); ++n;
-    	} else {
-    		XtSetArg(wargs[n], XmNtopAttachment, XmATTACH_FORM);  ++n;
-    	}
-    	XtSetArg(wargs[n], XmNleftAttachment, XmATTACH_FORM);  ++n;
-    	XtSetArg(wargs[n], XmNbottomAttachment, XmATTACH_FORM);  ++n;
-    	XtSetArg(wargs[n], XmNwidth, 15); ++n;
-    	XtSetArg(wargs[n], XmNorientation, XmVERTICAL);  ++n;
-    	mOwner->NewScrollBar(kScrollLeft,"agedScroll1",wargs,n);
+        n = 0;
+        if (topWidget) {
+           XtSetArg(wargs[n], XmNtopAttachment, XmATTACH_WIDGET);  ++n;
+           XtSetArg(wargs[n], XmNtopWidget, topWidget); ++n;
+        } else {
+           XtSetArg(wargs[n], XmNtopAttachment, XmATTACH_FORM);  ++n;
+        }
+        XtSetArg(wargs[n], XmNleftAttachment, XmATTACH_FORM);  ++n;
+        XtSetArg(wargs[n], XmNbottomAttachment, XmATTACH_FORM);  ++n;
+        XtSetArg(wargs[n], XmNwidth, 15); ++n;
+        XtSetArg(wargs[n], XmNorientation, XmVERTICAL);  ++n;
+        mOwner->NewScrollBar(kScrollLeft,"agedScroll1",wargs,n);
     }
     if (scrollBarMask & kScrollRightMask) {
-    	n = 0;
-    	if (topWidget && attach==XmATTACH_FORM) {
-    		XtSetArg(wargs[n], XmNtopAttachment, XmATTACH_WIDGET);  ++n;
-    		XtSetArg(wargs[n], XmNtopWidget, topWidget); ++n;
-    	} else {
-    		XtSetArg(wargs[n], XmNtopAttachment, XmATTACH_FORM);  ++n;
-    	}
-    	XtSetArg(wargs[n], XmNbottomAttachment, XmATTACH_FORM);  ++n;
-    	XtSetArg(wargs[n], XmNrightAttachment, XmATTACH_FORM);  ++n;
-    	XtSetArg(wargs[n], XmNwidth, 15); ++n;
-    	XtSetArg(wargs[n], XmNorientation, XmVERTICAL);  ++n;
-    	mOwner->NewScrollBar(kScrollRight,"agedScroll2",wargs,n);
+        n = 0;
+        if (topWidget && attach==XmATTACH_FORM) {
+           XtSetArg(wargs[n], XmNtopAttachment, XmATTACH_WIDGET);  ++n;
+           XtSetArg(wargs[n], XmNtopWidget, topWidget); ++n;
+        } else {
+           XtSetArg(wargs[n], XmNtopAttachment, XmATTACH_FORM);  ++n;
+        }
+        XtSetArg(wargs[n], XmNbottomAttachment, XmATTACH_FORM);  ++n;
+        XtSetArg(wargs[n], XmNrightAttachment, XmATTACH_FORM);  ++n;
+        XtSetArg(wargs[n], XmNwidth, 15); ++n;
+        XtSetArg(wargs[n], XmNorientation, XmVERTICAL);  ++n;
+        mOwner->NewScrollBar(kScrollRight,"agedScroll2",wargs,n);
     }
     if (scrollBarMask & kScrollBottomMask) {
-    	n = 0;
-    	if (scrollBarMask & kScrollLeftMask) {
-    		XtSetArg(wargs[n], XmNleftAttachment, XmATTACH_WIDGET);  ++n;
-    		XtSetArg(wargs[n], XmNleftWidget, mOwner->GetScrollBar(kScrollLeft)->GetWidget()); ++n;
-    	} else {
-    		XtSetArg(wargs[n], XmNleftAttachment, XmATTACH_FORM);  ++n;
-    	}
-    	if (scrollBarMask & kScrollRightMask) {
-    		XtSetArg(wargs[n], XmNrightAttachment, XmATTACH_WIDGET);  ++n;
-    		XtSetArg(wargs[n], XmNrightWidget, mOwner->GetScrollBar(kScrollRight)->GetWidget()); ++n;
-    	} else {
-    		XtSetArg(wargs[n], XmNrightAttachment, XmATTACH_FORM);  ++n;
-    	}
-    	XtSetArg(wargs[n], XmNbottomAttachment, XmATTACH_FORM);  ++n;
-    	XtSetArg(wargs[n], XmNheight, 15); ++n;
-    	XtSetArg(wargs[n], XmNorientation, XmHORIZONTAL);  ++n;
-    	mOwner->NewScrollBar(kScrollBottom,"agedScroll3",wargs,n);
+        n = 0;
+        if (scrollBarMask & kScrollLeftMask) {
+           XtSetArg(wargs[n], XmNleftAttachment, XmATTACH_WIDGET);  ++n;
+           XtSetArg(wargs[n], XmNleftWidget, mOwner->GetScrollBar(kScrollLeft)->GetWidget()); ++n;
+        } else {
+           XtSetArg(wargs[n], XmNleftAttachment, XmATTACH_FORM);  ++n;
+        }
+        if (scrollBarMask & kScrollRightMask) {
+           XtSetArg(wargs[n], XmNrightAttachment, XmATTACH_WIDGET);  ++n;
+           XtSetArg(wargs[n], XmNrightWidget, mOwner->GetScrollBar(kScrollRight)->GetWidget()); ++n;
+        } else {
+           XtSetArg(wargs[n], XmNrightAttachment, XmATTACH_FORM);  ++n;
+        }
+        XtSetArg(wargs[n], XmNbottomAttachment, XmATTACH_FORM);  ++n;
+        XtSetArg(wargs[n], XmNheight, 15); ++n;
+        XtSetArg(wargs[n], XmNorientation, XmHORIZONTAL);  ++n;
+        mOwner->NewScrollBar(kScrollBottom,"agedScroll3",wargs,n);
     }
     
     // finally create canvas
     n = 0;
     if (topWidget && attach==XmATTACH_FORM) {
-    	XtSetArg(wargs[n], XmNtopAttachment, XmATTACH_WIDGET);  ++n;
-    	XtSetArg(wargs[n], XmNtopWidget, topWidget);  ++n;
+        XtSetArg(wargs[n], XmNtopAttachment, XmATTACH_WIDGET);  ++n;
+        XtSetArg(wargs[n], XmNtopWidget, topWidget);  ++n;
     } else {
-    	// attach top to form if no top widget, or if top widget doesn't span form
-    	XtSetArg(wargs[n], XmNtopAttachment, XmATTACH_FORM);  ++n;
+        // attach top to form if no top widget, or if top widget doesn't span form
+        XtSetArg(wargs[n], XmNtopAttachment, XmATTACH_FORM);  ++n;
     }
     if (scrollBarMask & kScrollLeftMask) {
-    	XtSetArg(wargs[n], XmNleftAttachment, XmATTACH_WIDGET);  ++n;
-    	XtSetArg(wargs[n], XmNleftWidget, mOwner->GetScrollBar(kScrollLeft)->GetWidget()); ++n;
+        XtSetArg(wargs[n], XmNleftAttachment, XmATTACH_WIDGET);  ++n;
+        XtSetArg(wargs[n], XmNleftWidget, mOwner->GetScrollBar(kScrollLeft)->GetWidget()); ++n;
     } else {
-    	XtSetArg(wargs[n], XmNleftAttachment, XmATTACH_FORM);  ++n;
+        XtSetArg(wargs[n], XmNleftAttachment, XmATTACH_FORM);  ++n;
     }
     if (scrollBarMask & kScrollBottomMask) {
-    	XtSetArg(wargs[n], XmNbottomAttachment, XmATTACH_WIDGET);  ++n;
-    	XtSetArg(wargs[n], XmNbottomWidget, mOwner->GetScrollBar(kScrollBottom)->GetWidget()); ++n;
+        XtSetArg(wargs[n], XmNbottomAttachment, XmATTACH_WIDGET);  ++n;
+        XtSetArg(wargs[n], XmNbottomWidget, mOwner->GetScrollBar(kScrollBottom)->GetWidget()); ++n;
     } else {
-    	XtSetArg(wargs[n], XmNbottomAttachment, XmATTACH_FORM);  ++n;
+        XtSetArg(wargs[n], XmNbottomAttachment, XmATTACH_FORM);  ++n;
     }
     if (scrollBarMask & kScrollRightMask) {
-    	XtSetArg(wargs[n], XmNrightAttachment, XmATTACH_WIDGET);  ++n;
-    	XtSetArg(wargs[n], XmNrightWidget, mOwner->GetScrollBar(kScrollRight)->GetWidget()); ++n;
+        XtSetArg(wargs[n], XmNrightAttachment, XmATTACH_WIDGET);  ++n;
+        XtSetArg(wargs[n], XmNrightWidget, mOwner->GetScrollBar(kScrollRight)->GetWidget()); ++n;
     } else {
-    	XtSetArg(wargs[n], XmNrightAttachment, XmATTACH_FORM);  ++n;
+        XtSetArg(wargs[n], XmNrightAttachment, XmATTACH_FORM);  ++n;
     }
     Widget canvas = XtCreateManagedWidget(name, xmDrawingAreaWidgetClass, mOwner->GetMainPane(), wargs, n);
     

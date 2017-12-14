@@ -26,13 +26,13 @@ const int   kPickerHeight = 26 * (int)((kNumPickerColours + 2) / 3);
 #define RGB_YPOS    18
 
 PColourWindow::PColourWindow(ImageData *data)
-    		 : PImageWindow(data)
+            : PImageWindow(data)
 {
-    int		n;
-    Arg		wargs[20];
-    Widget	w, but, canvas;
+    int     n;
+    Arg     wargs[20];
+    Widget  w, but, canvas;
     
-    mPrintable = 0;		// not printable
+    mPrintable = 0;     // not printable
     
     n = 0;
     XtSetArg(wargs[n], XmNtitle, "Aged Colors"); ++n;
@@ -42,7 +42,7 @@ PColourWindow::PColourWindow(ImageData *data)
     XtSetArg(wargs[n], XmNminHeight, WIN_HEIGHT); ++n;
     SetShell(CreateShell("colPop",data->toplevel,wargs,n));
     
-    n = 0;			
+    n = 0;       
     XtSetArg(wargs[n], XmNwidth, WIN_WIDTH); ++n;
     XtSetArg(wargs[n], XmNheight, WIN_HEIGHT); ++n;
     w = XtCreateManagedWidget("agedForm",xmFormWidgetClass,GetShell(),wargs,n);
@@ -56,8 +56,8 @@ PColourWindow::PColourWindow(ImageData *data)
 
     // create colour picker
     n = 0;
-    XtSetArg(wargs[n], XmNx,	10);  ++n;
-    XtSetArg(wargs[n], XmNy,	249);  ++n;
+    XtSetArg(wargs[n], XmNx,    10);  ++n;
+    XtSetArg(wargs[n], XmNy,    249);  ++n;
     XtSetArg(wargs[n], XmNwidth, 400); ++n;
     XtSetArg(wargs[n], XmNheight, 10 + kPickerHeight); ++n;
     canvas = XtCreateManagedWidget("colourPicker", xmDrawingAreaWidgetClass, w, wargs, n);
@@ -65,8 +65,8 @@ PColourWindow::PColourWindow(ImageData *data)
 
     // create colour wheel (done after colour picker so it becomes our default ImageCanvas)
     n = 0;
-    XtSetArg(wargs[n], XmNx,	12);  ++n;
-    XtSetArg(wargs[n], XmNy,	11);  ++n;
+    XtSetArg(wargs[n], XmNx,    12);  ++n;
+    XtSetArg(wargs[n], XmNy,    11);  ++n;
     XtSetArg(wargs[n], XmNwidth, 178); ++n;
     XtSetArg(wargs[n], XmNheight, 178); ++n;
     canvas = XtCreateManagedWidget("colourWheel", xmDrawingAreaWidgetClass, w, wargs, n);
@@ -180,8 +180,8 @@ PColourWindow::PColourWindow(ImageData *data)
 
     // add the callbacks to the text widgets
     for (int i=0; i<3; ++i) {
-    	XtAddCallback(mText[i],XmNactivateCallback,(XtCallbackProc)TextProc,this);
-    	XtAddCallback(mText[i],XmNlosingFocusCallback,(XtCallbackProc)TextProc, this);
+        XtAddCallback(mText[i],XmNactivateCallback,(XtCallbackProc)TextProc,this);
+        XtAddCallback(mText[i],XmNlosingFocusCallback,(XtCallbackProc)TextProc, this);
     }
     
     // set our initial colour
@@ -199,12 +199,12 @@ void PColourWindow::UpdateSelf()
 {
     // draw the colour wheel if necessary
     if (mColourWheel->IsDirty()) {
-    	mColourWheel->Draw();
+        mColourWheel->Draw();
     }
     
     // draw colour picker too
     if (mColourPicker->IsDirty()) {
-    	mColourPicker->Draw();
+        mColourPicker->Draw();
     }
 }
 
@@ -247,13 +247,13 @@ void PColourWindow::UpdateSliderPosition()
 
 void PColourWindow::UpdateText()
 {
-    char	buff[32];
-    int		col3[3];
+    char    buff[32];
+    int     col3[3];
     
     mColourWheel->GetColourRGB(col3);
     for (int i=0; i<3; ++i) {
-    	sprintf(buff,"%d", col3[i]);
-    	setTextString(mText[i], buff);
+        sprintf(buff,"%d", col3[i]);
+        setTextString(mText[i], buff);
     }
 }
 
@@ -268,7 +268,7 @@ void PColourWindow::SetIntensity(int val)
 void PColourWindow::IntensityProc(Widget w, PColourWindow *cwin, XmScaleCallbackStruct *call_data)
 {
     PColourWheel *cwheel = (PColourWheel *)cwin->mImage;
-    cwheel->SetIntensity(call_data->value, 1);	// set intensity
+    cwheel->SetIntensity(call_data->value, 1);  // set intensity
     cwin->WheelColourChanging();
     // done changing our colour wheel
     cwin->WheelColourChanged();
@@ -287,14 +287,14 @@ void PColourWindow::ScaleDragProc(Widget w, PColourWindow *cwin, XmScaleCallback
 
 void PColourWindow::OkProc(Widget w, PColourWindow *cwin, caddr_t call_data)
 {
-    TextProc(NULL, cwin, NULL);	// do this in case text was changed
+    TextProc(NULL, cwin, NULL); // do this in case text was changed
     cwin->mColourPicker->ApplyCurrentColours();
     delete(cwin);
 }
 
 void PColourWindow::ApplyProc(Widget w, PColourWindow *cwin, caddr_t call_data)
 {
-    TextProc(NULL, cwin, NULL);	// do this in case text was changed
+    TextProc(NULL, cwin, NULL); // do this in case text was changed
     cwin->mColourPicker->ApplyCurrentColours();
 }
 
@@ -302,36 +302,36 @@ void PColourWindow::ApplyProc(Widget w, PColourWindow *cwin, caddr_t call_data)
 void PColourWindow::RevertProc(Widget w, PColourWindow *cwin, caddr_t call_data)
 {
     if (cwin->mColourPicker->RevertColours()) {
-    	cwin->PickerColourChanged();
+        cwin->PickerColourChanged();
     }
 }
 
 void PColourWindow::CancelProc(Widget w, PColourWindow *cwin, caddr_t call_data)
 {
     if (cwin->mColourPicker->RevertColours()) {
-    	cwin->PickerColourChanged();
+        cwin->PickerColourChanged();
     }
     delete(cwin);
 }
 
 void PColourWindow::TextProc(Widget w, PColourWindow *cwin, caddr_t call_data)
 {
-    int	col3[3];
+    int col3[3];
     int oldCol[3];
     
     for (int i=0; i<3; ++i) {
-    	char *str = XmTextGetString(cwin->mText[i]);
-    	col3[i] = atoi(str);
-    	if (col3[i] < 0) col3[i] = 0;
-    	else if (col3[i] > 255) col3[i] = 255;
-    	XtFree(str);	// must free the string
+        char *str = XmTextGetString(cwin->mText[i]);
+        col3[i] = atoi(str);
+        if (col3[i] < 0) col3[i] = 0;
+        else if (col3[i] > 255) col3[i] = 255;
+        XtFree(str);   // must free the string
     }
     cwin->mColourWheel->GetColourRGB(oldCol);
     if (memcmp(oldCol, col3, sizeof(col3))) {
-    	cwin->mColourWheel->SetColourRGB(col3);
-    	cwin->mColourPicker->SetColourRGB(col3);
-    	cwin->UpdateSliderPosition();
+        cwin->mColourWheel->SetColourRGB(col3);
+        cwin->mColourPicker->SetColourRGB(col3);
+        cwin->UpdateSliderPosition();
     }
-    cwin->UpdateText();		// update the text in case an entry wasn't in standard format
+    cwin->UpdateText();     // update the text in case an entry wasn't in standard format
 }
 

@@ -24,9 +24,9 @@ PLabel::~PLabel()
 void PLabel::CreateLabel(char *name, Widget parent, ArgList args, Cardinal num_args, int managed)
 {
     if (managed) {
-    	mLabel = XtCreateManagedWidget(name,xmLabelWidgetClass,parent,args,num_args);
+        mLabel = XtCreateManagedWidget(name,xmLabelWidgetClass,parent,args,num_args);
     } else {
-    	mLabel = XtCreateWidget(name,xmLabelWidgetClass,parent,args,num_args);
+        mLabel = XtCreateWidget(name,xmLabelWidgetClass,parent,args,num_args);
     }
     // the widget name is the initial string, so save it
     SaveString(name);
@@ -36,8 +36,8 @@ void PLabel::CreateLabel(char *name, Widget parent, ArgList args, Cardinal num_a
 void PLabel::DestroyLabel()
 {
     if (mLabel) {
-    	XtDestroyWidget(mLabel);
-    	mLabel = NULL;
+        XtDestroyWidget(mLabel);
+        mLabel = NULL;
     }
     FreeString();
 }
@@ -46,15 +46,15 @@ void PLabel::DestroyLabel()
 void PLabel::CreateString(int len)
 {
     mStringLen = len;
-    mString = XtMalloc(mStringLen + 1);	// need extra character for NULL terminator
+    mString = XtMalloc(mStringLen + 1); // need extra character for NULL terminator
 }
 
 // FreeString - free our copy of the string
 void PLabel::FreeString()
 {
     if (mString) {
-    	XtFree(mString);
-    	mString = NULL;
+        XtFree(mString);
+        mString = NULL;
     }
 }
 
@@ -62,21 +62,21 @@ void PLabel::FreeString()
 // - returns zero if string has not changed
 int PLabel::SaveString(char *str)
 {
-    int		len;
+    int     len;
     
     if (mString) {
-    	if (!strcmp(mString, str)) return(0);	// text is the same
-    	len = strlen(str);
-    	if (len > mStringLen) {
-    		// only reallocate string memory if new string is larger
-    		FreeString();
-    		CreateString(len);
-    	}
+        if (!strcmp(mString, str)) return(0);  // text is the same
+        len = strlen(str);
+        if (len > mStringLen) {
+           // only reallocate string memory if new string is larger
+           FreeString();
+           CreateString(len);
+        }
     } else {
-    	CreateString(strlen(str));
+        CreateString(strlen(str));
     }
     if (mString) {
-    	strcpy(mString, str);
+        strcpy(mString, str);
     }
     return(1);
 }
@@ -85,7 +85,7 @@ int PLabel::SaveString(char *str)
 void PLabel::SetString(char *str)
 {
     if (SaveString(str)) {
-    	setLabelString(mLabel, str);	// set the XmLabel string
+        setLabelString(mLabel, str);   // set the XmLabel string
     }
 }
 
@@ -95,7 +95,7 @@ void PLabel::SetString(char *str)
 void PLabel::SetStringNow(char *str)
 {
     if (SaveString(str)) {
-    	setLabelString(mLabel, str);
-    	XmUpdateDisplay(mLabel);
+        setLabelString(mLabel, str);
+        XmUpdateDisplay(mLabel);
     }
 }

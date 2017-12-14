@@ -19,53 +19,53 @@ extern char *   progpath;
 */
 FILE *openFile(char *name, char *mode, char *searchPath)
 {
-    int		i, n;
-    FILE	*fp;
-    char	*pt2;
-    char	*path;
+    int     i, n;
+    FILE    *fp;
+    char    *pt2;
+    char    *path;
 
     /* first try to open the specified file as named */
     strcpy(openFileName,name);
     fp = openPlainFile(openFileName,mode);
     if (!fp) {
-    	/* remove any path specification from 'name' */
-    	pt2 = strrchr(name,'/');
-    	if (pt2) name = pt2 + 1;
-    	/* look for file in the same directory as the executable */
-    	if (!fp && progpath) {
-    		strcpy(openFileName,progpath);
-    		pt2 = strrchr(openFileName,'/');
-    		if (pt2) {
-    			strcpy(pt2+1,name);
-    			fp = openPlainFile(openFileName,mode);
-    		}
-    	}
-    	/* look for file in 'searchPath' and 'PATH' */
-    	for (i=0; i<2 && !fp; ++i) {
-    		if (i==0) {
-    			path = searchPath;
-    		} else {
-    			path = getenv("PATH");
-    		}
-    		if (!path) continue;
-    		for (;;) {
-    			pt2 = strchr(path,':');
-    			if (!pt2) pt2 = strchr(path,0);
-    			n = pt2 - path;
-    			if (n) {
-    				memcpy(openFileName,path,n);
-    				/* add trailing '/' if necessary */
-    				if (openFileName[n-1] != '/') {
-    					openFileName[n++] = '/';
-    				}
-    				strcpy(openFileName+n,name);
-    				fp = openPlainFile(openFileName,mode);
-    				if (fp) break;
-    			}
-    			if (!(*pt2)) break;
-    			path = pt2 + 1;
-    		}
-    	}
+        /* remove any path specification from 'name' */
+        pt2 = strrchr(name,'/');
+        if (pt2) name = pt2 + 1;
+        /* look for file in the same directory as the executable */
+        if (!fp && progpath) {
+           strcpy(openFileName,progpath);
+           pt2 = strrchr(openFileName,'/');
+           if (pt2) {
+             strcpy(pt2+1,name);
+             fp = openPlainFile(openFileName,mode);
+           }
+        }
+        /* look for file in 'searchPath' and 'PATH' */
+        for (i=0; i<2 && !fp; ++i) {
+           if (i==0) {
+             path = searchPath;
+           } else {
+             path = getenv("PATH");
+           }
+           if (!path) continue;
+           for (;;) {
+             pt2 = strchr(path,':');
+             if (!pt2) pt2 = strchr(path,0);
+             n = pt2 - path;
+             if (n) {
+              memcpy(openFileName,path,n);
+              /* add trailing '/' if necessary */
+              if (openFileName[n-1] != '/') {
+                  openFileName[n++] = '/';
+              }
+              strcpy(openFileName+n,name);
+              fp = openPlainFile(openFileName,mode);
+              if (fp) break;
+             }
+             if (!(*pt2)) break;
+             path = pt2 + 1;
+           }
+        }
     }
     return(fp);
 }
@@ -76,11 +76,11 @@ FILE *openFile(char *name, char *mode, char *searchPath)
 */
 FILE *createAltFile(char *name, char *mode, char *altExt)
 {
-    char	buff[512];
+    char    buff[512];
     
     strcpy(buff,name);
     strcat(buff,altExt);
-    strcpy(openFileName, buff);	/* save new name */
+    strcpy(openFileName, buff); /* save new name */
     return(fopen(buff,mode));
 }
 
@@ -89,7 +89,7 @@ FILE *createAltFile(char *name, char *mode, char *altExt)
 */
 FILE *openAltFile(char *name,char *mode,char *searchPath,char *altExt)
 {
-    char	buff[512];
+    char    buff[512];
 
     strcpy(buff,name);
     strcat(buff,altExt);
@@ -103,11 +103,11 @@ FILE *openAltFile(char *name,char *mode,char *searchPath,char *altExt)
 FILE *openPlainFile(char *name, char *mode)
 {
 #ifndef STAT_BUG
-    struct stat	file_stat;
+    struct stat file_stat;
 
     if (mode[0]=='r') {
-    	if (stat(name,&file_stat)) return((FILE *)0);
-    	if (!(file_stat.st_mode & S_IFREG)) return((FILE *)0);
+        if (stat(name,&file_stat)) return((FILE *)0);
+        if (!(file_stat.st_mode & S_IFREG)) return((FILE *)0);
     }
 #endif /* STAT_BUG */
     return(fopen(name,mode));

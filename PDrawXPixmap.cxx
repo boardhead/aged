@@ -12,7 +12,7 @@
 #include "colours.h"
 
 #ifndef PI
-#define PI				3.14159265358979324
+#define PI          3.14159265358979324
 #endif
 
 #ifdef ANTI_ALIAS
@@ -23,9 +23,9 @@ const int kMaxArcPoints = 120;
 PDrawXPixmap::PDrawXPixmap(Display *dpy, GC gc, int depth, Widget w)
 {
     mDpy = dpy;
-    mGC	 = gc;
+    mGC  = gc;
     mDepth = depth;
-    mAltWidget = w;	// widget to draw into if we can't create pixmap
+    mAltWidget = w; // widget to draw into if we can't create pixmap
     mPix = 0;
     mWidth = 0;
     mHeight = 0;
@@ -50,12 +50,12 @@ PDrawXPixmap::~PDrawXPixmap()
 //
 int PDrawXPixmap::BeginDrawing(int width, int height)
 {
-    int		sizeChanged = 0;
-    
+    int     sizeChanged = 0;
+
     if (mWidth != width || mHeight != height) {
-    	// free old pixmap since our size changed
-    	FreePixmap();
-    	sizeChanged = 1;
+        // free old pixmap since our size changed
+        FreePixmap();
+        sizeChanged = 1;
     }
     if (mPix) {
         mDrawable = mPix;
@@ -63,22 +63,22 @@ int PDrawXPixmap::BeginDrawing(int width, int height)
         mXftPicture = XftDrawPicture(mXftDraw = mXftDrawPix);
 #endif
     } else {
-    	if (!width) return(0);
-    	mPix = XCreatePixmap(mDpy, DefaultRootWindow(mDpy), width, height, mDepth); 
-    	if (mPix) {
-    		mDrawable = mPix;
-    	} else {
-    		if (sizeChanged) {
-    			Printf("No memory for pixmap!\x07\n");
-    		}
-    		if (mAltWidget && XtWindow(mAltWidget)) {
-    			mDrawable = XtWindow(mAltWidget);
-    		} else {
-    			return(0);
-    		}
-    	}
-    	mWidth = width;
-    	mHeight = height;
+        if (!width) return(0);
+        mPix = XCreatePixmap(mDpy, DefaultRootWindow(mDpy), width, height, mDepth);
+        if (mPix) {
+           mDrawable = mPix;
+        } else {
+           if (sizeChanged) {
+             Printf("No memory for pixmap!\x07\n");
+           }
+           if (mAltWidget && XtWindow(mAltWidget)) {
+             mDrawable = XtWindow(mAltWidget);
+           } else {
+             return(0);
+           }
+        }
+        mWidth = width;
+        mHeight = height;
 #ifdef ANTI_ALIAS
         mXftDrawPix = XftDrawCreate(mDpy, mDrawable, DefaultVisual(mDpy,DefaultScreen(mDpy)),
                       DefaultColormap(mDpy, DefaultScreen(mDpy)));
@@ -102,7 +102,7 @@ void PDrawXPixmap::EndDrawing()
 }
 
 #ifdef ANTI_ALIAS
-void PDrawXPixmap::SetXftColour(Pixel pixel)
+void PDrawXPixmap::SetXftColour(Pixel pixel, int alpha)
 {
     if (mDpy) {
         XColor c;
@@ -112,9 +112,10 @@ void PDrawXPixmap::SetXftColour(Pixel pixel)
         xrcolor.red   = c.red;
         xrcolor.green = c.green;
         xrcolor.blue  = c.blue;
-        xrcolor.alpha = 0xffff;
+        xrcolor.alpha = alpha;
         XftColorAllocValue(mDpy, DefaultVisual(mDpy,DefaultScreen(mDpy)),
                    DefaultColormap(mDpy, DefaultScreen(mDpy) ), &xrcolor, &mXftColor);
+        mAlpha = alpha;
     }
 }
 #endif
@@ -122,11 +123,11 @@ void PDrawXPixmap::SetXftColour(Pixel pixel)
 void PDrawXPixmap::FreePixmap()
 {
     if (mPix) {
-    	XFreePixmap(mDpy,mPix);
-    	mPix = 0;
-    	mWidth = 0;
-    	mHeight = 0;
-    	mDrawable = 0;
+        XFreePixmap(mDpy,mPix);
+        mPix = 0;
+        mWidth = 0;
+        mHeight = 0;
+        mDrawable = 0;
 #ifdef ANTI_ALIAS
         if (mXftDrawPix) {
             XftDrawDestroy(mXftDrawPix);
@@ -141,11 +142,11 @@ int PDrawXPixmap::HasPixmap()
     return(mPix != 0);
 }
 
-void PDrawXPixmap::SetForeground(int col_num)
+void PDrawXPixmap::SetForeground(int col_num, int alpha)
 {
     Pixel pixel;
     if (mColours) {
-    	pixel = mColours[col_num];
+        pixel = mColours[col_num];
     } else  if (col_num < NUM_COLOURS) {
         pixel = PResourceManager::sResource.colour[col_num];
     } else if ((col_num-=NUM_COLOURS) < PResourceManager::sResource.num_cols) {
@@ -157,15 +158,15 @@ void PDrawXPixmap::SetForeground(int col_num)
     }
     XSetForeground(mDpy, mGC, pixel);
 #ifdef ANTI_ALIAS
-    SetXftColour(pixel);
+    SetXftColour(pixel, alpha);
 #endif
 }
 
-void PDrawXPixmap::SetForegroundPixel(Pixel pixel)
+void PDrawXPixmap::SetForegroundPixel(Pixel pixel, int alpha)
 {
     XSetForeground(mDpy, mGC, pixel);
 #ifdef ANTI_ALIAS
-    SetXftColour(pixel);
+    SetXftColour(pixel, alpha);
 #endif
 }
 
@@ -198,7 +199,33 @@ void PDrawXPixmap::DrawRectangle(int x,int y,int w,int h)
 
 void PDrawXPixmap::FillRectangle(int x,int y,int w,int h)
 {
+#ifdef ANTI_ALIAS
+    if (IsSmoothLines() && mAlpha != 0xffff) {
+        XPointDouble poly[4];
+        XDouble x1 = x + 0.5;
+        XDouble y1 = y + 0.5;
+        XDouble x2 = x1 + w;
+        XDouble y2 = y1 + h;
+
+        poly[0].x = x1;  poly[0].y = y1;
+        poly[1].x = x2;  poly[1].y = y1;
+        poly[2].x = x2;  poly[2].y = y2;
+        poly[3].x = x1;  poly[3].y = y2;
+
+        XRenderCompositeDoublePoly(mDpy,
+                                  PictOpOver,
+                                  XftDrawSrcPicture(mXftDraw, &mXftColor),
+                                  mXftPicture,
+                                  mXftFmt,
+                                  0, 0, 0, 0, poly, 4, EvenOddRule);
+    } else {
+#endif
+
     XFillRectangle(mDpy, mDrawable, mGC, x, y, w, h);
+
+#ifdef ANTI_ALIAS
+    }
+#endif
 }
 
 void PDrawXPixmap::DrawSegments(XSegment *segments, int num, int smooth)
@@ -324,13 +351,13 @@ void PDrawXPixmap::DrawString(int x, int y, char *str, ETextAlign_q align)
     int len = strlen(str);
 
     switch (align / 3) {
-        case 0: 	// top
+        case 0:     // top
             y += GetFontAscent();
             break;
-        case 1: 	// middle
+        case 1:     // middle
             y += GetFontAscent() / 2;
             break;
-        case 2: 	// bottom
+        case 2:     // bottom
             break;
     }
 #ifdef ANTI_ALIAS
@@ -339,31 +366,31 @@ void PDrawXPixmap::DrawString(int x, int y, char *str, ETextAlign_q align)
         if (align % 3) {
             XftTextExtents8(mDpy, GetXftFont(), (XftChar8 *)str, len, &extents);
         }
-    	switch (align % 3) {
-    		case 0:		// left
-    			break;
-    		case 1:		// center
-    			x -= extents.width / 2;
-    			break;
-    		case 2:		// right
-    			x -= extents.width;
-    			break;
-    	}
+        switch (align % 3) {
+           case 0:     // left
+             break;
+           case 1:     // center
+             x -= extents.width / 2;
+             break;
+           case 2:     // right
+             x -= extents.width;
+             break;
+        }
         XftDrawString8(mXftDraw, &mXftColor, GetXftFont(), x-1, y, (XftChar8 *)str, len);
     } else {
 #endif
 
     if (GetFont()) {
-    	switch (align % 3) {
-    		case 0:		// left
-    			break;
-    		case 1:		// center
-    			x -= XTextWidth(GetFont(), str, len) / 2;
-    			break;
-    		case 2:		// right
-    			x -= XTextWidth(GetFont(), str, len);
-    			break;
-    	}
+        switch (align % 3) {
+           case 0:     // left
+             break;
+           case 1:     // center
+             x -= XTextWidth(GetFont(), str, len) / 2;
+             break;
+           case 2:     // right
+             x -= XTextWidth(GetFont(), str, len);
+             break;
+        }
     }
     XDrawString(mDpy,mDrawable,mGC,x,y,str,len);
 
@@ -466,9 +493,9 @@ XImage* PDrawXPixmap::GetImage(int x, int y, int width, int height)
 int PDrawXPixmap::CopyArea(int x,int y,int w,int h,Window dest)
 {
     if (mPix) {
-    	XCopyArea(mDpy,mPix,dest,mGC,x,y,w,h,x,y);
-    	return(1);
+        XCopyArea(mDpy,mPix,dest,mGC,x,y,w,h,x,y);
+        return(1);
     } else {
-    	return(0);
+        return(0);
     }
 }

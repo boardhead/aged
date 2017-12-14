@@ -8,7 +8,7 @@ PNotifyRaised::PNotifyRaised()
 PNotifyRaised::~PNotifyRaised()
 {
     if (PImageWindow::sNotifyRaised == this) {
-    	PImageWindow::sNotifyRaised = NULL;
+        PImageWindow::sNotifyRaised = NULL;
     }
 }
 

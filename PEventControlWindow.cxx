@@ -18,8 +18,8 @@
 #include "PUtils.h"
 #include "menu.h"
 
-#define WINDOW_WIDTH		350
-#define WINDOW_HEIGHT   	113
+#define WINDOW_WIDTH       350
+#define WINDOW_HEIGHT       113
 #define WINDOW_MIN_HEIGHT   109
 
 
@@ -83,7 +83,7 @@ static void scaleProc(Widget w, ImageData *data, XmScaleCallbackStruct *call_dat
     data->time_interval = call_data->value / 10.0;
     
     if (data->trigger_flag == TRIGGER_CONTINUOUS) {
-    	PEventControlWindow::UpdateTriggerText(data);
+        PEventControlWindow::UpdateTriggerText(data);
     }
 }
 
@@ -91,13 +91,13 @@ static void scaleProc(Widget w, ImageData *data, XmScaleCallbackStruct *call_dat
 // PEventControlWindow constructor
 //
 PEventControlWindow::PEventControlWindow(ImageData *data)
-    			   : PWindow(data)
+                : PWindow(data)
 {
-    int		n;
-    Arg		wargs[20];
-    Widget	w, but;
+    int     n;
+    Arg     wargs[20];
+    Widget  w, but;
     
-    data->mSpeaker->AddListener(this);	// listen for trigger changed messages
+    data->mSpeaker->AddListener(this);  // listen for trigger changed messages
     PResourceManager::sSpeaker->AddListener(this);
     
     mTriggerFlag = data->trigger_flag;
@@ -259,42 +259,42 @@ void PEventControlWindow::Listen(int message, void *dataPt)
 {
     switch (message) {
     
-    	case kMessageTriggerChanged: {
-    	    int oldTrigger = mTriggerFlag;
-    		mTriggerFlag = GetData()->trigger_flag;	// save new trigger type
+        case kMessageTriggerChanged: {
+            int oldTrigger = mTriggerFlag;
+           mTriggerFlag = GetData()->trigger_flag;   // save new trigger type
             if (oldTrigger == mTriggerFlag) break;
             
-    		// unset old radio
+           // unset old radio
             XmToggleButtonSetState(trigger_radio[oldTrigger], 0, FALSE);
 
-    		// set new radio
-    		XmToggleButtonSetState(trigger_radio[mTriggerFlag], 1, FALSE);
+           // set new radio
+           XmToggleButtonSetState(trigger_radio[mTriggerFlag], 1, FALSE);
 
-    		UpdateTriggerText();	// update the text according to the new trigger setting
-    	}   break;
+           UpdateTriggerText();  // update the text according to the new trigger setting
+        }   break;
     }
 }
 
 void PEventControlWindow::UpdateTriggerText(ImageData *data)
 {
-    PEventControlWindow	*pe_win = (PEventControlWindow *)data->mWindow[EVT_NUM_WINDOW];
+    PEventControlWindow *pe_win = (PEventControlWindow *)data->mWindow[EVT_NUM_WINDOW];
     if (pe_win) {
-    	pe_win->UpdateTriggerText();
+        pe_win->UpdateTriggerText();
     }
 }
 
 void PEventControlWindow::UpdateTriggerText()
 {
-    char		buff[1024];
-    int			len;
-    ImageData	*data = GetData();
+    char       buff[1024];
+    int        len;
+    ImageData   *data = GetData();
     
     if (data->trigger_flag == TRIGGER_CONTINUOUS) {
-    	len = sprintf(buff,"Continuous  %.1fs",data->time_interval);
+        len = sprintf(buff,"Continuous  %.1fs",data->time_interval);
     } else if (data->trigger_flag == TRIGGER_SINGLE) {
-    	len = sprintf(buff,"Single");
+        len = sprintf(buff,"Single");
     } else {
-    	len = sprintf(buff,"<stopped>");
+        len = sprintf(buff,"<stopped>");
     }
     setLabelString(trigger_label, buff);
     XtResizeWidget(trigger_label, 500, 20, 0);
@@ -311,19 +311,19 @@ void PEventControlWindow::SetEventFilter(ImageData *data)
 
 void PEventControlWindow::Show()
 {
-    PWindow::Show();	// let the base class do the work
+    PWindow::Show();    // let the base class do the work
     
     if (!WasResized()) {
-    	Resize(WINDOW_WIDTH,WINDOW_HEIGHT);
+        Resize(WINDOW_WIDTH,WINDOW_HEIGHT);
     }
 }
 
 /* Set event number in window */
 void PEventControlWindow::UpdateEventNumber(ImageData *data)
 {
-    PEventControlWindow	*pe_win = (PEventControlWindow *)data->mWindow[EVT_NUM_WINDOW];
+    PEventControlWindow *pe_win = (PEventControlWindow *)data->mWindow[EVT_NUM_WINDOW];
     if (pe_win) {
-    	pe_win->UpdateEventNumber();
+        pe_win->UpdateEventNumber();
     }
 }
 
