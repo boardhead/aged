@@ -81,13 +81,13 @@ int Printf(char *fmt,...)
     if (sPrintfBuffer) {
         /* check to see if buffer is getting too full */
         if (sPrintfBufferLen + 80 > sPrintfBufferMax) {
-           printf("%s: Printf buffer too full!\n", progname);
+            printf("%s: Printf buffer too full!\n", progname);
         } else {
-           /* add output to buffer */
-           char *pt = strchr(sPrintfBuffer, '\0');
-           len = sprintf(pt,"%s: ",progname);
-           len += vsprintf(pt+len,fmt,varArgList);
-           sPrintfBufferLen = pt - sPrintfBuffer + len;
+            /* add output to buffer */
+            char *pt = strchr(sPrintfBuffer, '\0');
+            len = sprintf(pt,"%s: ",progname);
+            len += vsprintf(pt+len,fmt,varArgList);
+            sPrintfBufferLen = pt - sPrintfBuffer + len;
         }
     } else {
         len = printf("%s: ", progname);

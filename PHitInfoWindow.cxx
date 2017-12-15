@@ -14,7 +14,7 @@
 // PHitInfoWindow constructor
 //
 PHitInfoWindow::PHitInfoWindow(ImageData *data)
-             : PWindow(data)
+              : PWindow(data)
 {
     Widget  rc1, rc2;
     int     n;
@@ -49,7 +49,7 @@ PHitInfoWindow::PHitInfoWindow(ImageData *data)
 
     n = 0;
     XtSetArg(wargs[n], XmNtopOffset, 35); ++n;
-    XtSetArg(wargs[n], XmNpacking,         XmPACK_COLUMN); ++n;
+    XtSetArg(wargs[n], XmNpacking,          XmPACK_COLUMN); ++n;
     XtSetArg(wargs[n], XmNleftAttachment,   XmATTACH_FORM); ++n;
     XtSetArg(wargs[n], XmNtopAttachment,    XmATTACH_FORM);  ++n;
     XtSetArg(wargs[n], XmNbottomAttachment, XmATTACH_FORM); ++n;
@@ -57,7 +57,7 @@ PHitInfoWindow::PHitInfoWindow(ImageData *data)
 
     n = 0;
     XtSetArg(wargs[n], XmNtopOffset, 35); ++n;
-    XtSetArg(wargs[n], XmNpacking,         XmPACK_COLUMN); ++n;
+    XtSetArg(wargs[n], XmNpacking,          XmPACK_COLUMN); ++n;
     XtSetArg(wargs[n], XmNleftAttachment,   XmATTACH_WIDGET); ++n;
     XtSetArg(wargs[n], XmNleftWidget, rc1); ++n;
     XtSetArg(wargs[n], XmNtopAttachment,    XmATTACH_FORM);  ++n;
@@ -143,9 +143,9 @@ void PHitInfoWindow::ClearEntries()
 void PHitInfoWindow::UpdateSelf()
 {
     HitInfo     *hi;
-    char       buff[64];
+    char        buff[64];
     ImageData   *data = mData;
-    int        num = data->cursor_hit;   // current hit number near cursor
+    int         num = data->cursor_hit; // current hit number near cursor
     
 #ifdef PRINT_DRAWS
     Printf("-updateHitInfo\n");
@@ -179,7 +179,7 @@ void PHitInfoWindow::UpdateSelf()
 
 void PHitInfoWindow::ManageXYZ(int manage)
 {
-    Widget   widgets[6];
+    Widget      widgets[6];
     
     for (int i=0; i<3; ++i) {
         widgets[i] = hi_xyz[i].GetWidget();
@@ -198,7 +198,7 @@ void PHitInfoWindow::ManageXYZ(int manage)
 // ResizeToFit - resize shell height to fit the labels
 void PHitInfoWindow::ResizeToFit()
 {
-    Widget   last_label;
+    Widget      last_label;
 
     if (GetData()->hit_xyz) {
         last_label = hi_xyz[2].GetWidget();
@@ -225,25 +225,25 @@ void PHitInfoWindow::Listen(int message, void *message_data)
 {
     switch (message) {
         case kMessageNewEvent:
-           if (mLastNum >= 0) {
-             // the event has changed, so the displayed hit data is now invalid
-             // -> set the last displayed hit number to something invalid too
-             //    to force the new data to be displayed
-             mLastNum = 99999;
-           }
-           SetDirty();
-           break;
+            if (mLastNum >= 0) {
+                // the event has changed, so the displayed hit data is now invalid
+                // -> set the last displayed hit number to something invalid too
+                //    to force the new data to be displayed
+                mLastNum = 99999;
+            }
+            SetDirty();
+            break;
         case kMessageCursorHit:
-           // only dirty if this is a different hit
-           if (mLastNum != mData->cursor_hit) {
-             SetDirty();
-           }
-           break;
+            // only dirty if this is a different hit
+            if (mLastNum != mData->cursor_hit) {
+                SetDirty();
+            }
+            break;
         case kMessageHitDiscarded:
-           SetDirty();
-           break;
+            SetDirty();
+            break;
         case kMessageHitXYZChanged:
-           SetHitXYZ();
-           break;
+            SetHitXYZ();
+            break;
     }
 }

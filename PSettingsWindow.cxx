@@ -15,8 +15,8 @@
 #include "AgedWindow.h"
 #include "PUtils.h"
 
-#define WINDOW_WIDTH         360
-#define WINDOW_HEIGHT          359
+#define WINDOW_WIDTH            360
+#define WINDOW_HEIGHT           359
 #define HIT_INFO_DELTA_HEIGHT   69
 
 #ifdef LESSTIF
@@ -25,7 +25,7 @@
 #define SLIDER_ROUNDOFF     0
 #endif
 
-const double    kMaxUpdateTime  = 0.5;   // maximum drawing time for continuous slider updates
+const double    kMaxUpdateTime  = 0.5;  // maximum drawing time for continuous slider updates
 
 // static member declarations
 double PSettingsWindow::sUpdateTime = 0;
@@ -35,7 +35,7 @@ double PSettingsWindow::sUpdateTime = 0;
 // PSettingsWindow constructor
 //
 PSettingsWindow::PSettingsWindow(ImageData *data)
-              : PWindow(data)
+               : PWindow(data)
 {
     int     n;
     Arg     wargs[10];
@@ -45,17 +45,17 @@ PSettingsWindow::PSettingsWindow(ImageData *data)
         data->angle_rad = 0;
     }
     
-    mSave_hex_id       = data->hex_id;
+    mSave_hex_id        = data->hex_id;
 #ifdef ANTI_ALIAS
     mSave_smooth        = data->smooth;
 #else
     mSave_time_zone     = data->time_zone;
 #endif
-    mSave_hit_size   = data->hit_size;
-    mSave_ncd_size   = data->fit_size;
+    mSave_hit_size      = data->hit_size;
+    mSave_ncd_size      = data->fit_size;
     mSave_angle_rad     = data->angle_rad;
     mSave_show_label    = data->show_label;
-    mSave_hit_xyz     = data->hit_xyz;
+    mSave_hit_xyz       = data->hit_xyz;
     mSave_save_config   = data->save_config;
     strcpy(mSave_label_format, data->label_format);
     
@@ -325,8 +325,8 @@ void PSettingsWindow::Listen(int message, void *dataPt)
 {
     switch (message) {
         case kMessageShowLabelChanged:
-           setToggle(label_toggle, GetData()->show_label);
-           break;
+            setToggle(label_toggle, GetData()->show_label);
+            break;
     }
 }
 
@@ -384,29 +384,29 @@ void PSettingsWindow::SetTimeZone(int tz)
     ImageData *data = GetData();
     if (data->time_zone != tz) {
         switch (data->time_zone) {
-           default:  // case kTimeZoneSubury:
-             setToggle(sudbury_radio, 0);
-             break;
-           case kTimeZoneLocal:
-             setToggle(local_radio, 0);
-             break;
-           case kTimeZoneUTC:
-             setToggle(utc_radio, 0);
-             break;
+            default:    // case kTimeZoneSubury:
+                setToggle(sudbury_radio, 0);
+                break;
+            case kTimeZoneLocal:
+                setToggle(local_radio, 0);
+                break;
+            case kTimeZoneUTC:
+                setToggle(utc_radio, 0);
+                break;
         }
         data->time_zone = tz;
         sendMessage(data, kMessageTimeFormatChanged);
     } else {
         switch (data->time_zone) {
-           default:  // case kTimeZoneSubury:
-             setToggle(sudbury_radio, 1);
-             break;
-           case kTimeZoneLocal:
-             setToggle(local_radio, 1);
-             break;
-           case kTimeZoneUTC:
-             setToggle(utc_radio, 1);
-             break;
+            default:    // case kTimeZoneSubury:
+                setToggle(sudbury_radio, 1);
+                break;
+            case kTimeZoneLocal:
+                setToggle(local_radio, 1);
+                break;
+            case kTimeZoneUTC:
+                setToggle(utc_radio, 1);
+                break;
         }
     }
 }
@@ -435,12 +435,12 @@ void PSettingsWindow::SetAngle(int flag)
         setToggle(angle_radio[data->angle_rad], 0);
         data->angle_rad = flag;
         switch (flag) {
-           case 0:     // 0=degrees
-             data->angle_conv = 180 / PI;
-             break;
-           default:  // 1=radians, 2=not shown
-             data->angle_conv = 1.0;
-             break;
+            case 0:     // 0=degrees
+                data->angle_conv = 180 / PI;
+                break;
+            default:    // 1=radians, 2=not shown
+                data->angle_conv = 1.0;
+                break;
         }
         sendMessage(data, kMessageAngleFormatChanged);
     } else {
@@ -453,7 +453,7 @@ void PSettingsWindow::AngleProc(Widget w, PSettingsWindow *set_win, caddr_t call
 {
     for (int i=0; i<3; ++i) {
         if (w == set_win->angle_radio[i]) {
-           set_win->SetAngle(i);
+            set_win->SetAngle(i);
         }
     }
 }
@@ -494,16 +494,16 @@ void PSettingsWindow::LabelFormatProc(Widget w, PSettingsWindow *set_win, caddr_
     
     if (set_win->SetLabelFormat()) {
         if (!data->label_format[0]) {
-           // label is "" -- turn off labels
-           setLabel(data, 0);
+            // label is "" -- turn off labels
+            setLabel(data, 0);
         } else if (!data->show_label) {
-           // label is non-null, but labels were off
-           // so turn on labels
-           setLabel(data, 1);
+            // label is non-null, but labels were off
+            // so turn on labels
+            setLabel(data, 1);
         } else {
-           // the label format has changed while labels are on...
-           // get main window to make the new label string
-           data->mMainWindow->LabelFormatChanged();
+            // the label format has changed while labels are on...
+            // get main window to make the new label string
+            data->mMainWindow->LabelFormatChanged();
         }
     }
 }
@@ -556,7 +556,7 @@ void PSettingsWindow::OkProc(Widget w, PSettingsWindow *set_win, caddr_t call_da
     // update label settings if changed without pressing RETURN
     if (set_win->SetLabelFormat()) {
         if (data->show_label) {
-           data->mMainWindow->LabelFormatChanged();
+            data->mMainWindow->LabelFormatChanged();
         }
     }
     delete set_win;
@@ -612,7 +612,7 @@ void PSettingsWindow::SetHitSize(ImageData *data, float hit_size)
         data->hit_size = hit_size;
         // update necessary windows if any hits are visible
         if (data->num_disp != 0) {
-           sendMessage(data, kMessageHitSizeChanged);
+            sendMessage(data, kMessageHitSizeChanged);
         }
     }
 }

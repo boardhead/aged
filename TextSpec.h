@@ -8,7 +8,7 @@ struct TextSpec {
 #ifdef ANTI_ALIAS
     XftFont       * xftFont;
 #endif
-    char         *   string;
+    char          * string;
 };
 
 #endif // __TextSpec_h__

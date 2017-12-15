@@ -51,16 +51,16 @@
 #include "openfile.h"
 #include "aged_version.h"
 
-#define MAX_COLOUR_SEEDS           10
-#define MAX_COLOURS           256
+#define MAX_COLOUR_SEEDS            10
+#define MAX_COLOURS                 256
 
 const char* kAutoStr = "!! ====== Lines below are automatically overwritten by Aged! =====\n";
 
 // Enumeration data structure
 struct SWriteGeoData {
-    FILE       *file;
-    char       *name;       // resource name
-    XrmQuark    quark;     // quark corresponding to resource name
+    FILE        *file;
+    char        *name;      // resource name
+    XrmQuark    quark;      // quark corresponding to resource name
 };
 
 
@@ -69,9 +69,9 @@ static XtResource sResourceList[] = {
         XtRString, (XtPointer)"0"},
  {"hist_bins", "HistBins",  XtRInt,   sizeof(int),  XtOffset(AgedResPtr,hist_bins),
         XtRString, (XtPointer)"80"},
- {"num_cols",   "NumCols",  XtRInt,    sizeof(int),  XtOffset(AgedResPtr,num_cols),
+ {"num_cols",   "NumCols",  XtRInt,   sizeof(int),  XtOffset(AgedResPtr,num_cols),
         XtRString, (XtPointer)"42" },
- {"det_cols",   "DetCols",  XtRInt,    sizeof(int),  XtOffset(AgedResPtr,det_cols),
+ {"det_cols",   "DetCols",  XtRInt,   sizeof(int),  XtOffset(AgedResPtr,det_cols),
         XtRString, (XtPointer)"32" },
  {"proj_min",   "ProjMin",  XtRFloat, sizeof(float),XtOffset(AgedResPtr,proj.proj_min),
         XtRString, (XtPointer)"1.3"},
@@ -287,13 +287,13 @@ static XrmOptionDescRec command_line_options[XtNumber(sResourceList)];
 
 AgedResource    PResourceManager::sResource;
 PSpeaker      * PResourceManager::sSpeaker;
-int          PResourceManager::sResourceFileSaveConfig = 0;   // value of save_config in resource file
-char          *    PResourceManager::sAllocFlags = NULL;
-char           PResourceManager::sSettingsFilename[] = "~/.Aged";    // settings file name
-XColor         PResourceManager::sColours[2 * NUM_COLOURS];
-char           PResourceManager::sColoursAllocated[2 * NUM_COLOURS] = { 0 };
-int          PResourceManager::sWindowOffsetX = 0;
-int          PResourceManager::sWindowOffsetY = 0;
+int             PResourceManager::sResourceFileSaveConfig = 0;  // value of save_config in resource file
+char          * PResourceManager::sAllocFlags = NULL;
+char            PResourceManager::sSettingsFilename[] = "~/.Aged";  // settings file name
+XColor          PResourceManager::sColours[2 * NUM_COLOURS];
+char            PResourceManager::sColoursAllocated[2 * NUM_COLOURS] = { 0 };
+int             PResourceManager::sWindowOffsetX = 0;
+int             PResourceManager::sWindowOffsetY = 0;
 
 extern char *progpath;
 
@@ -334,13 +334,13 @@ void PResourceManager::InitApp()
         // this is close, but events aren't getting sent properly from ROOT...
         dpy = (Display *)gGXW->GetDisplay();
         if (!dpy) {
-           quit("Display not initialized by ROOT!");
+            quit("Display not initialized by ROOT!");
         }
 #else
         dpy = XOpenDisplay(NULL);
         if (!dpy) {
-           Printf("Could not initialize default display.\n");
-           quit("Is your DISPLAY environment variable set?");
+            Printf("Could not initialize default display.\n");
+            quit("Is your DISPLAY environment variable set?");
         }
 #endif
         sResource.display = dpy;
@@ -386,12 +386,12 @@ void PResourceManager::InitResources(Widget toplevel)
         char *pt = sResource.version;
         int version = 0;
         for (int i=0; ;) {
-           version += atoi(pt);
-           if (++i >= 3) break;
-           pt = strchr(pt,'.');
-           if (!pt) break;
-           ++pt;
-           version *= 100;
+            version += atoi(pt);
+            if (++i >= 3) break;
+            pt = strchr(pt,'.');
+            if (!pt) break;
+            ++pt;
+            version *= 100;
         }
 */
         // initialize value of save_config from file
@@ -399,11 +399,11 @@ void PResourceManager::InitResources(Widget toplevel)
         
         /* create cursors */
         for (int n=0; n<NUM_CURSORS; ++n) {
-           sResource.cursor[n] = XCreateFontCursor(sResource.display, sCursorID[n]);
+            sResource.cursor[n] = XCreateFontCursor(sResource.display, sCursorID[n]);
         }
         /* range check our colour set */
         if ((unsigned)sResource.image_col >= 4) {
-           sResource.image_col = 0;
+            sResource.image_col = 0;
         }
         /* create array for colour allocation flags */
         int totalCols = NUM_COLOURS + sResource.num_cols + sResource.det_cols;
@@ -413,13 +413,13 @@ void PResourceManager::InitResources(Widget toplevel)
         
         /* get our RGB colours */
         for (int i=0; i<2; ++i) {
-           for (int j=0; j<NUM_COLOURS; ++j) {
-             sColours[i*NUM_COLOURS + j].pixel = sResource.colset[i][j];
-           }
+            for (int j=0; j<NUM_COLOURS; ++j) {
+                sColours[i*NUM_COLOURS + j].pixel = sResource.colset[i][j];
+            }
         }
-        Display      *    dpy  = sResource.display;
+        Display   * dpy  = sResource.display;
         int         scr  = DefaultScreen(dpy);
-        Colormap   cmap = DefaultColormap(dpy, scr);
+        Colormap    cmap = DefaultColormap(dpy, scr);
         XQueryColors(dpy,cmap,sColours,2*NUM_COLOURS);
         
         /* copy current colours into working array */
@@ -446,17 +446,17 @@ XrmOptionDescRec *PResourceManager::GetCommandLineOptions()
     if (!init_options) {
         init_options = 1;
         for (int i=0; i<(int)XtNumber(sResourceList); ++i) {
-           int len = strlen(sResourceList[i].resource_name);
-           char *pt = (char *)XtMalloc(len * 2 + 4);
-           if (!pt) quit("Out of memory for command line options");
-           pt[0] = '-';
-           strcpy(pt+1, sResourceList[i].resource_name);
-           pt[len+2] = '*';
-           strcpy(pt+len+3, pt+1);
-           command_line_options[i].option = pt;            // has form "-resource_type"
-           command_line_options[i].specifier = pt+len+2;        // has form "*resource_type"
-           command_line_options[i].argKind = XrmoptionSepArg;
-           command_line_options[i].value = NULL;
+            int len = strlen(sResourceList[i].resource_name);
+            char *pt = (char *)XtMalloc(len * 2 + 4);
+            if (!pt) quit("Out of memory for command line options");
+            pt[0] = '-';
+            strcpy(pt+1, sResourceList[i].resource_name);
+            pt[len+2] = '*';
+            strcpy(pt+len+3, pt+1);
+            command_line_options[i].option = pt;                    // has form "-resource_type"
+            command_line_options[i].specifier = pt+len+2;           // has form "*resource_type"
+            command_line_options[i].argKind = XrmoptionSepArg;
+            command_line_options[i].value = NULL;
         }
     }
     return(command_line_options);
@@ -485,13 +485,13 @@ void PResourceManager::Str2floatXm(XrmValue *args, Cardinal *nargs, XrmValue *fr
 float PResourceManager::ReadResourceVersion(char *buff)
 {
     static char *resource_label = "resource_version:";
-           
+            
     char *pt = strstr(buff,resource_label);
     
     if (pt) {
         pt = strtok(pt+strlen(resource_label), " \t\n\r");
         if (pt) {
-           return(atof(pt));
+            return(atof(pt));
         }
     }
     return(0.0);
@@ -514,10 +514,10 @@ int PResourceManager::GetSettingsFilename(char *outName)
     if (!memcmp(sSettingsFilename, "~/", 2)) {
         // name starts with "~/" -- convert to home filename
         char *home = getenv("HOME");
-        if (!home) return(0);  // error: can't get home directory name
+        if (!home) return(0);   // error: can't get home directory name
     
-        strcpy(outName, home); // return home directory name
-        strcat(outName, sSettingsFilename + 1);    // add "/<filename>"
+        strcpy(outName, home);  // return home directory name
+        strcat(outName, sSettingsFilename + 1); // add "/<filename>"
     } else {
         strcpy(outName, sSettingsFilename);
     }
@@ -535,16 +535,16 @@ void PResourceManager::LoadSettings()
         // and merge into the current database - PH 11/11/99
         char settings_filename[256];
         if (GetSettingsFilename(settings_filename)) {
-           XrmDatabase home_db = XrmGetFileDatabase(settings_filename);
-           if (home_db) {
-             XrmDatabase cur_db = XtDatabase(sResource.display);
-             if (cur_db) {
-              // note: the following call will destroy home_db
-              XrmMergeDatabases(home_db, &cur_db);
-             } else {
-              XrmDestroyDatabase(home_db);
-             }
-           }
+            XrmDatabase home_db = XrmGetFileDatabase(settings_filename);
+            if (home_db) {
+                XrmDatabase cur_db = XtDatabase(sResource.display);
+                if (cur_db) {
+                    // note: the following call will destroy home_db
+                    XrmMergeDatabases(home_db, &cur_db);
+                } else {
+                    XrmDestroyDatabase(home_db);
+                }
+            }
         }
     }
 }
@@ -555,13 +555,13 @@ void PResourceManager::LoadSettings()
 int PResourceManager::VerifySettingsFile()
 {
     const int   kBuffSize = 256;
-    char       settings_filename[kBuffSize];
-    char       oldset_filename[kBuffSize];
-    char       buff[kBuffSize];
-    FILE       *source_file, *dest_file, *old_file=NULL;
-    int        out_of_date = 0;
-    int        do_rename = 0;
-    float     old_version = 0.0;
+    char        settings_filename[kBuffSize];
+    char        oldset_filename[kBuffSize];
+    char        buff[kBuffSize];
+    FILE        *source_file, *dest_file, *old_file=NULL;
+    int         out_of_date = 0;
+    int         do_rename = 0;
+    float       old_version = 0.0;
 
     if (!GetSettingsFilename(settings_filename)) {
         Printf("Can't locate home directory, so can't find settings file!\n");
@@ -572,14 +572,14 @@ int PResourceManager::VerifySettingsFile()
     if (dest_file) {
         // check resource version number
         while (fgets(buff,kBuffSize,dest_file)) {
-           old_version = ReadResourceVersion(buff);
-           if (old_version != 0.0) break;
+            old_version = ReadResourceVersion(buff);
+            if (old_version != 0.0) break;
         }
         fclose(dest_file);
         
         if (old_version > MINIMUM_RESOURCE_VERSION-0.000001) {
-           // good file already exists -- nothing to do
-           return(1);
+            // good file already exists -- nothing to do
+            return(1);
         }
         out_of_date = 1;
         Printf("Settings file %s is out of date (version %.1f)\n", settings_filename, old_version);
@@ -599,22 +599,22 @@ int PResourceManager::VerifySettingsFile()
         Printf("Can't find source Aged.resource resource file%s\x07\n",
                out_of_date ? " to update settings file" : "");
         // return non-zero if an out of date file is available
-        return(out_of_date);   // nothing to do if we can't find it
+        return(out_of_date);    // nothing to do if we can't find it
     }
     // version number must be first line in a standard Aged file
     // - make sure version is good
     if (fgets(buff,kBuffSize,source_file)) {
         float new_version = ReadResourceVersion(buff);
         if (new_version < MINIMUM_RESOURCE_VERSION-0.000001) {
-           Printf("Source resource file %s is%s out of date (version %.1f)\n", 
-              aged_class, (out_of_date ? " also" : ""), new_version);
-           Printf("Current resource version is %.1f\n", (float)MINIMUM_RESOURCE_VERSION);
-           Printf("Can't update settings file %s\n", settings_filename);
-           Printf("Warning: Using out-of-date resources!\n");
-           fclose(source_file);
-           return(1);
+            Printf("Source resource file %s is%s out of date (version %.1f)\n", 
+                    aged_class, (out_of_date ? " also" : ""), new_version);
+            Printf("Current resource version is %.1f\n", (float)MINIMUM_RESOURCE_VERSION);
+            Printf("Can't update settings file %s\n", settings_filename);
+            Printf("Warning: Using out-of-date resources!\n");
+            fclose(source_file);
+            return(1);
         }
-        fseek(source_file, 0L, SEEK_SET);  // rewind source file to beginning
+        fseek(source_file, 0L, SEEK_SET);   // rewind source file to beginning
         
     } else {
     
@@ -627,27 +627,27 @@ int PResourceManager::VerifySettingsFile()
     if (do_rename) {
         Printf("Moving old settings %s to %s...\n", settings_filename, oldset_filename);
         if (rename(settings_filename, oldset_filename)) {
-           Printf("Error renaming settings file\x07\n");
-           return(0);
+            Printf("Error renaming settings file\x07\n");
+            return(0);
         }
         
-        old_file = fopen(oldset_filename, "r");    // re-open the old file
+        old_file = fopen(oldset_filename, "r"); // re-open the old file
         
         if (old_file) {
-           // look for auto string
-           int found_auto_str = 0;
-           while (fgets(buff,kBuffSize,old_file)) {
-             if (!strcmp(buff,kAutoStr)) {
-              found_auto_str = 1;
-              break;
-             }
-           }
-           if (!found_auto_str) {
-             fclose(old_file);    // no settings to copy over... close the old file
-             old_file = NULL;
-           }
+            // look for auto string
+            int found_auto_str = 0;
+            while (fgets(buff,kBuffSize,old_file)) {
+                if (!strcmp(buff,kAutoStr)) {
+                    found_auto_str = 1;
+                    break;
+                }
+            }
+            if (!found_auto_str) {
+                fclose(old_file);   // no settings to copy over... close the old file
+                old_file = NULL;
+            }
         } else {
-           Printf("Error opening old settings file %s\n", oldset_filename);
+            Printf("Error opening old settings file %s\n", oldset_filename);
         }
     }
     
@@ -657,44 +657,44 @@ int PResourceManager::VerifySettingsFile()
         Printf("Copying source resource file %s to %s...\n", getOpenFileName(), settings_filename);
         int write_err = 0;
         while (fgets(buff,kBuffSize,source_file)) {
-           if (fputs(buff,dest_file) == EOF) {
-             write_err = 1;   // copy across all aged resources
-             break;
-           }
+            if (fputs(buff,dest_file) == EOF) {
+                write_err = 1;  // copy across all aged resources
+                break;
+            }
         }
         if (old_file) {
-           Printf("Preserving original settings from %s...\n", oldset_filename);
-           if (fputs("\n", dest_file) == EOF) write_err = 1;
-           if (fputs(kAutoStr, dest_file) == EOF) write_err = 1;
+            Printf("Preserving original settings from %s...\n", oldset_filename);
+            if (fputs("\n", dest_file) == EOF) write_err = 1;
+            if (fputs(kAutoStr, dest_file) == EOF) write_err = 1;
 /*
 ** Translate resources from old versions here...
 */
-           // translate window position resources from version 3.2
-           if (fabs(old_version - 3.2) < 0.000001) {
-             while (fgets(buff,kBuffSize,old_file)) {
-              char *pt = strstr(buff,"geometry:");
-              const short kPrefixLen = 7; // length of "aged." string
-              // take "aged." off the geometry for all windows but the main
-              if (pt && pt-buff>kPrefixLen && !memcmp(buff,"aged.",kPrefixLen)) {
-                  if (fputs(buff+kPrefixLen, dest_file) == EOF) write_err = 1;
-              } else {
-                  if (fputs(buff, dest_file) == EOF) write_err = 1;
-              }
-             }
-           } else {
-             while (fgets(buff,kBuffSize,old_file)) {
-              if (fputs(buff, dest_file) == EOF) write_err = 1;
-             }
-           }
-           fclose(old_file);
+            // translate window position resources from version 3.2
+            if (fabs(old_version - 3.2) < 0.000001) {
+                while (fgets(buff,kBuffSize,old_file)) {
+                    char *pt = strstr(buff,"geometry:");
+                    const short kPrefixLen = 7; // length of "aged." string
+                    // take "aged." off the geometry for all windows but the main
+                    if (pt && pt-buff>kPrefixLen && !memcmp(buff,"aged.",kPrefixLen)) {
+                        if (fputs(buff+kPrefixLen, dest_file) == EOF) write_err = 1;
+                    } else {
+                        if (fputs(buff, dest_file) == EOF) write_err = 1;
+                    }
+                }
+            } else {
+                while (fgets(buff,kBuffSize,old_file)) {
+                    if (fputs(buff, dest_file) == EOF) write_err = 1;
+                }
+            }
+            fclose(old_file);
         }
         fclose(dest_file);
         if (write_err) {
-           // erase the file if we couldn't write to it properly
-           unlink(settings_filename);
-           Printf("Error writing to %s (disk full?)\x07\n", settings_filename);
+            // erase the file if we couldn't write to it properly
+            unlink(settings_filename);
+            Printf("Error writing to %s (disk full?)\x07\n", settings_filename);
         } else {
-           Printf("Done %s settings file\n", out_of_date ? "updating" : "creating");
+            Printf("Done %s settings file\n", out_of_date ? "updating" : "creating");
         }
     } else {
         Printf("Error creating %s\x07\n", settings_filename);
@@ -743,36 +743,36 @@ void PResourceManager::SetWindowOffset(int dx, int dy)
 int PResourceManager::GetWindowGeometry(char *name, SWindowGeometry *geo)
 {
     XrmDatabase     theDatabase = XtDatabase(sResource.display);
-    char       *strType;
-    char         fullName[256];
-    XrmValue       theValue;
+    char            *strType;
+    char            fullName[256];
+    XrmValue        theValue;
     
     sprintf(fullName,"%s.geometry",name);
     
     if (XrmGetResource(theDatabase, fullName, fullName, &strType, &theValue)) {
         // make sure we got a string type back
         if (!strcmp(strType, XtRString)) {
-           // parse geometry specification
-           char *str = (char *)theValue.addr;
-           char *pt1, *pt2, *pt3;
-           pt1 = strchr(str, 'x');
-           if (pt1) {
-             pt2 = strchr(++pt1, '+');
-             if (pt2) {
-              pt3 = strchr(++pt2, '+');
-              if (pt3) {
-                  ++pt3;
-                  // return geometry values
-                  geo->width = atoi(str);
-                  geo->height = atoi(pt1);
-                  geo->x = atoi(pt2);
-                  geo->y = atoi(pt3);
-                  return(1); // success!
-              }
-             }
-           }
+            // parse geometry specification
+            char *str = (char *)theValue.addr;
+            char *pt1, *pt2, *pt3;
+            pt1 = strchr(str, 'x');
+            if (pt1) {
+                pt2 = strchr(++pt1, '+');
+                if (pt2) {
+                    pt3 = strchr(++pt2, '+');
+                    if (pt3) {
+                        ++pt3;
+                        // return geometry values
+                        geo->width = atoi(str);
+                        geo->height = atoi(pt1);
+                        geo->x = atoi(pt2);
+                        geo->y = atoi(pt3);
+                        return(1);  // success!
+                    }
+                }
+            }
         } else {
-           Printf("Oops - geometry resource isn't of type 'String'\n");
+            Printf("Oops - geometry resource isn't of type 'String'\n");
         }
     }
     return(0);  // geometry not obtained
@@ -789,14 +789,14 @@ int PResourceManager::GetWindowGeometry(Widget w, SWindowGeometry *geo)
 // SetWindowGeometry - set window geometry in current resource database
 void PResourceManager::SetWindowGeometry(char *name, SWindowGeometry *geo)
 {
-    char       specifier[256];
-    char       value_str[256];
+    char        specifier[256];
+    char        value_str[256];
     XrmDatabase theDatabase = XtDatabase(sResource.display);
     
     sprintf(specifier,"%s.geometry",name);
     sprintf(value_str,"%dx%d+%d+%d",(int)geo->width,(int)geo->height,
-             (int)geo->x - sWindowOffsetX,
-             (int)geo->y - sWindowOffsetY);
+                (int)geo->x - sWindowOffsetX,
+                (int)geo->y - sWindowOffsetY);
     
     XrmPutStringResource(&theDatabase, specifier, value_str);
 }
@@ -805,8 +805,8 @@ void PResourceManager::SetWindowGeometry(char *name, SWindowGeometry *geo)
 // - this routine is made extern "C" instead of a static member
 //   because of a brain-dead compiler that gives warnings otherwise - PH 05/08/00
 int WriteGeoProc(XrmDatabase *database, XrmBindingList bindings,
-              XrmQuarkList quarks, XrmRepresentation *type,
-              XrmValue *value, XPointer theData)
+                 XrmQuarkList quarks, XrmRepresentation *type,
+                 XrmValue *value, XPointer theData)
 {
     int     n;
     FILE    *fp = ((SWriteGeoData *)theData)->file;
@@ -827,33 +827,33 @@ int WriteGeoProc(XrmDatabase *database, XrmBindingList bindings,
         if (strcmp(object_name, "Aged"))
 #endif
         {
-           // construct resource name
-           res_name[0] = '\0';
-           for (int i=0; ;) {
-             strcat(res_name,XrmQuarkToString(quarks[i]));
-             if (++i >= n-1) break;
-             strcat(res_name,".");
-           }
-           
-           // write resource name to file
-           PResourceManager::WritePaddedLabel(fp, res_name, ((SWriteGeoData *)theData)->name);
-           
-           // make sure the resource value is a string
-           if (type[0] == XrmStringToQuark(XtRString)) {
-             // write resource value to file
-             fprintf(fp, "%s\n", (char *)value->addr);
-           } else {
-             Printf("Uh oh - geometry resource isn't of type 'String'\n");
+            // construct resource name
+            res_name[0] = '\0';
+            for (int i=0; ;) {
+                strcat(res_name,XrmQuarkToString(quarks[i]));
+                if (++i >= n-1) break;
+                strcat(res_name,".");
+            }
+            
+            // write resource name to file
+            PResourceManager::WritePaddedLabel(fp, res_name, ((SWriteGeoData *)theData)->name);
+            
+            // make sure the resource value is a string
+            if (type[0] == XrmStringToQuark(XtRString)) {
+                // write resource value to file
+                fprintf(fp, "%s\n", (char *)value->addr);
+            } else {
+                Printf("Uh oh - geometry resource isn't of type 'String'\n");
 /*
-             // convert to a string and write to file
-             char buff[256];
-             XrmValue theValue;
-             theValue.size = 256;
-             theValue.addr = buff;
-             XtConvertAndStore(NULL, XrmQuarkToString(type[0]), value, XtRString, &theValue);
-             fprintf(fp, "%s\n", buff);
+                // convert to a string and write to file
+                char buff[256];
+                XrmValue theValue;
+                theValue.size = 256;
+                theValue.addr = buff;
+                XtConvertAndStore(NULL, XrmQuarkToString(type[0]), value, XtRString, &theValue);
+                fprintf(fp, "%s\n", buff);
 */
-           }
+            }
         }
     }
     return(0);  // return false to continue iterating through resources
@@ -863,7 +863,7 @@ int WriteGeoProc(XrmDatabase *database, XrmBindingList bindings,
 void PResourceManager::WriteWindowGeometries(FILE *dest_file)
 {
     XrmDatabase     theDatabase = XtDatabase(sResource.display);
-    XrmQuark       quarks[1];
+    XrmQuark        quarks[1];
     SWriteGeoData   theData;
     
     quarks[0] = NULLQUARK;
@@ -877,19 +877,19 @@ void PResourceManager::WriteWindowGeometries(FILE *dest_file)
 // WriteSettings - write resources to file
 void PResourceManager::WriteSettings(AgedResource *res, int force_save)
 {
-    int        i;
-    int        write_err = 0;
-    int        replacing = 0;
-    int        found_auto_str = 0;
-    char      *    pt;
+    int         i;
+    int         write_err = 0;
+    int         replacing = 0;
+    int         found_auto_str = 0;
+    char      * pt;
     const int   kBuffSize = 256;
-    char       settings_filename[kBuffSize];
-    char       temp_filename[kBuffSize];
-    char       buff[kBuffSize];
-    FILE      *    source_file, *temp_file;
+    char        settings_filename[kBuffSize];
+    char        temp_filename[kBuffSize];
+    char        buff[kBuffSize];
+    FILE      * source_file, *temp_file;
 
     if (res->save_config) {
-        force_save = 1;       // must write to file if save_config is set in these resources
+        force_save = 1;     // must write to file if save_config is set in these resources
     } else if (!force_save && !sResourceFileSaveConfig) {
         // nothing to do if we don't need to save the configuration
         // and save_config is already zero in the resource file.
@@ -898,7 +898,7 @@ void PResourceManager::WriteSettings(AgedResource *res, int force_save)
     
     if (!GetSettingsFilename(settings_filename)) {
         if (force_save) {
-           Printf("HOME environment variable not set -- can't save settings\n");
+            Printf("HOME environment variable not set -- can't save settings\n");
         }
         return;
     }
@@ -909,7 +909,7 @@ void PResourceManager::WriteSettings(AgedResource *res, int force_save)
     temp_file = fopen(temp_filename,"w");
     if (!temp_file) {
         Printf("Error creating temporary resource file %s\x07\n",temp_filename);
-        return;    // nothing to do if we can't write file
+        return; // nothing to do if we can't write file
     }
     
     // open source resource file (default ~/.Aged)
@@ -917,13 +917,13 @@ void PResourceManager::WriteSettings(AgedResource *res, int force_save)
     
     // look for end of file (if it was opened)
     if (source_file) {
-        replacing = 1; // we will replace this file later
+        replacing = 1;  // we will replace this file later
         while (fgets(buff,kBuffSize,source_file)) {
-           if (!strcmp(buff,kAutoStr)) {
-             found_auto_str = 1;
-             break;
-           }
-           if (fputs(buff,temp_file) == EOF) write_err = 1;  // copy across other Aged resources
+            if (!strcmp(buff,kAutoStr)) {
+                found_auto_str = 1;
+                break;
+            }
+            if (fputs(buff,temp_file) == EOF) write_err = 1;    // copy across other Aged resources
         }
     }
     if (!found_auto_str) {
@@ -943,41 +943,41 @@ void PResourceManager::WriteSettings(AgedResource *res, int force_save)
         
         // look for the "version" resource in the list
         for (i=0; i<(int)XtNumber(sResourceList); ++i) {
-           if (!strcmp(sResourceList[i].resource_name, "version")) break;
+            if (!strcmp(sResourceList[i].resource_name, "version")) break;
         }
         // write all resources from "version" onwards to the output file
         for (; i<(int)XtNumber(sResourceList); ++i) {
         
-           WritePaddedLabel(temp_file, aged_class, sResourceList[i].resource_name);
-           
-           char *res_pt = (char *)res + sResourceList[i].resource_offset;
-           
-           if (!strcmp(sResourceList[i].resource_type, XtRString)) {
-             fprintf(temp_file,"%s\n", *(char **)res_pt);
-           } else if (!strcmp(sResourceList[i].resource_type, XtRInt)) {
-             fprintf(temp_file,"%d\n", *(int *)res_pt);
-           } else if (!strcmp(sResourceList[i].resource_type, XtRFloat)) {
-             fprintf(temp_file,"%.2f\n", *(float *)res_pt);
-           } else if (!strcmp(sResourceList[i].resource_type, XtRPixel)) {
-             // look up pixel value in our colours
-             int index = (Pixel *)res_pt - res->colset[0];
-             if (index>=0 && index<2*NUM_COLOURS) {
-              // print the colour value
-              fprintf(temp_file,"rgb:%.2x/%.2x/%.2x\n",
-                     (int)(sColours[index].red >> 8),
-                     (int)(sColours[index].green >> 8),
-                     (int)(sColours[index].blue >> 8));
-             } else {
-              // bad index -- set the colour to black
-              fprintf(temp_file,"Black\n");
-             }
-           } else {
-             fprintf(temp_file,"0\n");
-             Printf("Unrecognized resource type!\n");
-           }
+            WritePaddedLabel(temp_file, aged_class, sResourceList[i].resource_name);
+            
+            char *res_pt = (char *)res + sResourceList[i].resource_offset;
+            
+            if (!strcmp(sResourceList[i].resource_type, XtRString)) {
+                fprintf(temp_file,"%s\n", *(char **)res_pt);
+            } else if (!strcmp(sResourceList[i].resource_type, XtRInt)) {
+                fprintf(temp_file,"%d\n", *(int *)res_pt);
+            } else if (!strcmp(sResourceList[i].resource_type, XtRFloat)) {
+                fprintf(temp_file,"%.2f\n", *(float *)res_pt);
+            } else if (!strcmp(sResourceList[i].resource_type, XtRPixel)) {
+                // look up pixel value in our colours
+                int index = (Pixel *)res_pt - res->colset[0];
+                if (index>=0 && index<2*NUM_COLOURS) {
+                    // print the colour value
+                    fprintf(temp_file,"rgb:%.2x/%.2x/%.2x\n",
+                            (int)(sColours[index].red >> 8),
+                            (int)(sColours[index].green >> 8),
+                            (int)(sColours[index].blue >> 8));
+                } else {
+                    // bad index -- set the colour to black
+                    fprintf(temp_file,"Black\n");
+                }
+            } else {
+                fprintf(temp_file,"0\n");
+                Printf("Unrecognized resource type!\n");
+            }
         }
 
-        if (fputs("\n",temp_file) == EOF) write_err = 1;   // write a trailing blank line
+        if (fputs("\n",temp_file) == EOF) write_err = 1;    // write a trailing blank line
         
     } else {
 
@@ -985,30 +985,30 @@ void PResourceManager::WriteSettings(AgedResource *res, int force_save)
         
         // don't save the configuration -- just copy it over except for save_config
         if (source_file) {
-           while (fgets(buff,kBuffSize,source_file)) {
-             pt = strstr(buff,".save_config:");
-             if (pt) {
-              pt = strchr(buff, '\n');
-              if (pt && *(pt-1)=='0') {
-                  // save_config is already zero.. no need to continue copying file
-                  fclose(source_file);
-                  fclose(temp_file);
-                  unlink(temp_filename); // erase temporary file
-                  return;
-              }
-              found_save_config = 1;
-              WritePaddedLabel(temp_file, aged_class, "save_config");
-              fprintf(temp_file,"%d\n", res->save_config);
-             } else {
-              if (fputs(buff,temp_file) == EOF) write_err = 1;    // copy the old line
-             }
-           }
+            while (fgets(buff,kBuffSize,source_file)) {
+                pt = strstr(buff,".save_config:");
+                if (pt) {
+                    pt = strchr(buff, '\n');
+                    if (pt && *(pt-1)=='0') {
+                        // save_config is already zero.. no need to continue copying file
+                        fclose(source_file);
+                        fclose(temp_file);
+                        unlink(temp_filename);  // erase temporary file
+                        return;
+                    }
+                    found_save_config = 1;
+                    WritePaddedLabel(temp_file, aged_class, "save_config");
+                    fprintf(temp_file,"%d\n", res->save_config);
+                } else {
+                    if (fputs(buff,temp_file) == EOF) write_err = 1;    // copy the old line
+                }
+            }
         }
         if (!found_save_config) {
-           if (fputs("\n",temp_file) == EOF) write_err = 1;
-           WritePaddedLabel(temp_file, aged_class, "save_config");
-           fprintf(temp_file,"%d\n", res->save_config);
-           if (fputs("\n",temp_file) == EOF) write_err = 1;  // write a trailing blank line
+            if (fputs("\n",temp_file) == EOF) write_err = 1;
+            WritePaddedLabel(temp_file, aged_class, "save_config");
+            fprintf(temp_file,"%d\n", res->save_config);
+            if (fputs("\n",temp_file) == EOF) write_err = 1;    // write a trailing blank line
         }
     }
     // close the files
@@ -1020,33 +1020,33 @@ void PResourceManager::WriteSettings(AgedResource *res, int force_save)
     
     if (write_err) {
         Printf("Error writing to temporary resource file %s\x07\n",temp_filename);
-        unlink(temp_filename); // erase temporary file
+        unlink(temp_filename);  // erase temporary file
     } else {
         // rename the file we wrote
         if (rename(temp_filename, settings_filename)) {
-           if (replacing) {
-             Printf("Error replacing resource file %s\x07\n",settings_filename);
-           } else {
-             Printf("Error creating resource file %s\x07\n",settings_filename);
-           }
-           unlink(temp_filename);       // erase temporary file
+            if (replacing) {
+                Printf("Error replacing resource file %s\x07\n",settings_filename);
+            } else {
+                Printf("Error creating resource file %s\x07\n",settings_filename);
+            }
+            unlink(temp_filename);      // erase temporary file
         } else if (force_save) {
-           Printf("Settings saved to %s\n",settings_filename);
+            Printf("Settings saved to %s\n",settings_filename);
         }
     }
 }
 
 void PResourceManager::AllocColours(int num, Pixel **col, int first, int nseeds,
-                        int overscale, int extras)
+                                    int overscale, int extras)
 {
-    int          i, j, cells, no_color = 0;
-    float      t;
-    XColor       col_seeds[MAX_COLOUR_SEEDS];
-    XColor       tmp_cols[MAX_COLOURS];
-    Display       *    dpy  = sResource.display;
-    int          scr  = DefaultScreen(dpy);
-    Colormap       cmap = DefaultColormap(dpy, scr);
-    char         *   alloc_flags=0;
+    int             i, j, cells, no_color = 0;
+    float           t;
+    XColor          col_seeds[MAX_COLOUR_SEEDS];
+    XColor          tmp_cols[MAX_COLOURS];
+    Display       * dpy  = sResource.display;
+    int             scr  = DefaultScreen(dpy);
+    Colormap        cmap = DefaultColormap(dpy, scr);
+    char          * alloc_flags=0;
     
     if (col == &sResource.scale_col) {
         alloc_flags = sAllocFlags + NUM_COLOURS;
@@ -1078,23 +1078,23 @@ void PResourceManager::AllocColours(int num, Pixel **col, int first, int nseeds,
         tmp_cols[i].flags = DoRed | DoGreen | DoBlue;
         // calculate base seed number for this index
         if (overscale) {
-           if (i == 0) {
-             j = 0;
-             t = 0.0;
-           } else if (i == num-1) {
-             j = nseeds - 2;
-             t = 1.0;
-           } else {
-             t = 1 + (i - 1) * (nseeds - 3) / (float)(num - 3);
-             j = (int)t;
-             if (j > nseeds-3) j = nseeds - 3;
-             t -= j;
-           }
+            if (i == 0) {
+                j = 0;
+                t = 0.0;
+            } else if (i == num-1) {
+                j = nseeds - 2;
+                t = 1.0;
+            } else {
+                t = 1 + (i - 1) * (nseeds - 3) / (float)(num - 3);
+                j = (int)t;
+                if (j > nseeds-3) j = nseeds - 3;
+                t -= j;
+            }
         } else {
-           t = i * (nseeds - 1) / (float)(num - 1);
-           j = (int)t;
-           if (j > nseeds-2) j = nseeds - 2;
-           t -= j;
+            t = i * (nseeds - 1) / (float)(num - 1);
+            j = (int)t;
+            if (j > nseeds-2) j = nseeds - 2;
+            t -= j;
         }
         // interpolate the colour value
         tmp_cols[i].red   = (unsigned short)(col_seeds[j].red   * (1-t) + col_seeds[j+1].red   * t);
@@ -1102,18 +1102,18 @@ void PResourceManager::AllocColours(int num, Pixel **col, int first, int nseeds,
         tmp_cols[i].blue  = (unsigned short)(col_seeds[j].blue  * (1-t) + col_seeds[j+1].blue  * t);
 
         if (cells) {
-           /* must store colour into the new cells we allocated */
-           tmp_cols[i].pixel = (*col)[i];
-           alloc_flags[i] = 1;
+            /* must store colour into the new cells we allocated */
+            tmp_cols[i].pixel = (*col)[i];
+            alloc_flags[i] = 1;
         } else if (XAllocColor(dpy, cmap, tmp_cols + i)) {
-           /* allocated a read-only cell because we couldn't get read-write */
-           (*col)[i] = tmp_cols[i].pixel;
-           alloc_flags[i] = 1;
+            /* allocated a read-only cell because we couldn't get read-write */
+            (*col)[i] = tmp_cols[i].pixel;
+            alloc_flags[i] = 1;
         } else {
-           /* can't get this colour -- use foreground colour */
-           (*col)[i] = sResource.colour[FRAME_COL];
-           no_color = 1;
-           alloc_flags[i] = 0;
+            /* can't get this colour -- use foreground colour */
+            (*col)[i] = sResource.colour[FRAME_COL];
+            no_color = 1;
+            alloc_flags[i] = 0;
         }
     }
     if (cells) {
@@ -1129,11 +1129,11 @@ void PResourceManager::AllocColours(int num, Pixel **col, int first, int nseeds,
 
 void PResourceManager::FreeAllocatedColours(Pixel *col, int num)
 {
-    int        i;
+    int         i;
     Display   * dpy  = sResource.display;
-    int        scr  = DefaultScreen(dpy);
+    int         scr  = DefaultScreen(dpy);
     Colormap    cmap = DefaultColormap(dpy, scr);
-    char      *    alloc_flags=0;
+    char      * alloc_flags=0;
 
     if (col == sResource.colour) {
         alloc_flags = sAllocFlags;
@@ -1157,10 +1157,10 @@ void PResourceManager::FreeAllocatedColours(Pixel *col, int num)
     } else {
         // free individually
         for (i=0; i<num; ++i) {
-           if (alloc_flags[i]) {
-             XFreeColors(dpy, cmap, col+i, 1, 0);
-             alloc_flags[i] = 0;
-           }
+            if (alloc_flags[i]) {
+                XFreeColors(dpy, cmap, col+i, 1, 0);
+                alloc_flags[i] = 0;
+            }
         }
     }
 }
@@ -1172,7 +1172,7 @@ void PResourceManager::FreeAllocatedColours(Pixel *col, int num)
 void PResourceManager::SetColour(int num, XColor *xcol)
 {
     Display   * dpy  = sResource.display;
-    int        scr  = DefaultScreen(dpy);
+    int         scr  = DefaultScreen(dpy);
     Colormap    cmap = DefaultColormap(dpy, scr);
 
     if (sColoursAllocated[num]) {
@@ -1204,7 +1204,7 @@ void PResourceManager::SetColours(int colourSet)
 {
     if (sResource.image_col != colourSet) {
         
-        FreeColours(); // must free old colours before setting sResource.image_col
+        FreeColours();  // must free old colours before setting sResource.image_col
 
         sResource.image_col = colourSet;
 
@@ -1221,9 +1221,9 @@ void PResourceManager::SetColours(int colourSet)
 /*       (otherwise colour leaks will occur) */
 void PResourceManager::CopyColours()
 {
-    int        i;
+    int         i;
     Display   * dpy  = sResource.display;
-    int        scr  = DefaultScreen(dpy);
+    int         scr  = DefaultScreen(dpy);
     Colormap    cmap = DefaultColormap(dpy, scr);
 
     if (!(sResource.image_col & kGreyscale)) {
@@ -1232,85 +1232,85 @@ void PResourceManager::CopyColours()
     } else {
         // greyscale
         int set = (sResource.image_col & kWhiteBkg) ? 1 : 0;
-                              
+                                          
         // make temporary array to load colour values
         XColor *tmp_cols = new XColor[NUM_COLOURS];
         
         if (tmp_cols) {
-           // convert colours to greyscale values
+            // convert colours to greyscale values
 #ifdef GREYSCALE_INTENSITY
-           // use intensity model to convert to greyscale
-           for (i=0; i<NUM_COLOURS; ++i) {
-             int k = i + set * NUM_COLOURS;
-             unsigned short   val;
-             if (set) {
-              // take average for white background
-              val = (unsigned short)((sColours[k].red
-                        + (u_int32)sColours[k].green
-                        + (u_int32)sColours[k].blue) / 3);
-             } else {
-              // take maximum for black background
-              val = sColours[k].red;
-              if (val < sColours[k].green) {
-                  val = sColours[k].green;
-              }
-              if (val < sColours[k].blue) {
-                  val = sColours[k].blue;
-              }
-             }
-             tmp_cols[i].red   = val;
-             tmp_cols[i].green = val;
-             tmp_cols[i].blue  = val;
-             tmp_cols[i].flags = DoRed | DoGreen | DoBlue;
-           }
+            // use intensity model to convert to greyscale
+            for (i=0; i<NUM_COLOURS; ++i) {
+                int k = i + set * NUM_COLOURS;
+                unsigned short  val;
+                if (set) {
+                    // take average for white background
+                    val = (unsigned short)((sColours[k].red
+                                 + (u_int32)sColours[k].green
+                                 + (u_int32)sColours[k].blue) / 3);
+                } else {
+                    // take maximum for black background
+                    val = sColours[k].red;
+                    if (val < sColours[k].green) {
+                        val = sColours[k].green;
+                    }
+                    if (val < sColours[k].blue) {
+                        val = sColours[k].blue;
+                    }
+                }
+                tmp_cols[i].red   = val;
+                tmp_cols[i].green = val;
+                tmp_cols[i].blue  = val;
+                tmp_cols[i].flags = DoRed | DoGreen | DoBlue;
+            }
 #else
-           // use luminance model to convert to greyscale
-           for (i=0; i<NUM_COLOURS; ++i) {
-             int k = i + set * NUM_COLOURS;
-             unsigned short   val;
+            // use luminance model to convert to greyscale
+            for (i=0; i<NUM_COLOURS; ++i) {
+                int k = i + set * NUM_COLOURS;
+                unsigned short  val;
 /* this is the old NTSC standard
-             // use luminance weighting (r=0.299, g=0.587, b=0.114)
-             val = (unsigned short)(((u_int32)sColours[k].red   * 299 +
-                            (u_int32)sColours[k].green * 587 +
-                            (u_int32)sColours[k].blue  * 114 + 500) / 1000);
+                // use luminance weighting (r=0.299, g=0.587, b=0.114)
+                val = (unsigned short)(((u_int32)sColours[k].red   * 299 +
+                                        (u_int32)sColours[k].green * 587 +
+                                        (u_int32)sColours[k].blue  * 114 + 500) / 1000);
 */
-             // (this is better for newer monitors)
-             // use luminance weighting (r=0.2125, g=0.7154, b=0.0721)
-             val = (unsigned short)((sColours[k].red   * 2125 +
-                            sColours[k].green * 7154 +
-                            sColours[k].blue  *  721 + 5000) / 10000);
-             tmp_cols[i].red   = val;
-             tmp_cols[i].green = val;
-             tmp_cols[i].blue  = val;
-             tmp_cols[i].flags = DoRed | DoGreen | DoBlue;
-           }
+                // (this is better for newer monitors)
+                // use luminance weighting (r=0.2125, g=0.7154, b=0.0721)
+                val = (unsigned short)((sColours[k].red   * 2125 +
+                                        sColours[k].green * 7154 +
+                                        sColours[k].blue  *  721 + 5000) / 10000);
+                tmp_cols[i].red   = val;
+                tmp_cols[i].green = val;
+                tmp_cols[i].blue  = val;
+                tmp_cols[i].flags = DoRed | DoGreen | DoBlue;
+            }
 #endif
-           // change the scale colours to linear greyscale
-           const int kNumCol = SCALE_OVER - SCALE_UNDER + 1;
-           // intensity mapping for greyscale scale colours
-           static unsigned short grey[2][kNumCol] = {
-             // under,     0%,    25%,    50%,    75%,   100%,   over
-             { 0x5555, 0x6666, 0x8888, 0xaaaa, 0xcccc, 0xeeee, 0xffff },  // black bkg
-             { 0xdddd, 0xbbbb, 0x9999, 0x7777, 0x5555, 0x3333, 0x0000 }   // white bkg
-           };
-           // substitute the scale colours
-           for (i=0; i<kNumCol; ++i) {
-             int n = i + SCALE_UNDER;
-             tmp_cols[n].red = tmp_cols[n].green = tmp_cols[n].blue = grey[set][i];
-           }
-           // allocate the grey colours
-           for (i=0; i<NUM_COLOURS; ++i) {
-             if (XAllocColor(dpy, cmap, tmp_cols + i)) {
-              sResource.colour[i] = tmp_cols[i].pixel;
-              sAllocFlags[i] = 1; // set flag for colour allocated
-             } else {
-              // couldn't allocate the grey -- default to original color
-              sResource.colour[i] = sResource.colset[set][i];
-             }
-           }
-           delete tmp_cols;
+            // change the scale colours to linear greyscale
+            const int kNumCol = SCALE_OVER - SCALE_UNDER + 1;
+            // intensity mapping for greyscale scale colours
+            static unsigned short grey[2][kNumCol] = {
+                // under,     0%,    25%,    50%,    75%,   100%,   over
+                { 0x5555, 0x6666, 0x8888, 0xaaaa, 0xcccc, 0xeeee, 0xffff }, // black bkg
+                { 0xdddd, 0xbbbb, 0x9999, 0x7777, 0x5555, 0x3333, 0x0000 }  // white bkg
+            };
+            // substitute the scale colours
+            for (i=0; i<kNumCol; ++i) {
+                int n = i + SCALE_UNDER;
+                tmp_cols[n].red = tmp_cols[n].green = tmp_cols[n].blue = grey[set][i];
+            }
+            // allocate the grey colours
+            for (i=0; i<NUM_COLOURS; ++i) {
+                if (XAllocColor(dpy, cmap, tmp_cols + i)) {
+                    sResource.colour[i] = tmp_cols[i].pixel;
+                    sAllocFlags[i] = 1; // set flag for colour allocated
+                } else {
+                    // couldn't allocate the grey -- default to original color
+                    sResource.colour[i] = sResource.colset[set][i];
+                }
+            }
+            delete tmp_cols;
         } else {
-           Printf("Not enough memory to copy colours!");
+            Printf("Not enough memory to copy colours!");
         }
     }
 }
@@ -1357,14 +1357,14 @@ void PResourceManager::ListResources(Widget w)
 
         for ( i =0; i < resource_items; ++i ) {
 
-           printf("Entry %d\nresource_name   = %s\n", i, resource_list->resource_name);
-           printf("resource_class  = %s\n", resource_list->resource_class);
-           printf("resource_type   = %s\n", resource_list->resource_type);
-           printf("resource_size   = 0x%x\n", resource_list->resource_size);
-           printf("resource_offset = 0x%x\n", resource_list->resource_offset);
-           printf("default_type    = %s\n", resource_list->default_type);
-           printf("default_addr    = 0x%lx\n", (long)resource_list->default_addr);
-           ++resource_list;
+            printf("Entry %d\nresource_name   = %s\n", i, resource_list->resource_name);
+            printf("resource_class  = %s\n", resource_list->resource_class);
+            printf("resource_type   = %s\n", resource_list->resource_type);
+            printf("resource_size   = 0x%x\n", resource_list->resource_size);
+            printf("resource_offset = 0x%x\n", resource_list->resource_offset);
+            printf("default_type    = %s\n", resource_list->default_type);
+            printf("default_addr    = 0x%lx\n", (long)resource_list->default_addr);
+            ++resource_list;
 
         }
 

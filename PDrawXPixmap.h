@@ -36,20 +36,20 @@ public:
     virtual int     CopyArea(int x,int y,int w,int h,Window dest);
     virtual int     HasPixmap();
 
-    virtual EDevice GetDeviceType()     { return kDeviceVideo; }     
+    virtual EDevice GetDeviceType()     { return kDeviceVideo; }        
         
 private:
-    void         CreatePixmap();
-    void         FreePixmap();
+    void            CreatePixmap();
+    void            FreePixmap();
     
-    Pixmap       mPix;          // offscreen pixmap for drawing
-    Display       *    mDpy;          // X display for drawing
-    GC          mGC;          // X graphics context for drawing
-    Widget       mAltWidget;         // widget to draw into if pixmap not available
-    Drawable       mDrawable;         // the X drawable
-    int          mDepth;          // depth of screen
-    int          mWidth;          // pixmap width
-    int          mHeight;        // pixmap height
+    Pixmap          mPix;               // offscreen pixmap for drawing
+    Display       * mDpy;               // X display for drawing
+    GC              mGC;                // X graphics context for drawing
+    Widget          mAltWidget;         // widget to draw into if pixmap not available
+    Drawable        mDrawable;          // the X drawable
+    int             mDepth;             // depth of screen
+    int             mWidth;             // pixmap width
+    int             mHeight;            // pixmap height
 
 #ifdef ANTI_ALIAS
     void            DrawSmoothLine(double x1, double y1, double x2, double y2);

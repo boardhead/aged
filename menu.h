@@ -17,7 +17,7 @@ enum {
     SETTINGS_WINDOW,
     PRINT_WINDOW,
     HIT_INFO_WINDOW,    // Note: this must come after all projection windows
-                  // for hit information to be available when window is drawn
+                        // for hit information to be available when window is drawn
     COLOUR_WINDOW,
     NUM_WINDOWS,
     

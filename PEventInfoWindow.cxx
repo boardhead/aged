@@ -4,9 +4,9 @@
 // Description: Window to display event information in text form
 //
 // Notes:       11/11/99 - PH To reduce flickering of text items in this window,
-//           I'm now calling SetStringNow() instead of SetString().  Previously,
-//           the flickering could be so bad that the text could be invisible
-//           most of the time.
+//              I'm now calling SetStringNow() instead of SetString().  Previously,
+//              the flickering could be so bad that the text could be invisible
+//              most of the time.
 //
 #include <Xm/RowColumn.h>
 #include <Xm/Label.h>
@@ -22,7 +22,7 @@
 // PEventInfoWindow constructor
 //
 PEventInfoWindow::PEventInfoWindow(ImageData *data)
-             : PWindow(data)
+                : PWindow(data)
 {
     Widget  rc1, rc2;
     int     n;
@@ -42,7 +42,7 @@ PEventInfoWindow::PEventInfoWindow(ImageData *data)
     SetMainPane(XtCreateManagedWidget("agedForm", xmFormWidgetClass,GetShell(),NULL,0));
 
     n = 0;
-    XtSetArg(wargs[n], XmNpacking,         XmPACK_COLUMN); ++n;
+    XtSetArg(wargs[n], XmNpacking,          XmPACK_COLUMN); ++n;
     XtSetArg(wargs[n], XmNleftAttachment,   XmATTACH_FORM); ++n;
     XtSetArg(wargs[n], XmNtopAttachment,    XmATTACH_FORM); ++n;
     XtSetArg(wargs[n], XmNbottomAttachment, XmATTACH_FORM); ++n;
@@ -59,7 +59,7 @@ PEventInfoWindow::PEventInfoWindow(ImageData *data)
     XtCreateManagedWidget("Vertex Z:",   xmLabelWidgetClass,rc1,NULL,0);
 
     n = 0;
-    XtSetArg(wargs[n], XmNpacking,         XmPACK_COLUMN); ++n;
+    XtSetArg(wargs[n], XmNpacking,          XmPACK_COLUMN); ++n;
     XtSetArg(wargs[n], XmNleftAttachment,   XmATTACH_WIDGET); ++n;
     XtSetArg(wargs[n], XmNleftWidget, rc1); ++n;
     XtSetArg(wargs[n], XmNtopAttachment,    XmATTACH_FORM); ++n;
@@ -67,15 +67,15 @@ PEventInfoWindow::PEventInfoWindow(ImageData *data)
     XtSetArg(wargs[n], XmNrightAttachment,  XmATTACH_FORM); ++n;
     rc2 = XtCreateManagedWidget("eiRC2",xmRowColumnWidgetClass,GetMainPane(),wargs,n);
     
-    tw_evt   .CreateLabel("evt",      rc2,NULL,0);
-    tw_run   .CreateLabel("run",      rc2,NULL,0);
-    tw_nhit     .CreateLabel("nhit",    rc2,NULL,0);
-    tw_tracks   .CreateLabel("tracks",     rc2,NULL,0);
-    tw_lines    .CreateLabel("lines",   rc2,NULL,0);
+    tw_evt      .CreateLabel("evt",      rc2,NULL,0);
+    tw_run      .CreateLabel("run",      rc2,NULL,0);
+    tw_nhit     .CreateLabel("nhit",     rc2,NULL,0);
+    tw_tracks   .CreateLabel("tracks",   rc2,NULL,0);
+    tw_lines    .CreateLabel("lines",    rc2,NULL,0);
     tw_helices  .CreateLabel("helices",  rc2,NULL,0);
-    tw_vertexX  .CreateLabel("vx",       rc2,NULL,0);
-    tw_vertexY  .CreateLabel("vy",       rc2,NULL,0);
-    tw_vertexZ  .CreateLabel("vz",       rc2,NULL,0);
+    tw_vertexX  .CreateLabel("vx",      rc2,NULL,0);
+    tw_vertexY  .CreateLabel("vy",      rc2,NULL,0);
+    tw_vertexZ  .CreateLabel("vz",      rc2,NULL,0);
 }
 
 void PEventInfoWindow::Listen(int message, void *message_data)
@@ -86,8 +86,8 @@ void PEventInfoWindow::Listen(int message, void *message_data)
         case kMessageTimeFormatChanged:
         case kMessageEvIDFormatChanged:
         case kMessageHitsChanged:
-           SetDirty();
-           break;
+            SetDirty();
+            break;
     }
 }
 
@@ -95,7 +95,7 @@ void PEventInfoWindow::Listen(int message, void *message_data)
 void PEventInfoWindow::UpdateSelf()
 {
     ImageData   *data = GetData();
-    char       buff[256];
+    char        buff[256];
     TStoreEvent *evt = data->agEvent;
  
 #ifdef PRINT_DRAWS

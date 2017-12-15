@@ -4,7 +4,7 @@
 #include "PResourceManager.h"
 #include "PNotifyRaised.h"
 
-char          *    PImageWindow::sImageWindowClass = "PImageWindow";
+char          * PImageWindow::sImageWindowClass = "PImageWindow";
 PNotifyRaised * PImageWindow::sNotifyRaised     = 0;
 
 
@@ -12,13 +12,13 @@ PNotifyRaised * PImageWindow::sNotifyRaised     = 0;
 // PImageWindow constructor
 //
 PImageWindow::PImageWindow(ImageData *data)
-           : PScrollingWindow(data)
+            : PScrollingWindow(data)
 {
     Initialize();
 }
 
 PImageWindow::PImageWindow(ImageData *data, Widget shell, Widget mainPane)
-           : PScrollingWindow(data)
+            : PScrollingWindow(data)
 {
     Initialize();
     SetShell(shell);
@@ -52,7 +52,7 @@ void PImageWindow::SetShell(Widget w)
 
 void PImageWindow::Show()
 {
-    SetScrolls();     // make sure our scrollbars are consistent
+    SetScrolls();       // make sure our scrollbars are consistent
     
     PWindow::Show();    // let base class show the window
     
@@ -76,9 +76,9 @@ void PImageWindow::SetScrolls()
 void PImageWindow::SetToHome(int n)
 {
     if (mImage) {
-        mImage->SetToHome(n);  // tell the image to move to the home position
-        SetScrolls();       // make scrollbars consistent with this position
-        SetDirty();          // inform of change in image data
+        mImage->SetToHome(n);   // tell the image to move to the home position
+        SetScrolls();           // make scrollbars consistent with this position
+        SetDirty();             // inform of change in image data
     }
 }
 

@@ -13,20 +13,20 @@
 // colour monitor types
 enum EColourType {
     kIndexedColour,     // not true colour - use indexed colour
-    kTrueColour15,   // 00000000000000000RrrrrGggggBbbbb
-    kTrueColour16,   // 0000000000000000RrrrrGgggggBbbbb
-    kTrueColour24,   // 00000000RrrrrrrrGgggggggBbbbbbbb
+    kTrueColour15,      // 00000000000000000RrrrrGggggBbbbb
+    kTrueColour16,      // 0000000000000000RrrrrGgggggBbbbb
+    kTrueColour24,      // 00000000RrrrrrrrGgggggggBbbbbbbb
     kTrueColour24rev    // 00000000BbbbbbbbGgggggggRrrrrrrr
 };
 
 // number of colours for limited-colour monitors
-const int   kNumCols      = 5;
+const int   kNumCols        = 5;
 const int   kTotalNumCols   = kNumCols * kNumCols * kNumCols;
 const int   kShadowWidth    = 4;
-const int   kMargin        = 8;
-const int   kGreySize     = 5; // radius of grey region in center of wheel
+const int   kMargin         = 8;
+const int   kGreySize       = 5;    // radius of grey region in center of wheel
 
-const int   kDirtyWheel     = 0x02;    // the wheel needs redrawing
+const int   kDirtyWheel     = 0x02; // the wheel needs redrawing
 
 
 // ------------------------------------------------------------
@@ -39,14 +39,14 @@ PColourWheel::PColourWheel(PImageWindow *owner, Widget canvas, int size)
     }
     
     mWheelSize      = size / 2 - kMargin;
-    mColours      = NULL;
+    mColours        = NULL;
     mAllocFlags     = NULL;
-    mImage         = NULL;
-    mDrawLabel      = 0;      // don't draw the image label
+    mImage          = NULL;
+    mDrawLabel      = 0;            // don't draw the image label
     mIntensity      = 255;
     mCurX = mCurY   = mWheelSize + kMargin;
     mDelayedUpdate  = 0;
-    mFirstTry     = 1;
+    mFirstTry       = 1;
     
     // figure out if we can draw directly in RGB colours
     TestColours();
@@ -74,8 +74,8 @@ void PColourWheel::Listen(int message, void *dataPt)
             SetDirty(kDirtyPix);
             break;
         default:
-           PImageCanvas::Listen(message, dataPt);
-           break;
+            PImageCanvas::Listen(message, dataPt);
+            break;
     }
 }
 
@@ -84,7 +84,7 @@ void PColourWheel::Listen(int message, void *dataPt)
 void PColourWheel::TestColours()
 {
     Display   * dpy  = PResourceManager::sResource.display;
-    int        depth = DefaultDepthOfScreen(XtScreen(mCanvas));
+    int         depth = DefaultDepthOfScreen(XtScreen(mCanvas));
     
     mColourType = kIndexedColour;   // use indexed colour by default
     
@@ -92,8 +92,8 @@ void PColourWheel::TestColours()
     
         // allocate a single colour to check the pixel RGB bit patterns
         int         scr  = DefaultScreen(dpy);
-        Colormap   cmap = DefaultColormap(dpy, scr);
-        XColor     tmp_col;
+        Colormap    cmap = DefaultColormap(dpy, scr);
+        XColor      tmp_col;
         
         tmp_col.flags = DoRed | DoGreen | DoBlue;
         tmp_col.red   = 0xcccc;
@@ -101,40 +101,40 @@ void PColourWheel::TestColours()
         tmp_col.blue  = 0x4444;
 
         if (XAllocColor(dpy, cmap, &tmp_col)) {
-           switch (depth) {
-             case 15:
-             case 16:
-              if (tmp_col.pixel == 0x6548) {
-                  // draw in standard 15-bit true colour mode
-                  // - pixel bit pattern is 00000000000000000RrrrrGggggBbbbb
-                  mColourType = kTrueColour15;
-              } else if (tmp_col.pixel == 0xcaa8) {
-                  // draw in standard 16-bit true colour mode
-                  // - pixel bit pattern is 0000000000000000RrrrrGgggggBbbbb
-                  mColourType = kTrueColour16;
-              }
-              break;
-             case 24:
-             case 32:
-              if (tmp_col.pixel == 0xcc5544) {
-                  // draw in standard 24-bit true colour mode
-                  // - pixel bit pattern is 00000000RrrrrrrrGgggggggBbbbbbbb
-                  mColourType = kTrueColour24;
-              } else if (tmp_col.pixel == 0x4455cc) {
-                  // draw in standard 24-bit true colour mode (reversed)
-                  // - pixel bit pattern is 00000000BbbbbbbbGgggggggRrrrrrrr
-                  mColourType = kTrueColour24rev;
-              }
-              break;
-           }
-           if (mColourType == kIndexedColour) {
-             Printf("PColourWheel: Unknown pixel pattern (0x%lx) for %d-bit depth\n",tmp_col.pixel,depth);
-             Printf("(will use indexed color for wheel)\n");
-             Printf("Please inform Phil Harvey of this warning so\n");
-             Printf("support for your hardware can be added to Aged.\n");
-           }
-           // free the colour we allocated
-           XFreeColors(dpy, cmap, &tmp_col.pixel, 1, 0);
+            switch (depth) {
+                case 15:
+                case 16:
+                    if (tmp_col.pixel == 0x6548) {
+                        // draw in standard 15-bit true colour mode
+                        // - pixel bit pattern is 00000000000000000RrrrrGggggBbbbb
+                        mColourType = kTrueColour15;
+                    } else if (tmp_col.pixel == 0xcaa8) {
+                        // draw in standard 16-bit true colour mode
+                        // - pixel bit pattern is 0000000000000000RrrrrGgggggBbbbb
+                        mColourType = kTrueColour16;
+                    }
+                    break;
+                case 24:
+                case 32:
+                    if (tmp_col.pixel == 0xcc5544) {
+                        // draw in standard 24-bit true colour mode
+                        // - pixel bit pattern is 00000000RrrrrrrrGgggggggBbbbbbbb
+                        mColourType = kTrueColour24;
+                    } else if (tmp_col.pixel == 0x4455cc) {
+                        // draw in standard 24-bit true colour mode (reversed)
+                        // - pixel bit pattern is 00000000BbbbbbbbGgggggggRrrrrrrr
+                        mColourType = kTrueColour24rev;
+                    }
+                    break;
+            }
+            if (mColourType == kIndexedColour) {
+                Printf("PColourWheel: Unknown pixel pattern (0x%lx) for %d-bit depth\n",tmp_col.pixel,depth);
+                Printf("(will use indexed color for wheel)\n");
+                Printf("Please inform Phil Harvey of this warning so\n");
+                Printf("support for your hardware can be added to Aged.\n");
+            }
+            // free the colour we allocated
+            XFreeColors(dpy, cmap, &tmp_col.pixel, 1, 0);
         }
     }
 }
@@ -142,9 +142,9 @@ void PColourWheel::TestColours()
 void PColourWheel::AllocColours()
 {
     Display   * dpy  = PResourceManager::sResource.display;
-    int        scr  = DefaultScreen(dpy);
+    int         scr  = DefaultScreen(dpy);
     Colormap    cmap = DefaultColormap(dpy, scr);
-    XColor   tmp_col;
+    XColor      tmp_col;
     
     tmp_col.flags = DoRed | DoGreen | DoBlue;
     
@@ -163,21 +163,21 @@ void PColourWheel::AllocColours()
     // allocate X colours
     for (int r=0; r<kNumCols; ++r) {
         for (int g=0; g<kNumCols; ++g) {
-           for (int b=0; b<kNumCols; ++b) {
-             tmp_col.red   = r * 65535L / (kNumCols - 1);
-             tmp_col.green = g * 65535L / (kNumCols - 1);
-             tmp_col.blue  = b * 65535L / (kNumCols - 1);
-             tmp_col.pixel = 0;
-             if (XAllocColor(dpy, cmap, &tmp_col)) {
-              mAllocFlags[i] = 1; // allocated successfully
-              mColours[i] = tmp_col.pixel;
-              ++count;
-             } else {
-              mAllocFlags[i] = 0;
-              mColours[i] = PResourceManager::sResource.white_col;
-             }
-             ++i;
-           }
+            for (int b=0; b<kNumCols; ++b) {
+                tmp_col.red   = r * 65535L / (kNumCols - 1);
+                tmp_col.green = g * 65535L / (kNumCols - 1);
+                tmp_col.blue  = b * 65535L / (kNumCols - 1);
+                tmp_col.pixel = 0;
+                if (XAllocColor(dpy, cmap, &tmp_col)) {
+                    mAllocFlags[i] = 1; // allocated successfully
+                    mColours[i] = tmp_col.pixel;
+                    ++count;
+                } else {
+                    mAllocFlags[i] = 0;
+                    mColours[i] = PResourceManager::sResource.white_col;
+                }
+                ++i;
+            }
         }
     }
     if (count != kTotalNumCols) {
@@ -191,9 +191,9 @@ void PColourWheel::FreeColours()
 {
     if (!mColours) return;
 
-    int        i;
+    int         i;
     Display   * dpy  = PResourceManager::sResource.display;
-    int        scr  = DefaultScreen(dpy);
+    int         scr  = DefaultScreen(dpy);
     Colormap    cmap = DefaultColormap(dpy, scr);
     
     // are all colours allocated?
@@ -207,10 +207,10 @@ void PColourWheel::FreeColours()
     } else {
         // free individually
         for (i=0; i<kTotalNumCols; ++i) {
-           if (mAllocFlags[i]) {
-             XFreeColors(dpy, cmap, mColours+i, 1, 0);
-             mAllocFlags[i] = 0;
-           }
+            if (mAllocFlags[i]) {
+                XFreeColors(dpy, cmap, mColours+i, 1, 0);
+                mAllocFlags[i] = 0;
+            }
         }
     }
 }
@@ -222,25 +222,25 @@ void PColourWheel::HandleEvents(XEvent *event)
     
     switch (event->type) {
         case ButtonPress:
-           sPressed = 1;
-           XGrabPointer(mDpy, XtWindow(mCanvas),0,
-                   PointerMotionMask | ButtonPressMask | ButtonReleaseMask,
-                   GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
-           // fall through!
+            sPressed = 1;
+            XGrabPointer(mDpy, XtWindow(mCanvas),0,
+                         PointerMotionMask | ButtonPressMask | ButtonReleaseMask,
+                         GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+            // fall through!
         case MotionNotify:
-           if (sPressed) {
-             SetCursorPos(event->xbutton.x, event->xbutton.y);
-             Draw();
-             CursorMoved();
-             ((PColourWindow *)mOwner)->WheelColourChanging();
-           }
-           break;
+            if (sPressed) {
+                SetCursorPos(event->xbutton.x, event->xbutton.y);
+                Draw();
+                CursorMoved();
+                ((PColourWindow *)mOwner)->WheelColourChanging();
+            }
+            break;
         case ButtonRelease:
-           XUngrabPointer(mDpy, CurrentTime);
-           sPressed = 0;
-           CursorMoved();    // calculate our new colour RGB values
-           ((PColourWindow *)mOwner)->WheelColourChanged();
-           break;
+            XUngrabPointer(mDpy, CurrentTime);
+            sPressed = 0;
+            CursorMoved();  // calculate our new colour RGB values
+            ((PColourWindow *)mOwner)->WheelColourChanged();
+            break;
     }
 }
 
@@ -256,7 +256,7 @@ void PColourWheel::CursorMoved()
     float   f = (sqrt(r2b) - kGreySize) / (mWheelSize - kGreySize);
     if (f > 1.0) f = 1.0;
     else if (f < 0.0) f = 0.0;
-    float   pang = ang;  // positive angle
+    float   pang = ang; // positive angle
     if (pang < 0) pang += 2 * PI;
     float t;
     // calculate red component
@@ -285,19 +285,19 @@ void PColourWheel::SetIntensity(int val, int fastAnimate)
     if (mIntensity != val) {
         mIntensity = val;
         if (fastAnimate) {
-           if (mImage) {
-             // we have an image, so fast updates are possible
-             // - update the wheel immediately
-             SetDirty(kDirtyWheel);
-             Draw();
-           } else {
-             // fast animation isn't available because we don't have
-             // an image -- so delay the update until later
-             mDelayedUpdate = 1;
-           }
+            if (mImage) {
+                // we have an image, so fast updates are possible
+                // - update the wheel immediately
+                SetDirty(kDirtyWheel);
+                Draw();
+            } else {
+                // fast animation isn't available because we don't have
+                // an image -- so delay the update until later
+                mDelayedUpdate = 1;
+            }
         } else {
-           // update the wheel normally
-           SetDirty(kDirtyWheel);    // force the wheel to be redrawn
+            // update the wheel normally
+            SetDirty(kDirtyWheel);  // force the wheel to be redrawn
         }
     }
 }
@@ -335,11 +335,11 @@ void PColourWheel::SetColourRGB(int *col3)
     // set the max colour values
     if (maxVal > 0) {
         for (i=0; i<3; ++i) {
-           mMaxColour[i] = col3[i] * 255.0 / maxVal;
+            mMaxColour[i] = col3[i] * 255.0 / maxVal;
         }
     } else {
         for (i=0; i<3; ++i) {
-           mMaxColour[i] = 255;
+            mMaxColour[i] = 255;
         }
     }
     
@@ -352,16 +352,16 @@ void PColourWheel::SetColourRGB(int *col3)
         float radius = kGreySize + (mWheelSize - kGreySize) * (maxVal - minVal) / maxVal;
         float angle=0;
         for (i=0; i<3; ++i) {
-           if (col3[i] == minVal) {
-             int i1 = (i + 1) % 3;
-             int i2 = (i + 2) % 3;
-             if (col3[i1] == maxVal) {
-              angle = 2.0 * i1 + (col3[i2] - minVal) / scale;
-             } else {
-              angle = 2.0 * (i1 + 1) - (col3[i1] - minVal) / scale;
-             }
-             break;
-           }
+            if (col3[i] == minVal) {
+                int i1 = (i + 1) % 3;
+                int i2 = (i + 2) % 3;
+                if (col3[i1] == maxVal) {
+                    angle = 2.0 * i1 + (col3[i2] - minVal) / scale;
+                } else {
+                    angle = 2.0 * (i1 + 1) - (col3[i1] - minVal) / scale;
+                }
+                break;
+            }
         }
         x = (int)(x + radius * cos(angle * PI / 3) + 0.5);
         y = (int)(y - radius * sin(angle * PI / 3) + 0.5);
@@ -378,10 +378,10 @@ void PColourWheel::SetCursorPos(int x, int y)
         int ty = y - mWheelSize - kMargin;
         int r2 = tx * tx + ty * ty;
         if (r2 > mWheelSize * mWheelSize) {
-           float f = mWheelSize / sqrt((float)r2);
-           x = (int)(tx * f + mWheelSize + kMargin + 0.5);
-           y = (int)(ty * f + mWheelSize + kMargin + 0.5);
-           if (mCurX==x && mCurY==y) return;
+            float f = mWheelSize / sqrt((float)r2);
+            x = (int)(tx * f + mWheelSize + kMargin + 0.5);
+            y = (int)(ty * f + mWheelSize + kMargin + 0.5);
+            if (mCurX==x && mCurY==y) return;
         }
         mCurX = x;
         mCurY = y;
@@ -390,31 +390,31 @@ void PColourWheel::SetCursorPos(int x, int y)
 
 void PColourWheel::AfterDrawing()
 {
-    int        x = mCurX;
-    int        y = mCurY;
+    int         x = mCurX;
+    int         y = mCurY;
     Display   * dpy = XtDisplay(mCanvas);
-    GC         gc = mOwner->GetData()->gc;
+    GC          gc = mOwner->GetData()->gc;
     XSegment    seg[4];
 
     // draw the colour cursor
     for (int i=-1; i<=1; ++i) {
         int n = 0;
-        seg[n].x1 = x-8;   seg[n].y1 = y+i;
-        seg[n].x2 = x-2;   seg[n].y2 = y+i;
+        seg[n].x1 = x-8;    seg[n].y1 = y+i;
+        seg[n].x2 = x-2;    seg[n].y2 = y+i;
         ++n;
-        seg[n].x1 = x+2;   seg[n].y1 = y+i;
-        seg[n].x2 = x+8;   seg[n].y2 = y+i;
+        seg[n].x1 = x+2;    seg[n].y1 = y+i;
+        seg[n].x2 = x+8;    seg[n].y2 = y+i;
         ++n;
-        seg[n].x1 = x+i;   seg[n].y1 = y-8;
-        seg[n].x2 = x+i;   seg[n].y2 = y-2;
+        seg[n].x1 = x+i;    seg[n].y1 = y-8;
+        seg[n].x2 = x+i;    seg[n].y2 = y-2;
         ++n;
-        seg[n].x1 = x+i;   seg[n].y1 = y+2;
-        seg[n].x2 = x+i;   seg[n].y2 = y+8;
+        seg[n].x1 = x+i;    seg[n].y1 = y+2;
+        seg[n].x2 = x+i;    seg[n].y2 = y+8;
         ++n;
         if (i) {
-           XSetForeground(dpy, gc, PResourceManager::sResource.white_col);
+            XSetForeground(dpy, gc, PResourceManager::sResource.white_col);
         } else {
-           XSetForeground(dpy, gc, PResourceManager::sResource.black_col);
+            XSetForeground(dpy, gc, PResourceManager::sResource.black_col);
         }
         XDrawSegments(dpy,XtWindow(mCanvas),gc,seg,n);
     }
@@ -468,20 +468,20 @@ void PColourWheel::DrawTheWheel()
         FillArc(wheelX+kShadowWidth,wheelY+kShadowWidth,mWheelSize,mWheelSize);
         // create our client-side image if we haven't already done so
         if (mFirstTry) {
-           mFirstTry = 0;    // only try to create image once
-           // create the image from the drawing we just did
-           mImage = mDrawable->GetImage(kMargin+1, kMargin+1, imageSize, imageSize);
-           if (!mImage) {
-             Printf("PColourWheel: Error creating image\n");
+            mFirstTry = 0;  // only try to create image once
+            // create the image from the drawing we just did
+            mImage = mDrawable->GetImage(kMargin+1, kMargin+1, imageSize, imageSize);
+            if (!mImage) {
+                Printf("PColourWheel: Error creating image\n");
 #ifdef DEBUG_IMAGE
-           } else {
-             Printf("byte order=%d  bit order=%d  pad=%d\n",
-              mImage->byte_order,mImage->bitmap_bit_order,mImage->bitmap_pad);
-             Printf("depth=%d bits/pix=%d r=%lx g=%lx b=%lx\n",
-              mImage->depth,mImage->bits_per_pixel,
-              mImage->red_mask,mImage->green_mask,mImage->blue_mask);
+            } else {
+                Printf("byte order=%d  bit order=%d  pad=%d\n",
+                    mImage->byte_order,mImage->bitmap_bit_order,mImage->bitmap_pad);
+                Printf("depth=%d bits/pix=%d r=%lx g=%lx b=%lx\n",
+                    mImage->depth,mImage->bits_per_pixel,
+                    mImage->red_mask,mImage->green_mask,mImage->blue_mask);
 #endif
-           }
+            }
         }
     }
 
@@ -495,68 +495,68 @@ void PColourWheel::DrawTheWheel()
     for (int j=0; j<imageSize; ++j) {
         int y = j - cen;
         for (int i=0; i<imageSize; ++i) {
-           int x = i - cen;
-           int r2 = x * x + y * y;
-           if (r2 > r2max) continue;
-           float ang = atan2((float)y, (float)-x);  // get colour angle (-pi -> pi)
-           // calculate distance fraction of full radius
-           float f = (sqrt((float)r2) - kGreySize) / (float)(mWheelSize - kGreySize);
-           if (f < 0) f = 0;
-           float pang = ang; // positive angle
-           if (pang < 0) pang += 2 * PI;
-           // calculate red component
-           float t = fabs(pang - PI) * p3i - 1.0;
-           if (t < 0) t = 0;
-           else if (t > 1.0) t = 1.0;
-           float fr = (1.0 - f * t) * maxCol;
-           // calculate green component
-           t = fabs(ang + p3) * p3i - 1.0;
-           if (t < 0) t = 0;
-           else if (t > 1.0) t = 1.0;
-           float fg = (1.0 - f * t) * maxCol;
-           // calculate blue component
-           t = fabs(ang - p3) * p3i - 1.0;
-           if (t < 0) t = 0;
-           else if (t > 1.0) t = 1.0;
-           float fb = (1.0 - f * t) * maxCol;
-           // convert to integer RGB components
-           int r = (int)(fr + 0.5);
-           int g = (int)(fg + 0.5);
-           int b = (int)(fb + 0.5);
-           // calculate corresponding pixel value for drawing
-           Pixel thePixel=0;
-           switch (mColourType) {
-             case kIndexedColour:
-              // we are using our allocated colour map
-              // -- dither the colours
-              r = (int)(fr += er);
-              g = (int)(fg += eg);
-              b = (int)(fb += eb);
-              er = fr - r;
-              eg = fg - g;
-              eb = fb - b;
-              thePixel = mColours[((r * kNumCols) + g) * kNumCols + b];
-              break;
-             case kTrueColour15:
-              thePixel = ((r & 0xf800) >> 1) | ((g & 0xf800) >> 6) | ((b & 0xf800) >> 11);
-              break;
-             case kTrueColour16:
-              thePixel = (r & 0xf800) | ((g & 0xfc00) >> 5) | ((b & 0xf800) >> 11);
-              break;
-             case kTrueColour24:
-              thePixel = ((r & 0xff00) << 8) | (g & 0xff00) | ((b & 0xff00) >> 8);
-              break;
-             case kTrueColour24rev:
-              thePixel = ((r & 0xff00) >> 8) | (g & 0xff00) | ((b & 0xff00) << 8);
-              break;
-           }
-           // set this pixel in the image or pixmap
-           if (mImage) {
-             XPutPixel(mImage, i, j, thePixel);
-           } else {
-             mDrawable->SetForegroundPixel(thePixel);
-             mDrawable->DrawPoint(i+kMargin+1, j+kMargin+1);
-           }
+            int x = i - cen;
+            int r2 = x * x + y * y;
+            if (r2 > r2max) continue;
+            float ang = atan2((float)y, (float)-x);  // get colour angle (-pi -> pi)
+            // calculate distance fraction of full radius
+            float f = (sqrt((float)r2) - kGreySize) / (float)(mWheelSize - kGreySize);
+            if (f < 0) f = 0;
+            float pang = ang;   // positive angle
+            if (pang < 0) pang += 2 * PI;
+            // calculate red component
+            float t = fabs(pang - PI) * p3i - 1.0;
+            if (t < 0) t = 0;
+            else if (t > 1.0) t = 1.0;
+            float fr = (1.0 - f * t) * maxCol;
+            // calculate green component
+            t = fabs(ang + p3) * p3i - 1.0;
+            if (t < 0) t = 0;
+            else if (t > 1.0) t = 1.0;
+            float fg = (1.0 - f * t) * maxCol;
+            // calculate blue component
+            t = fabs(ang - p3) * p3i - 1.0;
+            if (t < 0) t = 0;
+            else if (t > 1.0) t = 1.0;
+            float fb = (1.0 - f * t) * maxCol;
+            // convert to integer RGB components
+            int r = (int)(fr + 0.5);
+            int g = (int)(fg + 0.5);
+            int b = (int)(fb + 0.5);
+            // calculate corresponding pixel value for drawing
+            Pixel thePixel=0;
+            switch (mColourType) {
+                case kIndexedColour:
+                    // we are using our allocated colour map
+                    // -- dither the colours
+                    r = (int)(fr += er);
+                    g = (int)(fg += eg);
+                    b = (int)(fb += eb);
+                    er = fr - r;
+                    eg = fg - g;
+                    eb = fb - b;
+                    thePixel = mColours[((r * kNumCols) + g) * kNumCols + b];
+                    break;
+                case kTrueColour15:
+                    thePixel = ((r & 0xf800) >> 1) | ((g & 0xf800) >> 6) | ((b & 0xf800) >> 11);
+                    break;
+                case kTrueColour16:
+                    thePixel = (r & 0xf800) | ((g & 0xfc00) >> 5) | ((b & 0xf800) >> 11);
+                    break;
+                case kTrueColour24:
+                    thePixel = ((r & 0xff00) << 8) | (g & 0xff00) | ((b & 0xff00) >> 8);
+                    break;
+                case kTrueColour24rev:
+                    thePixel = ((r & 0xff00) >> 8) | (g & 0xff00) | ((b & 0xff00) << 8);
+                    break;
+            }
+            // set this pixel in the image or pixmap
+            if (mImage) {
+                XPutPixel(mImage, i, j, thePixel);
+            } else {
+                mDrawable->SetForegroundPixel(thePixel);
+                mDrawable->DrawPoint(i+kMargin+1, j+kMargin+1);
+            }
         }
     }
 
@@ -564,7 +564,7 @@ void PColourWheel::DrawTheWheel()
     if (mImage) {
         mDrawable->PutImage(mImage, kMargin+1, kMargin+1);
     }
-             
+              
     // finally, draw circle around colour wheel
     mDrawable->SetForegroundPixel(PResourceManager::sResource.black_col);
     DrawArc(wheelX,wheelY,mWheelSize,mWheelSize);

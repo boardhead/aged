@@ -10,8 +10,8 @@
 
 // default event mask for projection images
 const EventMask kProjImageEvents = PointerMotionMask | ButtonPressMask |
-                          ButtonReleaseMask | LeaveWindowMask;
-                          
+                                   ButtonReleaseMask | LeaveWindowMask;
+                                   
 enum EAngleFlags {
     kAngleTheta = 0x01,
     kAnglePhi   = 0x02,
@@ -20,21 +20,21 @@ enum EAngleFlags {
 };
 
 struct Projection {
-    Matrix3     rot;          /* rotation matrix */
-    Matrix3     inv;          /* inverse rotation matrix */
-    Vector3     pt;              /* projection point */
-    int        xscl;          /* pixel radius of unit sphere (x) */
-    int        yscl;          /* pixel radius of unit sphere (y) */
-    float     mag;          /* magnification factor for image */
-    int        xcen,ycen;         /* center of image in window coordinates */
-    int        xsiz,ysiz;         /* width and height of drawing window */
-    float     proj_min;         /* minimum z position of projection point */
-    float     proj_max;         /* maximum z position of projection point */
-    float     proj_screen;     /* z position of projection screen */
-    int        proj_type;         /* integer specifying type of projection */
-    float     theta;          /* projection theta rotation (optional) */
-    float     phi;          /* projection phi rotation (optional) */
-    float     gamma;          /* projection gamma rotation (optional) */
+    Matrix3     rot;                /* rotation matrix */
+    Matrix3     inv;                /* inverse rotation matrix */
+    Vector3     pt;                 /* projection point */
+    int         xscl;               /* pixel radius of unit sphere (x) */
+    int         yscl;               /* pixel radius of unit sphere (y) */
+    float       mag;                /* magnification factor for image */
+    int         xcen,ycen;          /* center of image in window coordinates */
+    int         xsiz,ysiz;          /* width and height of drawing window */
+    float       proj_min;           /* minimum z position of projection point */
+    float       proj_max;           /* maximum z position of projection point */
+    float       proj_screen;        /* z position of projection screen */
+    int         proj_type;          /* integer specifying type of projection */
+    float       theta;              /* projection theta rotation (optional) */
+    float       phi;                /* projection phi rotation (optional) */
+    float       gamma;              /* projection gamma rotation (optional) */
 };
 
 struct Node;
@@ -55,26 +55,26 @@ public:
     virtual void    DrawAngles(int horiz=0, int angleFlags=kAngleTheta|kAnglePhi);
     virtual void    Listen(int message, void *data);
     
-    Projection    *  GetProj()           { return &mProj;  }
+    Projection    * GetProj()           { return &mProj;    }
     static int      IsButtonDown()      { return sButtonDown; }
 
     virtual int     FindNearestHit();
-    long         HiddenHitMask();
+    long            HiddenHitMask();
 
 protected:
-    int          HandleButton3(XEvent *event);
+    int             HandleButton3(XEvent *event);
     
     static int      sButtonDown;
 
-    Projection   mProj;       /* projection */
-    float      mImageSizeX;    /* half width of image (user units) */
-    float      mImageSizeY;    /* half height of image (user units) */
-    int          mScaleProportional;  /* non-zero if scale must be the same in X and Y */
-    int          mMarginPix;   /* pixel margin outside image */
-    float      mMarginFactor;  /* factor to be applied to image size for additional margin */
-    float      mMinMagAtan;    /* atan() of minimum magnification */
-    float      mDiffMagAtan;   /* atan(max_mag) - atan(min_mag) */
-    int          mInvisibleHits;  /* mask for hit types not displayed */
+    Projection      mProj;          /* projection */
+    float           mImageSizeX;    /* half width of image (user units) */
+    float           mImageSizeY;    /* half height of image (user units) */
+    int             mScaleProportional; /* non-zero if scale must be the same in X and Y */
+    int             mMarginPix;     /* pixel margin outside image */
+    float           mMarginFactor;  /* factor to be applied to image size for additional margin */
+    float           mMinMagAtan;    /* atan() of minimum magnification */
+    float           mDiffMagAtan;   /* atan(max_mag) - atan(min_mag) */
+    int             mInvisibleHits; /* mask for hit types not displayed */
 };
 
 

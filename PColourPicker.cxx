@@ -14,12 +14,12 @@
 const int   kMargin     = 10;
 const int   kNcolumns   = 3;
 const int   kNrows      = (kNumPickerColours + kNcolumns - 1) / kNcolumns;
-const int   kH         = 16;
-const int   kW         = 30;
+const int   kH          = 16;
+const int   kW          = 30;
 const int   kTextWid    = 90;
 const int   kTextMargin = 8;
 
-const int   kBothSets   = 2;  // flag for FreeColours to free both sets
+const int   kBothSets   = 2;    // flag for FreeColours to free both sets
 
 // last selected colour
 int PColourPicker::sLastColourNum   = -1;
@@ -47,8 +47,8 @@ PColourPicker::PColourPicker(PImageWindow *owner, Widget canvas)
 #ifdef ANTI_ALIAS
     SetFont(PResourceManager::sResource.xft_hist_font);
 #endif
-    mDrawLabel  = 0;         // don't draw the image label
-    mCurrentSet = -1;      // initialize to invalid colour set number
+    mDrawLabel  = 0;            // don't draw the image label
+    mCurrentSet = -1;           // initialize to invalid colour set number
     mAllocErr   = 0;
 
     // allocate our colour arrays (save both colour sets)
@@ -94,10 +94,10 @@ void PColourPicker::Listen(int message, void *dataPt)
             SetDirty(kDirtyPix);
             break;
         case kMessageColoursChanged:
-           if (SetCurrentColours()) {
-             ((PColourWindow *)mOwner)->PickerColourChanged();
-           }
-           break;
+            if (SetCurrentColours()) {
+                ((PColourWindow *)mOwner)->PickerColourChanged();
+            }
+            break;
     }
 }
 
@@ -105,21 +105,21 @@ void PColourPicker::Listen(int message, void *dataPt)
 void PColourPicker::FreeColours(int flags)
 {
     Display   * dpy  = PResourceManager::sResource.display;
-    int        scr  = DefaultScreen(dpy);
+    int         scr  = DefaultScreen(dpy);
     Colormap    cmap = DefaultColormap(dpy, scr);
     
     // determine colours to free:
     // flags = 0 - free 1st colour set (0 to NUM_COLOURS-1)
     // flags = 1 - free 2nd colour set (NUM_COLOURS to 2*NUM_COLOURS-1)
     // flags = 2 - free both colour sets (0 to 2*NUM_COLOURS-1)
-    int        firstCol = (flags==1 ? NUM_COLOURS : 0);
-    int        lastCol  = (flags==0 ? NUM_COLOURS : 2*NUM_COLOURS);
+    int         firstCol = (flags==1 ? NUM_COLOURS : 0);
+    int         lastCol  = (flags==0 ? NUM_COLOURS : 2*NUM_COLOURS);
 
     // free colours individually
     for (int i=firstCol; i<lastCol; ++i) {
         if (mAllocFlags[i]) {
-           XFreeColors(dpy, cmap, &mColours[i].pixel, 1, 0);
-           mAllocFlags[i] = 0;
+            XFreeColors(dpy, cmap, &mColours[i].pixel, 1, 0);
+            mAllocFlags[i] = 0;
         }
     }
 }
@@ -132,7 +132,7 @@ int PColourPicker::SetCurrentColours()
     
     if (mCurrentSet != newSet) {
         mCurrentSet = newSet;
-        SetDirty(kDirtyPix);   // our pixmap requires redrawing
+        SetDirty(kDirtyPix);    // our pixmap requires redrawing
         return(1);
     } else {
         return(0);
@@ -148,12 +148,12 @@ void PColourPicker::ApplyCurrentColours()
     
     for (int i=offset; i<NUM_COLOURS+offset; ++i) {
         if (mAllocFlags[i] && colours[i]!=mColours[i].pixel) {
-           // update resource manager colour array
-           PResourceManager::SetColour(i, mColours+i);
-           // the resource manager now owns the colour
-           mAllocFlags[i] = 0;
-           // set changed flag to force re-loading of colour set
-           changed = 1;
+            // update resource manager colour array
+            PResourceManager::SetColour(i, mColours+i);
+            // the resource manager now owns the colour
+            mAllocFlags[i] = 0;
+            // set changed flag to force re-loading of colour set
+            changed = 1;
         }
     }
     if (changed) {
@@ -173,11 +173,11 @@ void PColourPicker::ApplyCurrentColours()
 int PColourPicker::RevertColours()
 {
     Display   * dpy  = PResourceManager::sResource.display;
-    int        scr  = DefaultScreen(dpy);
+    int         scr  = DefaultScreen(dpy);
     Colormap    cmap = DefaultColormap(dpy, scr);
-    int        offset = mCurrentSet * NUM_COLOURS;
-    int        changed = 0;
-    int        errCount = 0;
+    int         offset = mCurrentSet * NUM_COLOURS;
+    int         changed = 0;
+    int         errCount = 0;
     
     // first, free all of the colours we had previously allocated in this set
     FreeColours(mCurrentSet);
@@ -186,24 +186,24 @@ int PColourPicker::RevertColours()
     for (int i=offset; i<NUM_COLOURS+offset; ++i) {
         // change back our working colour if it differs from the revert colour
         if (memcmp(mColours+i, mRevertColours+i, sizeof(XColor))) {
-           changed |= 0x01;  // the working colours changed
-           // copy the original colour back into the working array
-           memcpy(mColours+i, mRevertColours+i, sizeof(XColor));
+            changed |= 0x01;    // the working colours changed
+            // copy the original colour back into the working array
+            memcpy(mColours+i, mRevertColours+i, sizeof(XColor));
         }
         // revert the current image colour if it was changed
         XColor *res_col = PResourceManager::GetColour(i);
         if (memcmp(res_col, mColours+i, sizeof(XColor))) {
-           changed |= 0x02;  // the resource colours changed
-           // re-allocate the original colour
-           // Note: Do NOT set the alloc flags because we will be
-           //       promptly handing it off to the resource manager!
-           if (XAllocColor(dpy, cmap, mColours+i)) {
-             // install the colour in the resource manager
-             // (it now owns the colour and will free it when done with it)
-             PResourceManager::SetColour(i, mColours+i);
-           } else {
-             ++errCount;
-           }
+            changed |= 0x02;    // the resource colours changed
+            // re-allocate the original colour
+            // Note: Do NOT set the alloc flags because we will be
+            //       promptly handing it off to the resource manager!
+            if (XAllocColor(dpy, cmap, mColours+i)) {
+                // install the colour in the resource manager
+                // (it now owns the colour and will free it when done with it)
+                PResourceManager::SetColour(i, mColours+i);
+            } else {
+                ++errCount;
+            }
         }
     }
     // must redraw ourself if our working colours changed
@@ -234,14 +234,14 @@ void PColourPicker::SetColourRGB(int *col3)
 
     if (r!=xcol->red || g!=xcol->green || b!=xcol->blue) {
     
-        Display      *    dpy  = PResourceManager::sResource.display;
+        Display   * dpy  = PResourceManager::sResource.display;
         int         scr  = DefaultScreen(dpy);
-        Colormap   cmap = DefaultColormap(dpy, scr);
+        Colormap    cmap = DefaultColormap(dpy, scr);
         
         // free current colour if we allocated it
         if (mAllocFlags[i]) {
-           XFreeColors(dpy, cmap, &xcol->pixel, 1, 0);
-           mAllocFlags[i] = 0;
+            XFreeColors(dpy, cmap, &xcol->pixel, 1, 0);
+            mAllocFlags[i] = 0;
         }
         
         // allocate new colour
@@ -249,20 +249,20 @@ void PColourPicker::SetColourRGB(int *col3)
         xcol->green = g;
         xcol->blue = b;
         if (XAllocColor(dpy, cmap, xcol)) {
-           mAllocFlags[i] = 1;
-           // draw the single colour immediately
-           int x,y;
-           GetXY(mColourNum,&x,&y);
-           GC gc = PResourceManager::sResource.gc;
-           XSetForeground(dpy,gc,xcol->pixel);
-           XFillRectangle(dpy,XtWindow(mCanvas),gc,x+2,y+2,kW-3,kH-3);
-           // quietly set our pixmap dirty so it will be redrawn when next used
-           mDirty |= kDirtyPix;
+            mAllocFlags[i] = 1;
+            // draw the single colour immediately
+            int x,y;
+            GetXY(mColourNum,&x,&y);
+            GC gc = PResourceManager::sResource.gc;
+            XSetForeground(dpy,gc,xcol->pixel);
+            XFillRectangle(dpy,XtWindow(mCanvas),gc,x+2,y+2,kW-3,kH-3);
+            // quietly set our pixmap dirty so it will be redrawn when next used
+            mDirty |= kDirtyPix;
         } else {
-           if (!mAllocErr) {
-             mAllocErr = 1;
-             Printf("Error allocating color -- color can not be changed!\x07\n");
-           }
+            if (!mAllocErr) {
+                mAllocErr = 1;
+                Printf("Error allocating color -- color can not be changed!\x07\n");
+            }
         }
     }
 }
@@ -280,7 +280,7 @@ void PColourPicker::AfterDrawing()
 {
     // draw border around current colour
     Display   * dpy = XtDisplay(mCanvas);
-    GC         gc = PResourceManager::sResource.gc;
+    GC          gc = PResourceManager::sResource.gc;
     
     XSetForeground(dpy, gc, PResourceManager::sResource.black_col);
 
@@ -307,45 +307,45 @@ void PColourPicker::GetXY(int colNum, int *x, int *y)
 
 void PColourPicker::HandleEvents(XEvent *event)
 {
-    int        x, y, i, j, colNum;
+    int         x, y, i, j, colNum;
     static int  sPressed = 0;
     
     switch (event->type) {
         case ButtonPress:
-           sPressed = 1;
-           XGrabPointer(mDpy, XtWindow(mCanvas),0,
-                   PointerMotionMask | ButtonPressMask | ButtonReleaseMask,
-                   GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
-           // fall through!
+            sPressed = 1;
+            XGrabPointer(mDpy, XtWindow(mCanvas),0,
+                         PointerMotionMask | ButtonPressMask | ButtonReleaseMask,
+                         GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+            // fall through!
         case MotionNotify:
-           if (sPressed) {
-             colNum = sLastColourNum; // initialize colour number
-             x = event->xbutton.x;
-             y = event->xbutton.y;
-             if (x>=0 && y>=kMargin/2) {
-              // determine colour number of selected entry
-              i = x / (kW + kMargin + kTextMargin + kTextWid);
-              j = (y - kMargin/2) / (kH + kMargin);
-              if (i<kNcolumns && j<kNrows) {
-                  colNum = j + i * kNrows;
-              }
-             }
-             if (mColourNum != colNum && sColourName[colNum][0]) {
-              mAllocErr = 0;  // reset error so a new message will be posted
-              mColourNum = colNum;
-              // draw ourself immediately (will not draw pixmap unless necessary)
-              Draw();     
-             }
-           }
-           break;
+            if (sPressed) {
+                colNum = sLastColourNum;    // initialize colour number
+                x = event->xbutton.x;
+                y = event->xbutton.y;
+                if (x>=0 && y>=kMargin/2) {
+                    // determine colour number of selected entry
+                    i = x / (kW + kMargin + kTextMargin + kTextWid);
+                    j = (y - kMargin/2) / (kH + kMargin);
+                    if (i<kNcolumns && j<kNrows) {
+                        colNum = j + i * kNrows;
+                    }
+                }
+                if (mColourNum != colNum && sColourName[colNum][0]) {
+                    mAllocErr = 0;  // reset error so a new message will be posted
+                    mColourNum = colNum;
+                    // draw ourself immediately (will not draw pixmap unless necessary)
+                    Draw();     
+                }
+            }
+            break;
         case ButtonRelease:
-           XUngrabPointer(mDpy, CurrentTime);
-           sPressed = 0;
-           if (sLastColourNum != mColourNum) {
-             sLastColourNum = mColourNum; // save last selected colour number
-             ((PColourWindow *)mOwner)->PickerColourChanged();
-           }
-           break;
+            XUngrabPointer(mDpy, CurrentTime);
+            sPressed = 0;
+            if (sLastColourNum != mColourNum) {
+                sLastColourNum = mColourNum;    // save last selected colour number
+                ((PColourWindow *)mOwner)->PickerColourChanged();
+            }
+            break;
     }
 }
 

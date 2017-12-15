@@ -11,10 +11,10 @@
 #include "PSpeaker.h"
 #include "AgedWindow.h"
 
-char      * PWindow::sWindowClass    = "PWindow";
-int        PWindow::sWindowDirty     = 0;
-PWindow   * PWindow::sMainWindow       = NULL;
-int        PWindow::sOffsetDone   = 0;
+char      * PWindow::sWindowClass       = "PWindow";
+int         PWindow::sWindowDirty       = 0;
+PWindow   * PWindow::sMainWindow        = NULL;
+int         PWindow::sOffsetDone        = 0;
 
 //----------------------------------------------------------------------------------------
 // PWindow functions
@@ -28,7 +28,7 @@ PWindow::PWindow(ImageData *data,Widget shell,Widget mainPane)
     mWasResized = 0;
     mDirty = 0x01;
     mVisible = 0;
-    SetShell(shell);       // this will add a destroy callback
+    SetShell(shell);        // this will add a destroy callback
     SetMainPane(mainPane);
     if (data) {
         SetDirty();
@@ -52,18 +52,18 @@ PWindow::~PWindow()
         // destroy the X window
         XtDestroyWidget(w);
     }
-    delete mMenu;     // delete our menu (if created)
+    delete mMenu;       // delete our menu (if created)
 
     // finally, zero pointers to this window
     if (mData) {
         if (mData->mMainWindow == this) {
-           mData->mMainWindow = NULL;
+            mData->mMainWindow = NULL;
         } else {
-           for (int i=0; i<NUM_WINDOWS; ++i) {
-             if (mData->mWindow[i] == this) {
-              mData->mWindow[i] = NULL;
-             }
-           }
+            for (int i=0; i<NUM_WINDOWS; ++i) {
+                if (mData->mWindow[i] == this) {
+                    mData->mWindow[i] = NULL;
+                }
+            }
         }
 #ifdef LESSTIF
         // manually do our callbacks to patch linux bug where
@@ -98,7 +98,7 @@ void PWindow::GetWindowGeometry(SWindowGeometry *geo)
 void PWindow::SaveWindowData()
 {
     SWindowGeometry geo;
-    char         buff[256];
+    char            buff[256];
     
     if (GetShell()) {   // just to be safe
 
@@ -122,12 +122,12 @@ void PWindow::CheckWindowOffset(int border_width)
         SWindowGeometry geo;
         // look for geometry from saved settings resource
         if (!PResourceManager::GetWindowGeometry(GetShell(), &geo) &&
-           // settings not saved -- look for default Aged geometry
-           !PResourceManager::GetWindowGeometry("Aged", &geo))
+            // settings not saved -- look for default Aged geometry
+            !PResourceManager::GetWindowGeometry("Aged", &geo))
         {
-           // no geometry resource -- use default position/size
-           geo.x = geo.y = 30;
-           geo.width = geo.height = 300;
+            // no geometry resource -- use default position/size
+            geo.x = geo.y = 30;
+            geo.width = geo.height = 300;
         }
         SWindowGeometry actual;
         GetWindowGeometry(&actual);
@@ -136,7 +136,7 @@ void PWindow::CheckWindowOffset(int border_width)
         PResourceManager::SetWindowOffset(dx, dy);
         sOffsetDone = 1;
 //      printf("pos (%d %d) offset (%d %d) size (%d %d)\n",
-//           actual.x, actual.y, dx, dy, geo.width, geo.height);
+//              actual.x, actual.y, dx, dy, geo.width, geo.height);
     }
 }
 
@@ -148,24 +148,24 @@ void PWindow::Show()
         Update();
         // do we have a parent widget?
         if (XtParent(mShell)) {
-           // has a parent -- must be a child window, so manage it
-           XtManageChild(mShell);
+            // has a parent -- must be a child window, so manage it
+            XtManageChild(mShell);
         } else {
-           // no parent -- must be a top level shell, so realize it
-           XtRealizeWidget(mShell);
+            // no parent -- must be a top level shell, so realize it
+            XtRealizeWidget(mShell);
         }
-        mVisible = 1;  // we are now visible
+        mVisible = 1;   // we are now visible
 /*
 ** see if this window size/position was set from the resources
 */
         SWindowGeometry geo;
         if (PResourceManager::GetWindowGeometry(GetShell(), &geo)) {
-           mWasResized = 1;
+            mWasResized = 1;
         }
         // resize to fit specified widget if necessary
         if (mResizeWidget) {
-           ResizeToFit(mResizeWidget);
-           mResizeWidget = NULL;
+            ResizeToFit(mResizeWidget);
+            mResizeWidget = NULL;
         }
     }
 }
@@ -180,7 +180,7 @@ Widget PWindow::CreateShell(char *name, Widget parent, Arg *wargs, int n)
     if (parent) {
         // attempt to patch window decoration bug by adding 2 more arguments
         const int kMaxArgs = 20;
-        Arg    targs[kMaxArgs];
+        Arg targs[kMaxArgs];
         if (n > kMaxArgs-2) n = kMaxArgs-2;
         memcpy(targs, wargs, n * sizeof(Arg));
         XtSetArg(targs[n], XmNmwmDecorations, MWM_DECOR_ALL | MWM_DECOR_MINIMIZE);  ++n;
@@ -192,7 +192,7 @@ Widget PWindow::CreateShell(char *name, Widget parent, Arg *wargs, int n)
 #endif
         // create a shell widget
         w = XtAppCreateShell(name, "Aged", topLevelShellWidgetClass,
-                      PResourceManager::sResource.display, wargs, n);
+                             PResourceManager::sResource.display, wargs, n);
 #ifdef CHILD_WINDOWS
     }
 #endif
@@ -241,13 +241,13 @@ void PWindow::HandleUpdates()
     if (sWindowDirty) {
         sWindowDirty = 0;
         for (PWindow *win=sMainWindow; win; win=win->mNextMainWindow) {
-           ImageData *data = win->GetData();
-           win->Update();
-           for (int i=0; i<NUM_WINDOWS; ++i) {
-             if (data->mWindow[i]) {
-              data->mWindow[i]->Update();
-             }
-           }
+            ImageData *data = win->GetData();
+            win->Update();
+            for (int i=0; i<NUM_WINDOWS; ++i) {
+                if (data->mWindow[i]) {
+                    data->mWindow[i]->Update();
+                }
+            }
         }
     }
 }
@@ -268,7 +268,7 @@ void PWindow::SetTitle(char *str)
 
     if (str) {
         XtSetArg(wargs[0], XmNtitle, str);
-        XtSetValues(mShell, wargs, 1);   // set window title
+        XtSetValues(mShell, wargs, 1);      // set window title
     }
 }
 
@@ -280,7 +280,7 @@ char *PWindow::GetTitle()
     Arg     wargs[1];
     
     XtSetArg(wargs[0], XmNtitle, &pt);
-    XtGetValues(mShell, wargs, 1);   // get window title
+    XtGetValues(mShell, wargs, 1);      // get window title
     return(pt);
 }
 
@@ -304,8 +304,8 @@ void PWindow::Resize(int width, int height)
 // Resize to fit - resize height of window to fit specified widget
 void PWindow::ResizeToFit(Widget w)
 {
-    int        n;
-    Arg        wargs[10];
+    int         n;
+    Arg         wargs[10];
     Dimension   top, width, height;
     
     if (mVisible) {
@@ -334,14 +334,14 @@ void PWindow::CreateMenu(Widget menu, MenuStruct *menuList, int nItems, PMenuHan
     // create menu widget if necessary
     if (!menu) {
         Widget w = GetMainPane();
-        if (!w) return;       // can do nothing if main pane not set
+        if (!w) return;     // can do nothing if main pane not set
         // create menu widget
         Arg wargs[10];
         int n = 0;
-        XtSetArg(wargs[n],XmNmarginHeight,     1); ++n;
-        XtSetArg(wargs[n],XmNleftAttachment,   XmATTACH_FORM); ++n;
-        XtSetArg(wargs[n],XmNtopAttachment,       XmATTACH_FORM); ++n;
-        XtSetArg(wargs[n],XmNrightAttachment,  XmATTACH_FORM); ++n;
+        XtSetArg(wargs[n],XmNmarginHeight,      1); ++n;
+        XtSetArg(wargs[n],XmNleftAttachment,    XmATTACH_FORM); ++n;
+        XtSetArg(wargs[n],XmNtopAttachment,     XmATTACH_FORM); ++n;
+        XtSetArg(wargs[n],XmNrightAttachment,   XmATTACH_FORM); ++n;
         menu = XmCreateMenuBar( w, "agedMenu" , wargs, n);
         XtManageChild(menu);
     }
@@ -366,8 +366,8 @@ void PWindow::SetShell(Widget w)
 /** Xt accelerators incompatible with Motif accelerators
         PWindow *mainWindow = GetData()->mMainWindow;
         if (mainWindow!=NULL && mainWindow!=this) {
-           // install main window accelerators in all other windows
-           XtInstallAllAccelerators(w, mainWindow->GetShell());
+            // install main window accelerators in all other windows
+            XtInstallAllAccelerators(w, mainWindow->GetShell());
         }
 */      
     }

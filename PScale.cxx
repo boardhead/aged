@@ -261,7 +261,7 @@ void PScale::DrawLinScale()
         y = mYa + 1;
         mDrawable->DrawLine(opos1,mYa,opos2,mYa);
         for (;;) {
-            x = GetLinPix(val);                    // get pixel position
+            x = GetLinPix(val);                     // get pixel position
             if (i < ticks) {
                 mDrawable->DrawLine(x,y,x,y+scaling);
                 ++i;
@@ -294,7 +294,7 @@ void PScale::DrawLinScale()
         x = mXa + 1;
         mDrawable->DrawLine(mXa,opos2,mXa,opos1);
         for (;;) {
-            y = GetLinPix(val);                    // get pixel position
+            y = GetLinPix(val);                     // get pixel position
             if (i < ticks) {
                 mDrawable->DrawLine(x,y,x+scaling,y);
                 ++i;
@@ -325,7 +325,7 @@ void PScale::DrawLinScale()
         x = mXb - 1;
         mDrawable->DrawLine(mXb,opos2,mXb,opos1);
         for (;;) {
-            y = GetLinPix(val);                    // get pixel position
+            y = GetLinPix(val);                     // get pixel position
             if (i < ticks) {
                 mDrawable->DrawLine(x-scaling,y,x,y);
                 ++i;
@@ -413,7 +413,7 @@ void PScale::DrawLogScale()
         for (;;) {
 
             if (!(n%tick_sep)) {
-                x = GetLogPix(val);                  // get pixel position
+                x = GetLogPix(val);                     // get pixel position
                 if ((!(n%label_sep)) || (n==2 && label_sep==5)) {
                     if (!n) n = (int)inc;
                     mDrawable->DrawLine(x,y,x,y+3*scaling);
@@ -432,7 +432,7 @@ void PScale::DrawLogScale()
 ** draw tick at 15, 150, etc
 */
                 if (label_sep<=5 && (val=base*1.5)<=max_val) {
-                    x = GetLogPix(val);              // get pixel position
+                    x = GetLogPix(val);                 // get pixel position
                     mDrawable->DrawLine(x,y,x,y+scaling);
                 }
                 val  = base;
@@ -464,7 +464,7 @@ void PScale::DrawLogScale()
         for (;;) {
 
             if (!(n%tick_sep)) {
-                y = GetLogPix(val);                  // get pixel position
+                y = GetLogPix(val);                     // get pixel position
                 if ((!(n%label_sep)) || (n==2 && label_sep==5)) {
                     if (!n) n = 1;
                     mDrawable->DrawLine(x-3*scaling,y,x,y);
@@ -483,7 +483,7 @@ void PScale::DrawLogScale()
 ** draw tick at 15, 150, etc
 */
                 if (label_sep<=5 && (val=base*1.5)<=max_val) {
-                    y = GetLogPix(val);              // get pixel position
+                    y = GetLogPix(val);                 // get pixel position
                     mDrawable->DrawLine(x-scaling,y,x,y);
                 }
                 val  = base;

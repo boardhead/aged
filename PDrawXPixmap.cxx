@@ -12,7 +12,7 @@
 #include "colours.h"
 
 #ifndef PI
-#define PI          3.14159265358979324
+#define PI              3.14159265358979324
 #endif
 
 #ifdef ANTI_ALIAS
@@ -51,7 +51,7 @@ PDrawXPixmap::~PDrawXPixmap()
 int PDrawXPixmap::BeginDrawing(int width, int height)
 {
     int     sizeChanged = 0;
-
+    
     if (mWidth != width || mHeight != height) {
         // free old pixmap since our size changed
         FreePixmap();
@@ -64,18 +64,18 @@ int PDrawXPixmap::BeginDrawing(int width, int height)
 #endif
     } else {
         if (!width) return(0);
-        mPix = XCreatePixmap(mDpy, DefaultRootWindow(mDpy), width, height, mDepth);
+        mPix = XCreatePixmap(mDpy, DefaultRootWindow(mDpy), width, height, mDepth); 
         if (mPix) {
-           mDrawable = mPix;
+            mDrawable = mPix;
         } else {
-           if (sizeChanged) {
-             Printf("No memory for pixmap!\x07\n");
-           }
-           if (mAltWidget && XtWindow(mAltWidget)) {
-             mDrawable = XtWindow(mAltWidget);
-           } else {
-             return(0);
-           }
+            if (sizeChanged) {
+                Printf("No memory for pixmap!\x07\n");
+            }
+            if (mAltWidget && XtWindow(mAltWidget)) {
+                mDrawable = XtWindow(mAltWidget);
+            } else {
+                return(0);
+            }
         }
         mWidth = width;
         mHeight = height;
@@ -367,14 +367,14 @@ void PDrawXPixmap::DrawString(int x, int y, char *str, ETextAlign_q align)
             XftTextExtents8(mDpy, GetXftFont(), (XftChar8 *)str, len, &extents);
         }
         switch (align % 3) {
-           case 0:     // left
-             break;
-           case 1:     // center
-             x -= extents.width / 2;
-             break;
-           case 2:     // right
-             x -= extents.width;
-             break;
+            case 0:     // left
+                break;
+            case 1:     // center
+                x -= extents.width / 2;
+                break;
+            case 2:     // right
+                x -= extents.width;
+                break;
         }
         XftDrawString8(mXftDraw, &mXftColor, GetXftFont(), x-1, y, (XftChar8 *)str, len);
     } else {
@@ -382,14 +382,14 @@ void PDrawXPixmap::DrawString(int x, int y, char *str, ETextAlign_q align)
 
     if (GetFont()) {
         switch (align % 3) {
-           case 0:     // left
-             break;
-           case 1:     // center
-             x -= XTextWidth(GetFont(), str, len) / 2;
-             break;
-           case 2:     // right
-             x -= XTextWidth(GetFont(), str, len);
-             break;
+            case 0:     // left
+                break;
+            case 1:     // center
+                x -= XTextWidth(GetFont(), str, len) / 2;
+                break;
+            case 2:     // right
+                x -= XTextWidth(GetFont(), str, len);
+                break;
         }
     }
     XDrawString(mDpy,mDrawable,mGC,x,y,str,len);

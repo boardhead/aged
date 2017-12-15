@@ -18,7 +18,7 @@
 #include "PUtils.h"
 #include "menu.h"
 
-#define WINDOW_WIDTH       350
+#define WINDOW_WIDTH        350
 #define WINDOW_HEIGHT       113
 #define WINDOW_MIN_HEIGHT   109
 
@@ -91,7 +91,7 @@ static void scaleProc(Widget w, ImageData *data, XmScaleCallbackStruct *call_dat
 // PEventControlWindow constructor
 //
 PEventControlWindow::PEventControlWindow(ImageData *data)
-                : PWindow(data)
+                   : PWindow(data)
 {
     int     n;
     Arg     wargs[20];
@@ -261,16 +261,16 @@ void PEventControlWindow::Listen(int message, void *dataPt)
     
         case kMessageTriggerChanged: {
             int oldTrigger = mTriggerFlag;
-           mTriggerFlag = GetData()->trigger_flag;   // save new trigger type
+            mTriggerFlag = GetData()->trigger_flag; // save new trigger type
             if (oldTrigger == mTriggerFlag) break;
             
-           // unset old radio
+            // unset old radio
             XmToggleButtonSetState(trigger_radio[oldTrigger], 0, FALSE);
 
-           // set new radio
-           XmToggleButtonSetState(trigger_radio[mTriggerFlag], 1, FALSE);
+            // set new radio
+            XmToggleButtonSetState(trigger_radio[mTriggerFlag], 1, FALSE);
 
-           UpdateTriggerText();  // update the text according to the new trigger setting
+            UpdateTriggerText();    // update the text according to the new trigger setting
         }   break;
     }
 }
@@ -285,8 +285,8 @@ void PEventControlWindow::UpdateTriggerText(ImageData *data)
 
 void PEventControlWindow::UpdateTriggerText()
 {
-    char       buff[1024];
-    int        len;
+    char        buff[1024];
+    int         len;
     ImageData   *data = GetData();
     
     if (data->trigger_flag == TRIGGER_CONTINUOUS) {

@@ -35,12 +35,12 @@ public:
     virtual EDevice GetDeviceType()     { return kDevicePrinter; }
 
 private:
-    char         mFilename[kMaxPSNameLen];
-    char         mBoundingBoxStr[256];
-    FILE         *   mFile;
-    XColor     * mColours;
-    int          mIsEPS;
-    int          mIsLandscape;
+    char            mFilename[kMaxPSNameLen];
+    char            mBoundingBoxStr[256];
+    FILE          * mFile;
+    XColor        * mColours;
+    int             mIsEPS;
+    int             mIsLandscape;
 };
 
 

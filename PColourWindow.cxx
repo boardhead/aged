@@ -26,7 +26,7 @@ const int   kPickerHeight = 26 * (int)((kNumPickerColours + 2) / 3);
 #define RGB_YPOS    18
 
 PColourWindow::PColourWindow(ImageData *data)
-            : PImageWindow(data)
+             : PImageWindow(data)
 {
     int     n;
     Arg     wargs[20];
@@ -42,7 +42,7 @@ PColourWindow::PColourWindow(ImageData *data)
     XtSetArg(wargs[n], XmNminHeight, WIN_HEIGHT); ++n;
     SetShell(CreateShell("colPop",data->toplevel,wargs,n));
     
-    n = 0;       
+    n = 0;          
     XtSetArg(wargs[n], XmNwidth, WIN_WIDTH); ++n;
     XtSetArg(wargs[n], XmNheight, WIN_HEIGHT); ++n;
     w = XtCreateManagedWidget("agedForm",xmFormWidgetClass,GetShell(),wargs,n);
@@ -324,7 +324,7 @@ void PColourWindow::TextProc(Widget w, PColourWindow *cwin, caddr_t call_data)
         col3[i] = atoi(str);
         if (col3[i] < 0) col3[i] = 0;
         else if (col3[i] > 255) col3[i] = 255;
-        XtFree(str);   // must free the string
+        XtFree(str);    // must free the string
     }
     cwin->mColourWheel->GetColourRGB(oldCol);
     if (memcmp(oldCol, col3, sizeof(col3))) {

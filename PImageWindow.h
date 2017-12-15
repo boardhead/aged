@@ -17,29 +17,29 @@ public:
     
     virtual void    SetShell(Widget w);
     virtual void    Show();
-    virtual void    Resize()    { }     // called when the canvas is resized
+    virtual void    Resize()        { }     // called when the canvas is resized
     virtual void    UpdateSelf();
     virtual void    SetToHome(int n=0);     // set image to home position
-    virtual char  * Class()        { return sImageWindowClass; }
+    virtual char  * Class()         { return sImageWindowClass; }
     
     virtual void    SetScrolls();
     
-    void         WasRaised();
+    void            WasRaised();
     
     /* access members */
-    void         SetImage(PImageCanvas *image)    { mImage = image;   }
-    PImageCanvas  * GetImage()             { return mImage;       }
+    void            SetImage(PImageCanvas *image)   { mImage = image;       }
+    PImageCanvas  * GetImage()                      { return mImage;        }
     
-    static int   IsPendingRaise()          { return sNotifyRaised!=NULL; }
+    static int      IsPendingRaise()                { return sNotifyRaised!=NULL; }
         
 protected:
     PImageCanvas  * mImage;
-    int          mPrintable;   // true if window contains a printable image
+    int             mPrintable;     // true if window contains a printable image
 
     static PNotifyRaised    *sNotifyRaised;
     
 private:
-    void         Initialize();
+    void            Initialize();
     
     static void     CirculateWindProc(Widget w, PImageWindow *aWind, XEvent *event);
 

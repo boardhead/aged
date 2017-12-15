@@ -36,8 +36,8 @@ void PSpeaker::AddListener(PListener *aListener)
     if (mNumListeners >= mMaxListeners) {
         PListener **tmp = new PListener*[mMaxListeners + kListInc];
         if (!tmp) {
-           fprintf(stderr,"Out of memory in PSpeaker::AddListener\n");
-           exit(1);
+            fprintf(stderr,"Out of memory in PSpeaker::AddListener\n");
+            exit(1);
         }
         for (i=0; i<mNumListeners; ++i) tmp[i] = mListeners[i];
         delete [] mListeners;
@@ -54,10 +54,10 @@ void PSpeaker::RemoveListener(PListener *aListener)
 {
     for (int i=0; i<mNumListeners; ++i) {
         if (aListener == mListeners[i]) {
-           for (int j=i+1; j<mNumListeners; ++j) {
-             mListeners[j-1] = mListeners[j];
-           }
-           --mNumListeners;
+            for (int j=i+1; j<mNumListeners; ++j) {
+                mListeners[j-1] = mListeners[j];
+            }
+            --mNumListeners;
         }
     }
     
@@ -69,7 +69,7 @@ void PSpeaker::Speak(int message, void *dataPt)
 {
     for (int i=0; i<mNumListeners; ++i) {
         if (!mListeners[i]->IsIgnoring()) {
-           mListeners[i]->Listen(message, dataPt);
+            mListeners[i]->Listen(message, dataPt);
         }
     }
 }

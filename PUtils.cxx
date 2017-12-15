@@ -8,7 +8,7 @@
 /* set the string in a text widget */
 void setTextString(Widget text, char *string)
 {
-//  Arg        wargs[1];
+//  Arg         wargs[1];
     
     XmTextSetString(text,string);
     
@@ -32,18 +32,18 @@ int strncvtXm(char *out,XmString in,int n)
     XmStringContext     contxt;
     XmStringCharSet     charset;
     XmStringDirection   dir;
-    Boolean          separator;
-    char          *text;
-    int           len = 0;
+    Boolean             separator;
+    char                *text;
+    int                 len = 0;
     
     XmStringInitContext(&contxt, in);
     for (;;) {
         if (XmStringGetNextSegment(contxt,&text,&charset,&dir,&separator)) {
-           strncpy(out+len,text,n-len);
-           len += strlen(text);
-           XtFree(text);
-           if (len >= n) len = n;
-           else if (!separator) continue;
+            strncpy(out+len,text,n-len);
+            len += strlen(text);
+            XtFree(text);
+            if (len >= n) len = n;
+            else if (!separator) continue;
         }
         break;
     }
@@ -54,8 +54,8 @@ int strncvtXm(char *out,XmString in,int n)
 /* set the string in a label widget */
 void setLabelString(Widget label, char *string)
 {
-    int        n;
-    Arg        wargs[2];
+    int         n;
+    Arg         wargs[2];
     XmString    new_str;
     
     // XmStringCreateLtoR translates '\n' into string separators
@@ -75,8 +75,8 @@ void setLabelString(Widget label, char *string)
 // - Note: You must call XtFree to free returned string when finished
 char *getLabelString(Widget label)
 {
-    char       buff[256];
-    Arg        wargs[1];
+    char        buff[256];
+    Arg         wargs[1];
     XmString    str;
 
     XtSetArg(wargs[0], XmNlabelString, &str);

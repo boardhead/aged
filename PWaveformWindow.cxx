@@ -380,13 +380,13 @@ void PWaveformWindow::UpdateSelf()
             }
             // add wire/pad number to histogram label
             buff[0] = '\0';
-            if (mData->cursor_hit>=0) {
+            if (hit_num >= 0) {
                 switch (i) {
                     case kWireHist:
-                        sprintf(buff, "%s %d", hist_label[i], mData->hits.hit_info[mData->cursor_hit].wire);
+                        sprintf(buff, "%s %d", hist_label[i], hi->wire);
                         break;
                     case kPadHist:
-                        sprintf(buff, "%s %d", hist_label[i], mData->hits.hit_info[mData->cursor_hit].pad);
+                        sprintf(buff, "%s %d", hist_label[i], hi->pad);
                         break;
                 }
             }

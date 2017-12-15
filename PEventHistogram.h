@@ -33,7 +33,7 @@ private:
     static float    sMaxCalTime;
     static float    sMaxCalCharge;
     static float    sMinRangeFloat;
-    static int   sIsAutoScale;
+    static int      sIsAutoScale;
 };
 
 #endif // __PEventHistogram_h__

@@ -17,14 +17,14 @@ public:
     
     virtual void    UpdateSelf();
     
-    void         WheelColourChanging();
-    void         WheelColourChanged();
-    void         PickerColourChanged();
-    void         SetIntensity(int val);
+    void            WheelColourChanging();
+    void            WheelColourChanged();
+    void            PickerColourChanged();
+    void            SetIntensity(int val);
 
 private:
-    void         UpdateSliderPosition();
-    void         UpdateText();
+    void            UpdateSliderPosition();
+    void            UpdateText();
     
     static void     IntensityProc(Widget w, PColourWindow *cwin, XmScaleCallbackStruct *call_data);
     static void     ScaleDragProc(Widget w, PColourWindow *cwin, XmScaleCallbackStruct *call_data);
@@ -37,5 +37,5 @@ private:
     PColourPicker * mColourPicker;
     PColourWheel  * mColourWheel;
     
-    Widget       mText[3], mSlide;
+    Widget          mText[3], mSlide;
 };

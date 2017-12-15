@@ -1,7 +1,7 @@
 #ifndef __matrix_h__
 #define __matrix_h__
 
-#define     MNUM   3
+#define     MNUM    3
 
 typedef float   Vector3[MNUM];
 typedef float   Matrix3[MNUM][MNUM];

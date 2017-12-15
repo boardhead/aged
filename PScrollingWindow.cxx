@@ -1,7 +1,7 @@
 #include "PScrollingWindow.h"
 
 PScrollingWindow::PScrollingWindow(ImageData *data)
-             : PWindow(data)
+                : PWindow(data)
 {
     for (int i=0; i<kNumScrollBars; ++i) {
         mScrollBar[i] = NULL;
@@ -64,7 +64,7 @@ void PScrollingWindow::SetScrollHandler(PScrollHandler *hand)
 {
     for (int i=0; i<kNumScrollBars; ++i) {
         if (mScrollBar[i]) {
-           mScrollBar[i]->SetHandler(hand);
+            mScrollBar[i]->SetHandler(hand);
         }
     }
 }

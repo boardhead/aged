@@ -2,12 +2,12 @@
 ** Base class for drawing objects - PH 09/22/99
 **
 ** Notes: 1) BeginDrawing() must be called (and return non-zero) before
-**          calling any other function (except SetScaling()/GetScaling()).
+**           calling any other function (except SetScaling()/GetScaling()).
 **
 **        2) SetFont() must be called before DrawString().
 **
 **        3) SetScaling() causes the font size and line width to be
-**          scaled by the specified factor (if supported).
+**           scaled by the specified factor (if supported).
 */
 #ifndef __PDrawable_h__
 #define __PDrawable_h__
@@ -58,22 +58,22 @@ public:
     XftFont       * GetXftFont()    { return mXftFont; }
 #endif
     
-    void         SetColourMap(Pixel *cols)    { mColours = cols;  }
-    void         SetScaling(int scale)       { mScaling = scale; }
-    int          GetScaling()          { return mScaling;  }
+    void            SetColourMap(Pixel *cols)   { mColours = cols;  }
+    void            SetScaling(int scale)       { mScaling = scale; }
+    int             GetScaling()                { return mScaling;  }
     
-    virtual int     BeginDrawing(int width, int height)      { return 0; }
-    virtual void    EndDrawing()                    { }
+    virtual int     BeginDrawing(int width, int height)         { return 0; }
+    virtual void    EndDrawing()                                { }
     
     virtual void    SetForeground(int col_num, int alpha=0xffff){ }
     virtual void    SetForegroundPixel(Pixel pixel, int alpha=0xffff) { }
-    virtual int     EqualColours(int col1, int col2)      { return 0; }
-    virtual void    SetLineWidth(float width)            { }
-    virtual void    SetLineType(ELineType type)              { }
-    virtual void    SetFont(XFontStruct *font)           { mFont = font; }
+    virtual int     EqualColours(int col1, int col2)            { return 0; }
+    virtual void    SetLineWidth(float width)                   { }
+    virtual void    SetLineType(ELineType type)                 { }
+    virtual void    SetFont(XFontStruct *font)                  { mFont = font; }
     virtual int     GetTextWidth(char *str)                     { return 0; }
 #ifdef ANTI_ALIAS
-    virtual void    SetFont(XftFont *font)               { mXftFont = font; }
+    virtual void    SetFont(XftFont *font)                      { mXftFont = font; }
     virtual void    SetSmoothText(int on)                       { mSmoothText = on; }
     virtual void    SetSmoothLines(int on)                      { mSmoothLines = on; }
     int             IsSmoothText()                              { return mSmoothText && mXftFont; }
@@ -85,12 +85,12 @@ public:
     int             GetFontDescent() { return mFont ? mFont->descent : 0; }
 #endif
     virtual void    DrawSegments(XSegment *segments, int num, int smooth=1) { }
-    virtual void    DrawPoint(int x, int y)                 { }
-    virtual void    DrawLine(int x1,int y1,int x2,int y2)      { }
-    virtual void    DrawRectangle(int x,int y,int w,int h)     { }
-    virtual void    FillRectangle(int x,int y,int w,int h)     { }
-    virtual void    FillPolygon(XPoint *point, int num)      { }
-    virtual void    Comment(char *str)                  { }
+    virtual void    DrawPoint(int x, int y)                     { }
+    virtual void    DrawLine(int x1,int y1,int x2,int y2)       { }
+    virtual void    DrawRectangle(int x,int y,int w,int h)      { }
+    virtual void    FillRectangle(int x,int y,int w,int h)      { }
+    virtual void    FillPolygon(XPoint *point, int num)         { }
+    virtual void    Comment(char *str)                          { }
     virtual void    DrawString(int x, int y, char *str, ETextAlign_q align) { }
     virtual void    DrawArc(int cx,int cy,int rx,int ry,float ang1,float ang2) { }
     virtual void    FillArc(int cx,int cy,int rx,int ry,float ang1,float ang2) { }
@@ -100,10 +100,10 @@ public:
     virtual int     CopyArea(int x,int y,int w,int h,Window dest) { return 0; }
     virtual int     HasPixmap()         { return 0; }
 
-    virtual EDevice GetDeviceType()     { return kDeviceUnknown; }     
+    virtual EDevice GetDeviceType()     { return kDeviceUnknown; }      
         
 protected:  
-    Pixel       *  mColours;
+    Pixel         * mColours;
     
 private:
     XFontStruct   * mFont;
@@ -112,7 +112,7 @@ private:
     int             mSmoothText;
     int             mSmoothLines;
 #endif
-    int          mScaling;
+    int             mScaling;
 };
 
 

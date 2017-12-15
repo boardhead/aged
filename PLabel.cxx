@@ -65,12 +65,12 @@ int PLabel::SaveString(char *str)
     int     len;
     
     if (mString) {
-        if (!strcmp(mString, str)) return(0);  // text is the same
+        if (!strcmp(mString, str)) return(0);   // text is the same
         len = strlen(str);
         if (len > mStringLen) {
-           // only reallocate string memory if new string is larger
-           FreeString();
-           CreateString(len);
+            // only reallocate string memory if new string is larger
+            FreeString();
+            CreateString(len);
         }
     } else {
         CreateString(strlen(str));
@@ -85,7 +85,7 @@ int PLabel::SaveString(char *str)
 void PLabel::SetString(char *str)
 {
     if (SaveString(str)) {
-        setLabelString(mLabel, str);   // set the XmLabel string
+        setLabelString(mLabel, str);    // set the XmLabel string
     }
 }
 

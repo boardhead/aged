@@ -33,38 +33,38 @@ FILE *openFile(char *name, char *mode, char *searchPath)
         if (pt2) name = pt2 + 1;
         /* look for file in the same directory as the executable */
         if (!fp && progpath) {
-           strcpy(openFileName,progpath);
-           pt2 = strrchr(openFileName,'/');
-           if (pt2) {
-             strcpy(pt2+1,name);
-             fp = openPlainFile(openFileName,mode);
-           }
+            strcpy(openFileName,progpath);
+            pt2 = strrchr(openFileName,'/');
+            if (pt2) {
+                strcpy(pt2+1,name);
+                fp = openPlainFile(openFileName,mode);
+            }
         }
         /* look for file in 'searchPath' and 'PATH' */
         for (i=0; i<2 && !fp; ++i) {
-           if (i==0) {
-             path = searchPath;
-           } else {
-             path = getenv("PATH");
-           }
-           if (!path) continue;
-           for (;;) {
-             pt2 = strchr(path,':');
-             if (!pt2) pt2 = strchr(path,0);
-             n = pt2 - path;
-             if (n) {
-              memcpy(openFileName,path,n);
-              /* add trailing '/' if necessary */
-              if (openFileName[n-1] != '/') {
-                  openFileName[n++] = '/';
-              }
-              strcpy(openFileName+n,name);
-              fp = openPlainFile(openFileName,mode);
-              if (fp) break;
-             }
-             if (!(*pt2)) break;
-             path = pt2 + 1;
-           }
+            if (i==0) {
+                path = searchPath;
+            } else {
+                path = getenv("PATH");
+            }
+            if (!path) continue;
+            for (;;) {
+                pt2 = strchr(path,':');
+                if (!pt2) pt2 = strchr(path,0);
+                n = pt2 - path;
+                if (n) {
+                    memcpy(openFileName,path,n);
+                    /* add trailing '/' if necessary */
+                    if (openFileName[n-1] != '/') {
+                        openFileName[n++] = '/';
+                    }
+                    strcpy(openFileName+n,name);
+                    fp = openPlainFile(openFileName,mode);
+                    if (fp) break;
+                }
+                if (!(*pt2)) break;
+                path = pt2 + 1;
+            }
         }
     }
     return(fp);

@@ -2,9 +2,9 @@
 #include <string.h>
 #include "matrix.h"
 
-#define     NEAR_ZERO  1.0e-20
+#define     NEAR_ZERO   1.0e-20
 
-#define     MNUM   3
+#define     MNUM    3
 
 /*---------------------------------------------------------------------------
 ** Get the length of a vector
@@ -133,7 +133,7 @@ void matrixMult(Matrix3 d, Matrix3 s)
     memcpy(t,d,sizeof(Matrix3));
     for (i=0; i<3; ++i) {
         for (j=0; j<3; ++j) {
-           d[j][i] = s[j][0]*t[0][i] + s[j][1]*t[1][i] + s[j][2]*t[2][i];
+            d[j][i] = s[j][0]*t[0][i] + s[j][1]*t[1][i] + s[j][2]*t[2][i];
         }
     }
 }
@@ -245,7 +245,7 @@ void matrixTranspose(Matrix3 in, Matrix3 out)
 
     for (j=0; j<3; ++j) {
         for (i=0; i<3; ++i) {
-           out[j][i] = in[i][j];
+            out[j][i] = in[i][j];
         }
     }
 }
@@ -282,9 +282,9 @@ void matrixSolve(Matrix3 m, Vector3 in, Vector3 out)
         k = 2-i/2;
         combineVector4(tmp, j, k, k);
         if (i>=3) {
-           t = tmp[j][j];
-           if (t) out[j] = tmp[j][3] / t;
-           else   out[j] = tmp[j][3];
+            t = tmp[j][j];
+            if (t) out[j] = tmp[j][3] / t;
+            else   out[j] = tmp[j][3];
         }
     }
 }
@@ -317,40 +317,40 @@ void ludcmp(float a[MNUM][MNUM],int indx[MNUM], float *d)
     for (i=0; i<MNUM; ++i) {
         big = 0.0;
         for (j=0; j<MNUM; ++j) if ((temp=fabs(a[i][j])) > big) big=temp;
-        if (big == 0.0) return;       /* ERROR: singular matrix!!! */
+        if (big == 0.0) return;     /* ERROR: singular matrix!!! */
         vv[i] = 1.0/big;
     }
     for (j=0; j<MNUM; ++j) {
         for (i=0; i<j; ++i) {
-           sum = a[i][j];
-           for (k=0; k<i; ++k) sum -= a[i][k]*a[k][j];
-           a[i][j] = sum;
+            sum = a[i][j];
+            for (k=0; k<i; ++k) sum -= a[i][k]*a[k][j];
+            a[i][j] = sum;
         }
         big = 0.0;
         for (i=j; i<MNUM; ++i) {
-           sum = a[i][j];
-           for (k=0; k<j; ++k)
-             sum -= a[i][k]*a[k][j];
-           a[i][j] = sum;
-           if ( (dum=vv[i]*fabs(sum)) >= big) {
-             big = dum;
-             imax = i;
-           }
+            sum = a[i][j];
+            for (k=0; k<j; ++k)
+                sum -= a[i][k]*a[k][j];
+            a[i][j] = sum;
+            if ( (dum=vv[i]*fabs(sum)) >= big) {
+                big = dum;
+                imax = i;
+            }
         }
         if (j != imax) {
-           for (k=0; k<MNUM; ++k) {
-             dum = a[imax][k];
-             a[imax][k] = a[j][k];
-             a[j][k] = dum;
-           }
-           *d = -(*d);
-           vv[imax] = vv[j];
+            for (k=0; k<MNUM; ++k) {
+                dum = a[imax][k];
+                a[imax][k] = a[j][k];
+                a[j][k] = dum;
+            }
+            *d = -(*d);
+            vv[imax] = vv[j];
         }
         indx[j] = imax;
         if (a[j][j] == 0.0) a[j][j] = NEAR_ZERO;
         if (j != MNUM-1) {
-           dum = 1.0/a[j][j];
-           for (i=j+1; i<MNUM; ++i) a[i][j] *= dum;
+            dum = 1.0/a[j][j];
+            for (i=j+1; i<MNUM; ++i) a[i][j] *= dum;
         }
     }
 }

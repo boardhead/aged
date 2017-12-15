@@ -28,22 +28,22 @@ static char *sCaptureCommand[kNumCaptureArgs+2] = { "import", "-silent", NULL, N
 
 // static string definitions
 static char *   sPrintTitle[]   = { "Print Postscript Image (Vector)",
-                        "Print Window (Raster)" };
+                                    "Print Window (Raster)" };
 
 static char *   sPrintLabel[]   = { "Print Image to:", "Print Window to:" };
 
 static char *   sPrintMessage[][2] = { { "Printer Command:",
-                                "Filename (.ps or .eps):" },
-                               { "Printer Command:",
-                                "Filename (.gif, .jpg, .ps, .eps, etc...):" } };
-                        
+                                         "Filename (.ps or .eps):" },
+                                       { "Printer Command:",
+                                         "Filename (.gif, .jpg, .ps, .eps, etc...):" } };
+                                 
 PPrintWindow::PPrintWindow(ImageData *data, EPrintType printType)
-           : PWindow(data)
+            : PWindow(data)
 {
-    int        n;
+    int         n;
     XmString    str;
-    Arg        wargs[16];
-    Widget   w, but;
+    Arg         wargs[16];
+    Widget      w, but;
     
     mWarnDialog = NULL;
 #ifdef NO_FORK
@@ -167,29 +167,29 @@ void PPrintWindow::Listen(int message, void *dataPt)
     
     switch (message) {
         case kMessageColoursChanged:
-           // the outside colours changed
-           mSaveCol = GetData()->image_col;
-           setToggle(col_toggle, (mSaveCol & 0x01) != 0);
-           setToggle(grey_toggle, (mSaveCol & 0x02) != 0);
-           break;
+            // the outside colours changed
+            mSaveCol = GetData()->image_col;
+            setToggle(col_toggle, (mSaveCol & 0x01) != 0);
+            setToggle(grey_toggle, (mSaveCol & 0x02) != 0);
+            break;
         case kMessageShowLabelChanged:
-           // the label has been changed externally
-           mSaveLabel = GetData()->show_label;
-           setToggle(label_toggle, mSaveLabel);
-           break;
+            // the label has been changed externally
+            mSaveLabel = GetData()->show_label;
+            setToggle(label_toggle, mSaveLabel);
+            break;
         case kMessageWillWriteSettings:
-           SaveSettings();     // make sure the settings are updated
-           // temporarily restore original color/label settings
-           data = GetData();
-           data->image_col = mSaveCol;
-           data->show_label = mSaveLabel;
-           break;
+            SaveSettings();     // make sure the settings are updated
+            // temporarily restore original color/label settings
+            data = GetData();
+            data->image_col = mSaveCol;
+            data->show_label = mSaveLabel;
+            break;
         case kMessageWriteSettingsDone:
-           // return the color/label settings to their proper values
-           data = GetData();
-           data->image_col = data->print_col;
-           data->show_label = data->print_label;
-           break;
+            // return the color/label settings to their proper values
+            data = GetData();
+            data->image_col = data->print_col;
+            data->show_label = data->print_label;
+            break;
     }
 }
 
@@ -268,7 +268,7 @@ void PPrintWindow::NotifyRaised(PImageWindow *theWindow)
 // PromptToClick - prompt the user to click on a window for printing
 void PPrintWindow::PromptToClick()
 {
-    char       buff[256];
+    char        buff[256];
     static char *type_str[] = { "image", "window" };
     static char *to_str[] = { "print", "save" };
 
@@ -288,7 +288,7 @@ void PPrintWindow::PromptToClick()
     if (mPrintType == kPrintWindow) {
         char *pt = strchr(buff,'\0');
         sprintf(pt,"\n\n     Or click and drag to define an area\n"
-                "     of the screen to %s.", to_str[mToFile]);
+                   "     of the screen to %s.", to_str[mToFile]);
     }
     setLabelString(cmd_label, buff);
 
@@ -305,7 +305,7 @@ void PPrintWindow::PromptToClick()
 
 void PPrintWindow::DoPrint()
 {
-    char       *home = getenv("HOME");
+    char        *home = getenv("HOME");
     ImageData   *data = GetData();
     static char *delim = " \t\n\r";
     
@@ -329,11 +329,11 @@ void PPrintWindow::DoPrint()
     mArgc = 0;
     mArgs[mArgc] = strtok(mPrintName, delim);
     while (mArgs[mArgc]) {
-        if (mPrintType == kPrintImage) {   // check for "Print Image" options
-           if (!strcmp(mArgs[mArgc], "-landscape")) {
-             mPrintFlags |= kPrintLandscape;  // set landscape mode
-             --mArgc; // eat this argument
-           }
+        if (mPrintType == kPrintImage) {    // check for "Print Image" options
+            if (!strcmp(mArgs[mArgc], "-landscape")) {
+                mPrintFlags |= kPrintLandscape; // set landscape mode
+                --mArgc;    // eat this argument
+            }
         }
         // leave room for one additional argument (filename) plus NULL termination
         if (++mArgc >= kMaxPrintArgs-2) break;
@@ -351,35 +351,35 @@ void PPrintWindow::DoPrint()
         // add temporary filename to list of arguments for print command
         mArgs[mArgc++] = mTempFilename;
         // argument list must be NULL terminated
-        mArgs[mArgc] = NULL;   
+        mArgs[mArgc] = NULL;    
     } else {
         // argument list must be NULL terminated
-        mArgs[mArgc] = NULL;   
+        mArgs[mArgc] = NULL;    
         // check to see if output file exists
         FILE *fp = fopen(mArgs[mArgc-1],"r");
         if (fp) {
-           fclose(fp);
-           // open warning dialog
-           if (mWarnDialog) {
-             XtDestroyWidget(mWarnDialog);
-             mWarnDialog = NULL;
-           }
-           XmString  str;
-           Arg      wargs[10];
-           int      n;
-           str = XmStringCreateLocalized("File exists.  Overwrite it?  ");
-           n = 0;
-           XtSetArg(wargs[n], XmNtitle, "Warning"); ++n;
-           XtSetArg(wargs[n], XmNmessageString, str); ++n;
-           XtSetArg(wargs[n], XmNdefaultButtonType, XmDIALOG_CANCEL_BUTTON); ++n;
-           mWarnDialog = XmCreateWarningDialog(GetShell(), "agedWarn",wargs,n);
-           XmStringFree(str);    // must free the string
-           XtUnmanageChild(XmMessageBoxGetChild(mWarnDialog,XmDIALOG_HELP_BUTTON));
-           XtAddCallback(mWarnDialog,XmNcancelCallback,(XtCallbackProc)WarnCancelProc,this);
-           XtAddCallback(mWarnDialog,XmNokCallback,(XtCallbackProc)WarnOKProc,this);
-           XtAddCallback(mWarnDialog,XtNdestroyCallback,(XtCallbackProc)WarnDestroyProc,this);
-           XtManageChild(mWarnDialog);
-           return;
+            fclose(fp);
+            // open warning dialog
+            if (mWarnDialog) {
+                XtDestroyWidget(mWarnDialog);
+                mWarnDialog = NULL;
+            }
+            XmString    str;
+            Arg         wargs[10];
+            int         n;
+            str = XmStringCreateLocalized("File exists.  Overwrite it?  ");
+            n = 0;
+            XtSetArg(wargs[n], XmNtitle, "Warning"); ++n;
+            XtSetArg(wargs[n], XmNmessageString, str); ++n;
+            XtSetArg(wargs[n], XmNdefaultButtonType, XmDIALOG_CANCEL_BUTTON); ++n;
+            mWarnDialog = XmCreateWarningDialog(GetShell(), "agedWarn",wargs,n);
+            XmStringFree(str);  // must free the string
+            XtUnmanageChild(XmMessageBoxGetChild(mWarnDialog,XmDIALOG_HELP_BUTTON));
+            XtAddCallback(mWarnDialog,XmNcancelCallback,(XtCallbackProc)WarnCancelProc,this);
+            XtAddCallback(mWarnDialog,XmNokCallback,(XtCallbackProc)WarnOKProc,this);
+            XtAddCallback(mWarnDialog,XtNdestroyCallback,(XtCallbackProc)WarnDestroyProc,this);
+            XtManageChild(mWarnDialog);
+            return;
         }
     }
     
@@ -389,8 +389,8 @@ void PPrintWindow::DoPrint()
 /* continue printing of specified window (or select window if aWindow==NULL) */
 void PPrintWindow::ContinuePrinting(PImageWindow *aWindow)
 {
-    int        delete_this = 0;
-    pid_t     pid;
+    int         delete_this = 0;
+    pid_t       pid;
 
 #ifndef NO_FORK
     if (mPrintType == kPrintWindow) {
@@ -400,8 +400,8 @@ void PPrintWindow::ContinuePrinting(PImageWindow *aWindow)
     if (aWindow) {
         // print the image to file
         if (!aWindow->GetImage()->Print(mArgs[mArgc-1], mPrintFlags)) {
-           Printf("Error writing image to %s\n",mArgs[mArgc-1]);
-           return;
+            Printf("Error writing image to %s\n",mArgs[mArgc-1]);
+            return;
         }
 
         // set bogus pid to bypass fork logic
@@ -417,33 +417,33 @@ void PPrintWindow::ContinuePrinting(PImageWindow *aWindow)
     } else if (pid) {
     
         if (mPrintType == kPrintWindow) {
-           PromptToClick();       
-           waitpid(pid, NULL, 0);       // wait for capture program to finish
+            PromptToClick();            
+            waitpid(pid, NULL, 0);      // wait for capture program to finish
         }
         
         if (mToFile) {
-           Printf("Done printing %s to file.\n", mPrintType ? "window" : "image");
-           delete_this = 1;  // delete the print window
+            Printf("Done printing %s to file.\n", mPrintType ? "window" : "image");
+            delete_this = 1;    // delete the print window
         }
 #ifndef NO_FORK
         else {
-           pid = fork();
-           if (pid == -1) {
-             Printf("Fork 2 error while capturing image\x07\n");
-             delete_this = 1; // delete the print window
-           } else if (pid) {
-             waitpid(pid, NULL, 0);   // wait for print program to finish
-             Printf("Done writing image to %s.\n",mArgs[0]);
-             unlink(mTempFilename);     // erase the temporary file
-             delete_this = 1; // delete the print window
-           } else {
-             // print the temporary image file
-             execvp(mArgs[0], mArgs);
-             Printf("%s error executing %s\x07\n",strerror(errno),mArgs[0]);
-             // this form of exit does not call cleanup routines
-             // - we don't want it to -- otherwise settings will be saved, etc.
-             _exit(1);
-           }
+            pid = fork();
+            if (pid == -1) {
+                Printf("Fork 2 error while capturing image\x07\n");
+                delete_this = 1;    // delete the print window
+            } else if (pid) {
+                waitpid(pid, NULL, 0);  // wait for print program to finish
+                Printf("Done writing image to %s.\n",mArgs[0]);
+                unlink(mTempFilename);      // erase the temporary file
+                delete_this = 1;    // delete the print window
+            } else {
+                // print the temporary image file
+                execvp(mArgs[0], mArgs);
+                Printf("%s error executing %s\x07\n",strerror(errno),mArgs[0]);
+                // this form of exit does not call cleanup routines
+                // - we don't want it to -- otherwise settings will be saved, etc.
+                _exit(1);
+            }
         }
 #endif // NO_FORK
         
@@ -452,22 +452,22 @@ void PPrintWindow::ContinuePrinting(PImageWindow *aWindow)
 #ifndef NO_FORK
     else {
         if (mToFile) {
-           int i;
-           // make room for additional capture arguments
-           for (i=kMaxPrintArgs-1; i>=kNumCaptureArgs; --i) {
-             mArgs[i] = mArgs[i-kNumCaptureArgs];
-           }
-           while (i >= 0) {
-             mArgs[i] = sCaptureCommand[i];
-             --i;
-           }
-           execvp(mArgs[0], mArgs);  // execute capture program with specified options
+            int i;
+            // make room for additional capture arguments
+            for (i=kMaxPrintArgs-1; i>=kNumCaptureArgs; --i) {
+                mArgs[i] = mArgs[i-kNumCaptureArgs];
+            }
+            while (i >= 0) {
+                mArgs[i] = sCaptureCommand[i];
+                --i;
+            }
+            execvp(mArgs[0], mArgs);    // execute capture program with specified options
         } else {
-           // add temporary file to list of capture arguments
-           // (note, capture argument list is already NULL terminated)
-           sCaptureCommand[kNumCaptureArgs] = mTempFilename;
-           // execute capture program
-           execvp(sCaptureCommand[0], sCaptureCommand);
+            // add temporary file to list of capture arguments
+            // (note, capture argument list is already NULL terminated)
+            sCaptureCommand[kNumCaptureArgs] = mTempFilename;
+            // execute capture program
+            execvp(sCaptureCommand[0], sCaptureCommand);
         }
         Printf("Error executing %s\x07\n",sCaptureCommand[0]);
         _exit(1);

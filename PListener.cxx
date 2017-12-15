@@ -33,8 +33,8 @@ void PListener::AddSpeaker(PSpeaker *aSpeaker)
     if (mNumSpeakers >= mMaxSpeakers) {
         PSpeaker **tmp = new PSpeaker*[mMaxSpeakers + kListInc];
         if (!tmp) {
-           fprintf(stderr,"Out of memory in PListener::AddSpeaker\n");
-           exit(1);
+            fprintf(stderr,"Out of memory in PListener::AddSpeaker\n");
+            exit(1);
         }
         for (i=0; i<mNumSpeakers; ++i) tmp[i] = mSpeakers[i];
         delete [] mSpeakers;
@@ -48,10 +48,10 @@ void PListener::RemoveSpeaker(PSpeaker *aSpeaker)
 {
     for (int i=0; i<mNumSpeakers; ++i) {
         if (aSpeaker == mSpeakers[i]) {
-           for (int j=i+1; j<mNumSpeakers; ++j) {
-             mSpeakers[j-1] = mSpeakers[j];
-           }
-           --mNumSpeakers;
+            for (int j=i+1; j<mNumSpeakers; ++j) {
+                mSpeakers[j-1] = mSpeakers[j];
+            }
+            --mNumSpeakers;
         }
     }
 }
