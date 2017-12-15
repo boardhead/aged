@@ -292,7 +292,7 @@ void PColourPicker::AfterDrawing()
     
     // underline text for this colour
     char *name = sColourName[mColourNum];
-    int width = mDrawable->GetTextWidth(name);
+    int width = GetTextWidth(name);
     x += kW + kTextMargin;
     y += kH - 1;
     XDrawLine(dpy,XtWindow(mCanvas),gc,x,y,x+width,y);

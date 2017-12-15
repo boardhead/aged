@@ -75,6 +75,7 @@ public:
     int             GetScaling()                              { return mDrawable->GetScaling(); }
     void            SetForeground(int col_num, int a=0xffff)  { mDrawable->SetForeground(col_num,a); }
     void            SetFont(XFontStruct *font)                { mDrawable->SetFont(font); }
+    int             GetTextWidth(char *str)                   { return mDrawable->GetTextWidth(str); }
 #ifdef ANTI_ALIAS
     void            SetFont(XftFont *font)                    { mDrawable->SetFont(font); }
     XftFont       * GetXftFont()                              { return mDrawable->GetXftFont(); }

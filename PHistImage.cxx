@@ -20,8 +20,8 @@
 const long MIN_LONG = -1 - 0x7fffffffL;
 const long MAX_LONG = 0x7fffffffL;
 
-const int  MIN_Y_RNG    = 10;   // minimum range for integer Y-axis scale
-const int  kOverlayDY   = 12;   // Y offset for each overlay
+const int  MIN_Y_RNG        = 10;   // minimum range for integer Y-axis scale
+const int  kOverlayLabelDY  = 12;   // Y offset between overlay labels
 
 PHistImage *PHistImage::sCursorHist = NULL;
 
@@ -63,8 +63,8 @@ PHistImage::PHistImage(PImageWindow *owner, Widget canvas, int createCanvas)
     }    
     mOverlayCol[0] = SCALE_COL2;
     mOverlayCol[1] = SCALE_COL3;
-    mOverlayCol[2] = SCALE_OVER;
-    mOverlayCol[3] = SCALE_COL4;
+    mOverlayCol[2] = SCALE_COL4;
+    mOverlayCol[3] = SCALE_OVER;
     mOverlayCol[4] = SCALE_UNDER;
     mOverlayCol[5] = SCALE_COL0;
     if (!canvas && createCanvas) {
@@ -711,6 +711,286 @@ void PHistImage::DoGrabY(double newMin, double newMax)
     mYMax = (long)newMax;
 }
 
+// get offset to first bin and number of bins for the current histogram
+void PHistImage::GetScaleBins(int *noffsetPt, int *nbinPt)
+{
+    int noffset, nbin;
+    if (mFixedBins) {
+        noffset = (long)GetScaleMin();
+        if (noffset < 0 || noffset >= mNumBins) noffset = 0;
+        nbin = (long)(GetScaleMax() + 0.5) - noffset;
+        if (nbin > mNumBins - noffset) nbin = mNumBins - noffset;
+    } else {
+        noffset = 0;
+        nbin = mNumBins;
+    }
+    *noffsetPt = noffset;
+    *nbinPt = nbin;
+}
+
+// get histogram bin number corresponding to a specific x-scale value
+// - returns -1 if value is outside bin range
+int PHistImage::GetHistBin(double val)
+{
+    int noffset, nbin;
+    if (!mNumBins) return(-1);
+    GetScaleBins(&noffset, &nbin);
+    int bin = (int)(noffset + (val - GetScaleMin()) / (GetScaleMax() - GetScaleMin()) * nbin);
+    if (bin < 0 || bin >= mNumBins) bin = -1;
+    return(bin);
+}
+
+// get histogram bin central value
+double PHistImage::GetBinValue(int bin)
+{
+    int noffset, nbin;
+    if (bin < 0 || bin >= mNumBins) return(0);
+    GetScaleBins(&noffset, &nbin);
+    return((bin - noffset + 0.5) * (GetScaleMax() - GetScaleMin()) / nbin + GetScaleMin());
+}
+
+void PHistImage::Resize()
+{
+    if (mXScale) {
+        delete mXScale;
+        mXScale = NULL;
+    }
+    if (mYScale) {
+        delete mYScale;
+        mYScale = NULL;
+    }
+    SetDirty(kDirtyHistCalc);
+}
+
+// this must only be called when the scale window is open
+void PHistImage::ReadScaleValues()
+{
+    Arg         wargs[1];
+    Boolean     isLog = FALSE;
+    float       xmin, xmax;
+    long        ymin, ymax;
+    char        *str;
+
+    xmin = atof(str = XmTextGetString(sp_min));
+    XtFree(str);
+    xmax = atof(str = XmTextGetString(sp_max));
+    XtFree(str);
+    ymin = atol(str = XmTextGetString(sp_ymin));
+    XtFree(str);
+    ymax = atol(str = XmTextGetString(sp_ymax));
+    XtFree(str);
+    
+    XtSetArg(wargs[0], XmNset, &isLog);
+    XtGetValues(sp_log, wargs, 1);
+    
+    SetLog(isLog);
+
+    // check scale range
+    SetScales(xmin,xmax,ymin,ymax);
+}
+
+void PHistImage::GetScales(double *xmin,double *xmax,double *ymin,double *ymax)
+{
+    *xmin = mXScale->GetMinVal();
+    *xmax = mXScale->GetMaxVal();
+    *ymin = mYScale->GetMinVal();
+    *ymax = mYScale->GetMaxVal();
+}
+
+void PHistImage::SetScales(double xmin,double xmax,double ymin,double ymax)
+{
+    SetScaleLimits();
+    mGrabFlag |= GRAB_X_ACTIVE | GRAB_X;
+    DoGrab(xmin, xmax);
+    DoGrabY(ymin, ymax);
+    mGrabFlag &= ~GRABS_ACTIVE;
+    SetDirty(kDirtyHistCalc);
+    DoneGrab();
+    UpdateScaleInfo();
+}
+
+void PHistImage::DoneGrab()
+{
+    sendMessage(mOwner->GetData(), kMessageHistScalesChanged, this);
+}
+
+// Get scale limits for automatic scaling
+void PHistImage::GetAutoScales(double *x1,double *x2,double *y1,double *y2)
+{
+    double xmin = *x1;
+    double xmax = *x2;
+/*
+ * auto-scale y
+ */
+    if (mNumBins) {
+        long counts, min, max;
+        long amin[kMaxOverlays+1] = { 0 };
+        long amax[kMaxOverlays+1] = { 0 };
+        int noffset, nbin;
+        if (mFixedBins) {
+            noffset = (long)xmin;
+            if (noffset < 0 || noffset > mNumBins) noffset = 0;
+            nbin = (long)(xmax + 1.5) - noffset;
+            if (nbin > mNumBins - noffset) nbin = mNumBins - noffset;
+        } else {
+            noffset = 0;
+            nbin = mNumBins;
+        }
+        if (mHistogram) {
+            min=LONG_MAX; max=LONG_MIN;
+            for (int i=0; i<nbin; ++i) {
+                counts = mHistogram[i+noffset];
+                if (max < counts) max = counts;
+                if (min > counts) min = counts;
+            }
+            amin[0] = min;
+            amax[0] = max;
+        }
+        for (int over=0; over<kMaxOverlays; ++over) {
+            if (!mOverlay[over]) continue;
+            min=LONG_MAX; max=LONG_MIN;
+            for (int i=0; i<nbin; ++i) {
+                counts = mOverlay[over][i+noffset];
+                if (max < counts) max = counts;
+                if (min > counts) min = counts;
+            }
+            amin[over+1] = min;
+            amax[over+1] = max;
+        }
+        if (mHistogram || mNumOverlays) {
+            int height = mHeight - HIST_MARGIN_TOP - HIST_MARGIN_BOTTOM;
+            int overlayPlotDY = mHeight / (2 * (kMaxOverlays + 1));
+            *y1 = LONG_MAX;
+            *y2 = LONG_MIN;
+            // this requires iterating if we have overlays because the overlay
+            // offset is in pixels while the scale limits are based on data values
+            for (int iter=0; iter<10; ++iter) {
+                int changed = 0;
+                for (int i=0; i<=kMaxOverlays; ++i) {
+                    if (!amin[i] && !amax[i]) continue;
+                    min = amin[i];
+                    max = amax[i];
+                    if (!iter) {
+                        // expand range to give margins around data
+                        int rng = max - min;
+                        if (rng < MIN_Y_RNG && mYScale->IsInteger()) {
+                            int grow = (MIN_Y_RNG + 1 - rng) / 2;
+                            if (min >= 0 && min - grow < 0) grow = min;
+                            min -= grow;
+                            max = min + MIN_Y_RNG;
+                        } else {
+                            int pad = rng / 8;
+                            max += pad;
+                            if (min >= 0 && min - pad < 0) pad = min;
+                            min -= pad;
+                        }
+                        amin[i] = min;
+                        amax[i] = max;
+                    }
+                    if (i) {
+                        // shift due to overlay offset
+                        long diff = (*y2 - *y1) * overlayPlotDY * i / height;
+                        min -= diff;
+                        max -= diff;
+                    }
+                    if (*y1 > min) {
+                        *y1 = min;
+                        changed = i;    // (relative scale doesn't change for main histogram)
+                    }
+                    if (*y2 < max) {
+                        *y2 = max;
+                        changed = i;
+                    }
+                }
+                if (!changed) break;
+            }
+        }
+    }
+}
+
+int PHistImage::CalcAutoScale(int *minPt, int *maxPt)
+{
+    if (mNumBins) {
+        double xmin,xmax,ymin,ymax;
+        GetScales(&xmin,&xmax,&ymin,&ymax);
+        GetAutoScales(&xmin,&xmax,&ymin,&ymax);
+        *minPt = floor(ymin);
+        *maxPt = ceil(ymax);
+        return 1;
+    }
+    return 0;
+}
+
+int PHistImage::GetPix(long val)
+{
+    return mHeight - HIST_MARGIN_BOTTOM - mYScale->GetPix((double)val);
+}
+
+// check scale X range to be sure it doesn't exceed limits
+void PHistImage::CheckScaleRange()
+{
+    if (mXMin < mXMinMin) {
+        mXMin = mXMinMin;
+    }
+    if (mXMax > mXMaxMax) {
+        mXMax = mXMaxMax;
+    }
+    if (mXMax - mXMin < mXMinRng) {
+        mXMax = mXMin + mXMinRng;
+        if (mXMax > mXMaxMax) {
+            mXMax = mXMaxMax;
+            mXMin = mXMax - mXMinRng;
+        }
+    }
+}
+
+
+void PHistImage::ScaleFullProc(Widget w, PHistImage *hist, caddr_t call_data)
+{
+    char buff[256];
+
+    hist->SetScaleLimits();
+    sprintf(buff,"%g",hist->mXMinMin);
+    setTextString(hist->sp_min,buff);
+
+    sprintf(buff,"%g",hist->mXMaxMax);
+    setTextString(hist->sp_max,buff);
+}
+
+void PHistImage::ScaleAutoProc(Widget w, PHistImage *hist, caddr_t call_data)
+{
+    char buff[256];
+    int min, max;
+
+    if (hist->CalcAutoScale(&min, &max)) {
+        sprintf(buff,"%ld",(long)min);
+        setTextString(hist->sp_ymin,buff);
+    
+        sprintf(buff,"%ld",(long)max);
+        setTextString(hist->sp_ymax,buff);
+    }
+}
+
+void PHistImage::ScaleOKProc(Widget w, PHistImage *hist, caddr_t call_data)
+{
+    ImageData *data = hist->mOwner->GetData();
+    
+    hist->ReadScaleValues();
+    if (data->mWindow[SCALE_WINDOW]) {
+        delete data->mWindow[SCALE_WINDOW];
+    }
+}
+
+void PHistImage::ApplyProc(Widget w, PHistImage *hist, caddr_t call_data)
+{
+    hist->ReadScaleValues();
+}
+
+void PHistImage::CancelProc(Widget w, Widget aShell, caddr_t call_data)
+{
+    XtDestroyWidget(aShell);
+}
+
 /*
 ** Draw histogram
 */
@@ -909,6 +1189,7 @@ void PHistImage::DrawSelf()
             }
             for (int over=kMaxOverlays-1; over>=0; --over) {
                 if (!mOverlay[over]) continue;
+                int overlayPlotDY = mHeight / (2 * (kMaxOverlays + 1));
                 SetForeground(mOverlayCol[over]);
                 sp = segments;
                 lastx = x1;
@@ -916,7 +1197,7 @@ void PHistImage::DrawSelf()
                 for (i=0; i<nbin; ++i) {
                     counts = mOverlay[over][i+noffset];
                     x = x1 + ((i+1)*(x2-x1)+nbin/2)/nbin + 1;
-                    y = mYScale->GetPix(counts) + (over+1) * kOverlayDY;
+                    y = mYScale->GetPix(counts) + (over+1) * overlayPlotDY;
                     if (y==y2 && counts) --y;   // don't let bars disappear unless they are truly zero
                     // range-check y position
                     if (y < y1 - 1) y = y1 - 1;
@@ -976,26 +1257,26 @@ void PHistImage::DrawSelf()
         SetFont(PResourceManager::sResource.xft_hist_font);
 #endif
         int max = 0;
-        if (mLabel) max = mDrawable->GetTextWidth(mLabel);
+        if (mLabel) max = GetTextWidth(mLabel);
         for (int over=0; over<mNumOverlays; ++over) {
             if (mOverlayLabel[over]) {
-                int len = mDrawable->GetTextWidth(mOverlayLabel[over]);
+                int len = GetTextWidth(mOverlayLabel[over]);
                 if (len > max) max = len;
             }
         }
         for (int over=0; over<mNumOverlays; ++over) {
             if (!mOverlay[over] || !mOverlayLabel[over]) continue;
-            int y = y1 + HIST_LABEL_Y + (over + 1) * kOverlayDY;
-            int wid = mDrawable->GetTextWidth(mOverlayLabel[over]);
+            int y = y1 + HIST_LABEL_Y + (over + 1) * kOverlayLabelDY;
+            int wid = GetTextWidth(mOverlayLabel[over]);
             SetForeground(BKG_COL, 0x8000);
-            FillRectangle(x2-wid-1, y, wid+2, kOverlayDY);
+            FillRectangle(x2-wid-1, y, wid+2, kOverlayLabelDY);
             SetForeground(mOverlayCol[over]);
             DrawString(x2, y, mOverlayLabel[over], kTextAlignTopRight);
         }
         if (mLabel) {
-            int wid = mDrawable->GetTextWidth(mLabel);
+            int wid = GetTextWidth(mLabel);
             SetForeground(BKG_COL, 0xc000);
-            FillRectangle(x2-wid-1, y1+HIST_LABEL_Y, wid+2, kOverlayDY);
+            FillRectangle(x2-wid-1, y1+HIST_LABEL_Y, wid+2, kOverlayLabelDY);
             if (mStyle == kHistStyleSteps) {
                 SetForeground(mPlotCol);
             } else {
@@ -1048,282 +1329,3 @@ void PHistImage::AfterDrawing()
         }
     }
 }
-
-// get offset to first bin and number of bins for the current histogram
-void PHistImage::GetScaleBins(int *noffsetPt, int *nbinPt)
-{
-    int noffset, nbin;
-    if (mFixedBins) {
-        noffset = (long)GetScaleMin();
-        if (noffset < 0 || noffset >= mNumBins) noffset = 0;
-        nbin = (long)(GetScaleMax() + 0.5) - noffset;
-        if (nbin > mNumBins - noffset) nbin = mNumBins - noffset;
-    } else {
-        noffset = 0;
-        nbin = mNumBins;
-    }
-    *noffsetPt = noffset;
-    *nbinPt = nbin;
-}
-
-// get histogram bin number corresponding to a specific x-scale value
-// - returns -1 if value is outside bin range
-int PHistImage::GetHistBin(double val)
-{
-    int noffset, nbin;
-    if (!mNumBins) return(-1);
-    GetScaleBins(&noffset, &nbin);
-    int bin = (int)(noffset + (val - GetScaleMin()) / (GetScaleMax() - GetScaleMin()) * nbin);
-    if (bin < 0 || bin >= mNumBins) bin = -1;
-    return(bin);
-}
-
-// get histogram bin central value
-double PHistImage::GetBinValue(int bin)
-{
-    int noffset, nbin;
-    if (bin < 0 || bin >= mNumBins) return(0);
-    GetScaleBins(&noffset, &nbin);
-    return((bin - noffset + 0.5) * (GetScaleMax() - GetScaleMin()) / nbin + GetScaleMin());
-}
-
-void PHistImage::Resize()
-{
-    if (mXScale) {
-        delete mXScale;
-        mXScale = NULL;
-    }
-    if (mYScale) {
-        delete mYScale;
-        mYScale = NULL;
-    }
-    SetDirty(kDirtyHistCalc);
-}
-
-// this must only be called when the scale window is open
-void PHistImage::ReadScaleValues()
-{
-    Arg         wargs[1];
-    Boolean     isLog = FALSE;
-    float       xmin, xmax;
-    long        ymin, ymax;
-    char        *str;
-
-    xmin = atof(str = XmTextGetString(sp_min));
-    XtFree(str);
-    xmax = atof(str = XmTextGetString(sp_max));
-    XtFree(str);
-    ymin = atol(str = XmTextGetString(sp_ymin));
-    XtFree(str);
-    ymax = atol(str = XmTextGetString(sp_ymax));
-    XtFree(str);
-    
-    XtSetArg(wargs[0], XmNset, &isLog);
-    XtGetValues(sp_log, wargs, 1);
-    
-    SetLog(isLog);
-
-    // check scale range
-    SetScales(xmin,xmax,ymin,ymax);
-}
-
-void PHistImage::GetScales(double *xmin,double *xmax,double *ymin,double *ymax)
-{
-    *xmin = mXScale->GetMinVal();
-    *xmax = mXScale->GetMaxVal();
-    *ymin = mYScale->GetMinVal();
-    *ymax = mYScale->GetMaxVal();
-}
-
-void PHistImage::SetScales(double xmin,double xmax,double ymin,double ymax)
-{
-    SetScaleLimits();
-    mGrabFlag |= GRAB_X_ACTIVE | GRAB_X;
-    DoGrab(xmin, xmax);
-    DoGrabY(ymin, ymax);
-    mGrabFlag &= ~GRABS_ACTIVE;
-    SetDirty(kDirtyHistCalc);
-    DoneGrab();
-    UpdateScaleInfo();
-}
-
-void PHistImage::DoneGrab()
-{
-    sendMessage(mOwner->GetData(), kMessageHistScalesChanged, this);
-}
-
-// Get scale limits for automatic scaling
-void PHistImage::GetAutoScales(double *x1,double *x2,double *y1,double *y2)
-{
-    double xmin = *x1;
-    double xmax = *x2;
-/*
- * auto-scale y
- */
-    if (mNumBins) {
-        long counts, min, max;
-        long amin[kMaxOverlays+1], amax[kMaxOverlays+1];
-        int noffset, nbin;
-        if (mFixedBins) {
-            noffset = (long)xmin;
-            if (noffset < 0 || noffset > mNumBins) noffset = 0;
-            nbin = (long)(xmax + 1.5) - noffset;
-            if (nbin > mNumBins - noffset) nbin = mNumBins - noffset;
-        } else {
-            noffset = 0;
-            nbin = mNumBins;
-        }
-        if (mHistogram) {
-            min=LONG_MAX; max=LONG_MIN;
-            for (int i=0; i<nbin; ++i) {
-                counts = mHistogram[i+noffset];
-                if (max < counts) max = counts;
-                if (min > counts) min = counts;
-            }
-            amin[0] = min;  amax[0] = max;
-        }
-        for (int over=0; over<kMaxOverlays; ++over) {
-            if (!mOverlay[over]) continue;
-            min=LONG_MAX; max=LONG_MIN;
-            for (int i=0; i<nbin; ++i) {
-                counts = mOverlay[over][i+noffset];
-                if (max < counts) max = counts;
-                if (min > counts) min = counts;
-            }
-            amin[over+1] = min;
-            amax[over+1] = max;
-        }
-        if (mHistogram || mNumOverlays) {
-            int height = mHeight - HIST_MARGIN_TOP - HIST_MARGIN_BOTTOM;
-            *y1 = LONG_MAX;
-            *y2 = LONG_MIN;
-            for (int iter=0; iter<10; ++iter) {
-                int changed = 0;
-                for (int i=0; i<kMaxOverlays+1; ++i) {
-                    if (i == 0) {
-                        if (!mHistogram) continue;
-                    } else if (!mOverlay[i-1]) {
-                        continue;
-                    }
-                    min = amin[i];
-                    max = amax[i];
-                    if (!iter) {
-                        int rng = max - min;
-                        if (rng < MIN_Y_RNG && mYScale->IsInteger()) {
-                            int grow = (MIN_Y_RNG + 1 - rng) / 2;
-                            if (min >= 0 && min - grow < 0) grow = min;
-                            min -= grow;
-                            max = min + MIN_Y_RNG;
-                        } else {
-                            int pad = rng / 8;
-                            max += pad;
-                            if (min >= 0 && min - pad < 0) pad = min;
-                            min -= pad;
-                        }
-                        amin[i] = min;
-                        amax[i] = max;
-                    }
-                    // shift due to overlay offset
-                    if (i) {
-                        long diff = (*y2 - *y1) * kOverlayDY * i / height;
-                        min -= diff;
-                        max -= diff;
-                    }
-                    if (*y1 > min) {
-                        *y1 = min;
-                        changed = i;    // (relative scale doesn't change for main histogram)
-                    }
-                    if (*y2 < max) {
-                        *y2 = max;
-                        changed = i;
-                    }
-                }
-                if (!changed) break;
-            }
-        }
-    }
-}
-
-int PHistImage::CalcAutoScale(int *minPt, int *maxPt)
-{
-    if (mNumBins) {
-        double xmin,xmax,ymin,ymax;
-        GetScales(&xmin,&xmax,&ymin,&ymax);
-        GetAutoScales(&xmin,&xmax,&ymin,&ymax);
-        *minPt = floor(ymin);
-        *maxPt = ceil(ymax);
-        return 1;
-    }
-    return 0;
-}
-
-int PHistImage::GetPix(long val)
-{
-    return mHeight - HIST_MARGIN_BOTTOM - mYScale->GetPix((double)val);
-}
-
-// check scale X range to be sure it doesn't exceed limits
-void PHistImage::CheckScaleRange()
-{
-    if (mXMin < mXMinMin) {
-        mXMin = mXMinMin;
-    }
-    if (mXMax > mXMaxMax) {
-        mXMax = mXMaxMax;
-    }
-    if (mXMax - mXMin < mXMinRng) {
-        mXMax = mXMin + mXMinRng;
-        if (mXMax > mXMaxMax) {
-            mXMax = mXMaxMax;
-            mXMin = mXMax - mXMinRng;
-        }
-    }
-}
-
-
-void PHistImage::ScaleFullProc(Widget w, PHistImage *hist, caddr_t call_data)
-{
-    char buff[256];
-
-    hist->SetScaleLimits();
-    sprintf(buff,"%g",hist->mXMinMin);
-    setTextString(hist->sp_min,buff);
-
-    sprintf(buff,"%g",hist->mXMaxMax);
-    setTextString(hist->sp_max,buff);
-}
-
-void PHistImage::ScaleAutoProc(Widget w, PHistImage *hist, caddr_t call_data)
-{
-    char buff[256];
-    int min, max;
-
-    if (hist->CalcAutoScale(&min, &max)) {
-        sprintf(buff,"%ld",(long)min);
-        setTextString(hist->sp_ymin,buff);
-    
-        sprintf(buff,"%ld",(long)max);
-        setTextString(hist->sp_ymax,buff);
-    }
-}
-
-void PHistImage::ScaleOKProc(Widget w, PHistImage *hist, caddr_t call_data)
-{
-    ImageData *data = hist->mOwner->GetData();
-    
-    hist->ReadScaleValues();
-    if (data->mWindow[SCALE_WINDOW]) {
-        delete data->mWindow[SCALE_WINDOW];
-    }
-}
-
-void PHistImage::ApplyProc(Widget w, PHistImage *hist, caddr_t call_data)
-{
-    hist->ReadScaleValues();
-}
-
-void PHistImage::CancelProc(Widget w, Widget aShell, caddr_t call_data)
-{
-    XtDestroyWidget(aShell);
-}
-
