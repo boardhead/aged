@@ -22,6 +22,9 @@
 #define HIST_MARGIN_RIGHT           (24 * GetScaling())
 #define HIST_LABEL_Y                (-10 * GetScaling())
 
+// formula to determine vertical spacing of overlay plots
+#define OVERLAY_SPACING(h,n)        ((h) / ((n) + kMaxOverlays + 2))
+
 const long MIN_LONG = -1 - 0x7fffffffL;
 const long MAX_LONG = 0x7fffffffL;
 
@@ -864,9 +867,8 @@ void PHistImage::GetAutoScales(double *x1,double *x2,double *y1,double *y2)
         }
         if (mHistogram || mNumOverlays) {
             int height = mHeight - HIST_MARGIN_TOP - HIST_MARGIN_BOTTOM;
-            int overlayPlotDY = mHeight / (2 * (kMaxOverlays + 1));
-            *y1 = LONG_MAX;
-            *y2 = LONG_MIN;
+            int overlayPlotDY = OVERLAY_SPACING(mHeight,mNumOverlays);
+            int done = 0;
             // this requires iterating if we have overlays because the overlay
             // offset is in pixels while the scale limits are based on data values
             for (int iter=0; iter<10; ++iter) {
@@ -892,11 +894,16 @@ void PHistImage::GetAutoScales(double *x1,double *x2,double *y1,double *y2)
                         amin[i] = min;
                         amax[i] = max;
                     }
+                    if (!done) {
+                        *y1 = min;
+                        *y2 = max;
+                        done = 1;
+                    }
                     if (i) {
                         // shift due to overlay offset
-                        long diff = (*y2 - *y1) * overlayPlotDY * i / height;
-                        min -= diff;
-                        max -= diff;
+                        double diff = (*y2 - *y1) * (double)overlayPlotDY * i / height;
+                        min -= (long)diff;
+                        max -= (long)diff;
                     }
                     if (*y1 > min) {
                         *y1 = min;
@@ -1194,7 +1201,7 @@ void PHistImage::DrawSelf()
             }
             for (int over=kMaxOverlays-1; over>=0; --over) {
                 if (!mOverlay[over]) continue;
-                int overlayPlotDY = mHeight / (2 * (kMaxOverlays + 1));
+                int overlayPlotDY = OVERLAY_SPACING(mHeight,mNumOverlays);
                 SetForeground(mOverlayCol[over]);
                 sp = segments;
                 lastx = x1;
