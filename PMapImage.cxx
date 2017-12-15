@@ -1,3 +1,8 @@
+//==============================================================================
+// File:        PMapImage.cxx
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #include <Xm/RowColumn.h>
 #include <math.h>
 #include "ImageData.h"

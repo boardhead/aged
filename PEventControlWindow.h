@@ -1,3 +1,8 @@
+//==============================================================================
+// File:        PEventControlWindow.h
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #ifndef __PEventControlWindow_h__
 #define __PEventControlWindow_h__
 

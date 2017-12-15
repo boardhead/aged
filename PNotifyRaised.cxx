@@ -1,3 +1,8 @@
+//==============================================================================
+// File:        PNotifyRaised.cxx
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #include "PNotifyRaised.h"
 #include "PImageWindow.h"
 

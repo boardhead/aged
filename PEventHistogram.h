@@ -1,3 +1,8 @@
+//==============================================================================
+// File:        PEventHistogram.h
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #ifndef __PEventHistogram_h__
 #define __PEventHistogram_h__
 

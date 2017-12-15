@@ -1,3 +1,8 @@
+//==============================================================================
+// File:        PPrintWindow.cxx
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>

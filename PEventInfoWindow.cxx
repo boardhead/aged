@@ -1,13 +1,16 @@
-//
+//==============================================================================
 // File:        PEventInfoWindow.cxx
 //
 // Description: Window to display event information in text form
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
 //
 // Notes:       11/11/99 - PH To reduce flickering of text items in this window,
 //              I'm now calling SetStringNow() instead of SetString().  Previously,
 //              the flickering could be so bad that the text could be invisible
 //              most of the time.
-//
+//==============================================================================
+
 #include <Xm/RowColumn.h>
 #include <Xm/Label.h>
 #include <Xm/Form.h>

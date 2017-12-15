@@ -1,10 +1,12 @@
-//
+//==============================================================================
 // File:        PWaveformWindow.h
 //
 // Description: Window to display waveform data
 //
 // Revisions:   2012/03/06 - PH Created
 //
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #ifndef __PWaveformWindow_h__
 #define __PWaveformWindow_h__
 

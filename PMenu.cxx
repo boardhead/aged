@@ -1,3 +1,8 @@
+//==============================================================================
+// File:        PMenu.cxx
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #include <Xm/Xm.h>
 #include <Xm/Separator.h>
 #include <Xm/ToggleB.h>

@@ -1,3 +1,8 @@
+//==============================================================================
+// File:        PResourceManager.h
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #ifndef __PResourceManager_h__
 #define __PResourceManager_h__
 

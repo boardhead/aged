@@ -1,3 +1,8 @@
+//==============================================================================
+// File:        PHitInfoWindow.h
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #ifndef __PHitInfoWindow_h__
 #define __PHitInfoWindow_h__
 

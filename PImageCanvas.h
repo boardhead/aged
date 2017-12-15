@@ -1,3 +1,8 @@
+//==============================================================================
+// File:        PImageCanvas.h
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #ifndef __PImageCanvas_h__
 #define __PImageCanvas_h__
 

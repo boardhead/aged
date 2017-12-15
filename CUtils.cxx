@@ -1,3 +1,8 @@
+//==============================================================================
+// File:        CUtils.cxx
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>

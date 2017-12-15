@@ -1,3 +1,8 @@
+//==============================================================================
+// File:        PHitInfoWindow.cxx
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #include <Xm/RowColumn.h>
 #include <Xm/Label.h>
 #include <Xm/Form.h>

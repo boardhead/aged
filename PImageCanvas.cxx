@@ -1,3 +1,8 @@
+//==============================================================================
+// File:        PImageCanvas.cxx
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #include <stdio.h>
 #include <stdlib.h>
 #include <X11/StringDefs.h>

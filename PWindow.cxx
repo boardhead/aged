@@ -1,3 +1,8 @@
+//==============================================================================
+// File:        PWindow.cxx
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #include <X11/StringDefs.h>
 #include <Xm/RowColumn.h>
 #ifdef CHILD_WINDOWS

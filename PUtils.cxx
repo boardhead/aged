@@ -1,3 +1,8 @@
+//==============================================================================
+// File:        PUtils.cxx
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 // Assorted utility routines
 #include <Xm/Text.h>
 #include <string.h>

@@ -1,3 +1,8 @@
+//==============================================================================
+// File:        AgedResource.h
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #ifndef __AgedResource_h__
 #define __AgedResource_h__
 

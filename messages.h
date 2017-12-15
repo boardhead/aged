@@ -1,10 +1,12 @@
-/*
- * File:        messages.h
- *
- * Description: messages sent by Aged objects
- *
- * Created:     12/04/99 - P. Harvey
- */
+//==============================================================================
+// File:        messages.h
+//
+// Description: messages sent by Aged objects
+//
+// Created:     12/04/99 - P. Harvey
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #ifndef __messages_h__
 #define __messages_h__
 

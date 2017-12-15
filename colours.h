@@ -1,6 +1,9 @@
+//==============================================================================
+// File:        colours.h - Aged colour definitions
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 /*
-** colours.h    - Aged colour definitions
-**
 ** The basic Aged colours are defined in the enumerated type EColours below.
 **
 ** The hit and detector colour numbers are special, since they both use variable

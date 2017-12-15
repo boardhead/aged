@@ -1,3 +1,8 @@
+//==============================================================================
+// File:        PEventControlWindow.cxx
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>

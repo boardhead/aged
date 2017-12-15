@@ -1,3 +1,8 @@
+//==============================================================================
+// File:        PColourWheel.h
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #ifndef __PColourWheel_h__
 #define __PColourWheel_h__
 

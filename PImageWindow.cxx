@@ -1,3 +1,8 @@
+//==============================================================================
+// File:        PImageWindow.cxx
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #include <stdio.h>
 #include "PImageWindow.h"
 #include "PImageCanvas.h"

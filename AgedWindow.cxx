@@ -1,3 +1,8 @@
+//==============================================================================
+// File:        AgedWindow.cxx
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

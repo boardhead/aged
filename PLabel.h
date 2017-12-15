@@ -1,8 +1,12 @@
-/*
-** PLabel   - PH 10/15/99
-**
-** A wrapper to avoid unnecessary screen updates if the label doesn't change
-*/
+//==============================================================================
+// File:        PLabel.h
+//
+// Description: A wrapper to avoid unnecessary screen updates if the label doesn't change
+//
+// Created:     PH 10/15/99
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #ifndef __PLABEL_H__
 #define __PLABEL_H__
 

@@ -1,7 +1,9 @@
-//
+//==============================================================================
 // File:        PResourceManger.cxx
 //
 // Created:     01/27/99 - P. Harvey
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
 //
 // Notes:
 //
@@ -30,6 +32,7 @@
 //    it is your widget that generated the callback, then parse the parameters if
 //    necessary and perform the desired actions.
 //
+//==============================================================================
 
 // ------------------------------------------------------------------------------------------
 // Resource Revision History:

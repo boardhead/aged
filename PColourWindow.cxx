@@ -1,8 +1,11 @@
+//==============================================================================
+// File:        PColourWindow.cxx
 //
-// File:    PColourWindow.cxx
+// Created:     03/02/00 - Phil Harvey
 //
-// Created: 03/02/00 - Phil Harvey
-//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <Xm/Form.h>

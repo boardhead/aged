@@ -1,3 +1,8 @@
+//==============================================================================
+// File:        PNotifyRaised.h
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 /*
 ** Pure virtual class to notify an object that an image window was raised
 */

@@ -1,3 +1,8 @@
+//==============================================================================
+// File:        PImageWindow.h
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #ifndef __PImageWindow_h__
 #define __PImageWindow_h__
 

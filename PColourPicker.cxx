@@ -1,3 +1,8 @@
+//==============================================================================
+// File:        PColourPicker.cxx
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #include <string.h>
 #ifdef ANTI_ALIAS
 #include <X11/Xft/Xft.h>

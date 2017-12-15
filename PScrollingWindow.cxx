@@ -1,3 +1,8 @@
+//==============================================================================
+// File:        PScrollingWindow.cxx
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #include "PScrollingWindow.h"
 
 PScrollingWindow::PScrollingWindow(ImageData *data)

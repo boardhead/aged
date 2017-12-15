@@ -1,3 +1,8 @@
+//==============================================================================
+// File:        PPrintWindow.h
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #ifndef __PPrintWindow_h__
 #define __PPrintWindow_h__
 

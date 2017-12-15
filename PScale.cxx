@@ -1,8 +1,11 @@
-/*----------------------------------------------------------------------------
-** File:    PScale.cxx
-**
-** Created: 10/07/98 - PH (adapted from SNOTT scale C++ object)
-*/
+//==============================================================================
+// File:        PScale.cxx
+//
+// Created: 10/07/98 - PH (adapted from SNOTT scale C++ object)
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
+
 #include <X11/Xlib.h>
 #include <string.h>
 #include <stdio.h>

@@ -1,3 +1,8 @@
+//==============================================================================
+// File:        matrix.cxx
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #include <math.h>
 #include <string.h>
 #include "matrix.h"

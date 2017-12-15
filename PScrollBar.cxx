@@ -1,3 +1,8 @@
+//==============================================================================
+// File:        PScrollBar.cxx
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #include <Xm/ScrollBar.h>
 #include "PScrollBar.h"
 #include "PScrollingWindow.h"

@@ -1,10 +1,13 @@
-//
+//==============================================================================
 // File:        PWaveformWindow.cxx
 //
 // Description: Window to display waveform data
 //
 // Revisions:   2012/03/06 - PH Created (borrowed heavily from PNCDScopeWindow.cxx)
 //
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
+
 #include <Xm/RowColumn.h>
 #include <Xm/Form.h>
 #include <Xm/DrawingA.h>

@@ -1,3 +1,8 @@
+//==============================================================================
+// File:        PScrollingWindow.h
+//
+// Copyright (c) 2017, Phil Harvey, Queen's University
+//==============================================================================
 #ifndef __PScrollingWindow_h__
 #define __PScrollingWindow_h__
 
