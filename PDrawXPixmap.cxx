@@ -1,6 +1,10 @@
 //==============================================================================
 // File:        PDrawXPixmap.cxx
 //
+// Description: Drawing routines for X11 pixmap images
+//
+// Notes:       Supports anti-aliased drawing if ANTI_ALIAS is defined
+//
 // Copyright (c) 2017, Phil Harvey, Queen's University
 //==============================================================================
 /*
@@ -233,6 +237,8 @@ void PDrawXPixmap::FillRectangle(int x,int y,int w,int h)
 #endif
 }
 
+// Draw line segments in current colour
+// - set "smooth" to 0 to override smooth line setting for faster drawing
 void PDrawXPixmap::DrawSegments(XSegment *segments, int num, int smooth)
 {
 #ifdef ANTI_ALIAS

@@ -178,6 +178,7 @@ void Aged::ShowEvent(AgAnalysisFlow* anaFlow, AgSignalsFlow* sigFlow, TARunInfo*
 
 #if 0 //TEST
     const TObjArray *helices = anEvent->GetHelixArray();
+    printf("%d HELICES -----------------\n",helices ? helices->GetEntries() : -1);
     if (helices && helices->GetEntries() > 0) {
         for (int i=0; i<helices->GetEntries(); ++i) {
             TStoreHelix *helix = (TStoreHelix *)helices->At(i);

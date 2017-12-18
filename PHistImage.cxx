@@ -1304,7 +1304,6 @@ void PHistImage::AfterDrawing()
 {
     // draw cursor if we are tracking
     long *dat = mHistogram;
-    if (!dat) dat = mOverlay[0];
     if ((mCursorBin != -1) && dat && mCursorTracking) {
         int noffset, nbin;
         GetScaleBins(&noffset, &nbin);
