@@ -108,6 +108,7 @@ public:
     int             CalcAutoScale(int *minPt, int *maxPt);
     void            SetAutoScale(int on)        { mAutoScale = on; }
     void            SetCursorTracking(int on)   { mCursorTracking = on; }
+    void            SetOverlaySep(float f)      { mOverlaySep = f; }
 
     void            SetPlotCol(int col)         { mPlotCol = col; }
     
@@ -120,6 +121,7 @@ protected:
     void            GetScales(double *x1,double *x2,double *y1,double *y2);
     void            GetAutoScales(double *x1,double *x2,double *y1,double *y2);
     void            GetScaleBins(int *noffsetPt, int *nbinPt);
+    int             GetOverlaySpacing();
 
     long          * mHistogram;     // pointer to histogram array
     long          * mOverlay[kMaxOverlays];     // pointer to overlay array
@@ -155,6 +157,7 @@ protected:
     int             mAutoScale;     // flag to automatically scale when drawing
     int             mCursorTracking;// flag to enable cursor tracking feature
     int             mCursorBin;     // current bin for cursor
+    float           mOverlaySep;    // overlay separation factor
 
 private:
     static void     ScaleAutoProc(Widget w, PHistImage *hist, caddr_t call_data);

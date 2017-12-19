@@ -26,6 +26,7 @@ public:
     virtual void    UpdateSelf();
     virtual void    Listen(int message, void *message_data);
     virtual void    DoMenuCommand(int anID);
+    virtual void    ScrollValueChanged(EScrollBar bar, int value);
 
 private:
     void            SetChannels(int chan_mask);

@@ -31,6 +31,7 @@ void PScrollingWindow::NewScrollBar(EScrollBar bar, char *name, Arg *wargs, int 
     delete mScrollBar[bar];
     
     mScrollBar[bar] = new PScrollBar(GetMainPane(),bar,name,wargs,n);
+    mScrollBar[bar]->SetHandler(this);  // default to this as the scroll handler
 }
 
 void PScrollingWindow::SetScrollValue(EScrollBar bar, int value, int do_callback)

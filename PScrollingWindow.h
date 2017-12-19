@@ -10,11 +10,9 @@
 #include "PScrollBar.h"
 #include <Xm/Xm.h>
 
-class PScrollHandler;
-
 
 /* PScrollingWindow class definition */
-class PScrollingWindow : public PWindow {
+class PScrollingWindow : public PWindow, public PScrollHandler {
 public:
     PScrollingWindow(ImageData *data);
     virtual ~PScrollingWindow();
@@ -25,7 +23,6 @@ public:
     void            NewScrollBar(EScrollBar bar, char *name, Arg *wargs, int n);
     PScrollBar    * GetScrollBar(EScrollBar bar)    { return mScrollBar[bar];              }
     Widget          GetScroll(EScrollBar bar)       { return mScrollBar[bar]->GetWidget(); }
-    virtual void    ScrollValueChanged(EScrollBar bar, int value) { }
     virtual void    SetScrollValue(EScrollBar bar, int value, int do_callback=0);
     virtual int     GetScrollValue(EScrollBar bar);
     

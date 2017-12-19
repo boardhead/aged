@@ -22,9 +22,6 @@
 #define HIST_MARGIN_RIGHT           (24 * GetScaling())
 #define HIST_LABEL_Y                (-10 * GetScaling())
 
-// formula to determine vertical spacing of overlay plots
-#define OVERLAY_SPACING(h,n)        ((h) / ((n) + kMaxOverlays + 2))
-
 const long MIN_LONG = -1 - 0x7fffffffL;
 const long MAX_LONG = 0x7fffffffL;
 
@@ -64,6 +61,7 @@ PHistImage::PHistImage(PImageWindow *owner, Widget canvas, int createCanvas)
     mCursorBin      = -1;
     mAutoScale      = 0;
     mNumOverlays    = 0;
+    mOverlaySep     = 0.5;
 
     for (int i=0; i<kMaxOverlays; ++i) {
         mOverlay[i] = NULL;
@@ -867,7 +865,7 @@ void PHistImage::GetAutoScales(double *x1,double *x2,double *y1,double *y2)
         }
         if (mHistogram || mNumOverlays) {
             int height = mHeight - HIST_MARGIN_TOP - HIST_MARGIN_BOTTOM;
-            int overlayPlotDY = OVERLAY_SPACING(mHeight,mNumOverlays);
+            int overlayPlotDY = GetOverlaySpacing();
             int done = 0;
             // this requires iterating if we have overlays because the overlay
             // offset is in pixels while the scale limits are based on data values
@@ -918,6 +916,12 @@ void PHistImage::GetAutoScales(double *x1,double *x2,double *y1,double *y2)
             }
         }
     }
+}
+
+int PHistImage::GetOverlaySpacing()
+{
+    int height = mHeight - HIST_MARGIN_TOP - HIST_MARGIN_BOTTOM;
+    return height * mOverlaySep / (mNumOverlays + 2);
 }
 
 int PHistImage::CalcAutoScale(int *minPt, int *maxPt)
@@ -1201,7 +1205,7 @@ void PHistImage::DrawSelf()
             }
             for (int over=kMaxOverlays-1; over>=0; --over) {
                 if (!mOverlay[over]) continue;
-                int overlayPlotDY = OVERLAY_SPACING(mHeight,mNumOverlays);
+                int overlayPlotDY = GetOverlaySpacing();
                 SetForeground(mOverlayCol[over]);
                 sp = segments;
                 lastx = x1;

@@ -90,11 +90,22 @@ PWaveformWindow::PWaveformWindow(ImageData *data)
     }*/
 
     n = 0;
+    XtSetArg(wargs[n], XmNtopAttachment, XmATTACH_WIDGET);  ++n;
+    XtSetArg(wargs[n], XmNtopWidget, menu); ++n;
+    XtSetArg(wargs[n], XmNbottomAttachment, XmATTACH_FORM);  ++n;
+    XtSetArg(wargs[n], XmNrightAttachment, XmATTACH_FORM);  ++n;
+    XtSetArg(wargs[n], XmNwidth, 15);  ++n;
+    XtSetArg(wargs[n], XmNorientation, XmVERTICAL);  ++n;
+    NewScrollBar(kScrollRight,"waveScroll",wargs,n);
+    SetScrollValue(kScrollRight, kScrollMax/2, 0);
+
+    n = 0;
     XtSetArg(wargs[n], XmNtopAttachment,    XmATTACH_WIDGET);    ++n;
     XtSetArg(wargs[n], XmNtopWidget,        menu);               ++n;
     XtSetArg(wargs[n], XmNbottomAttachment, XmATTACH_FORM);      ++n;
     XtSetArg(wargs[n], XmNleftAttachment,   XmATTACH_FORM);      ++n;
-    XtSetArg(wargs[n], XmNrightAttachment,  XmATTACH_FORM);      ++n;
+    XtSetArg(wargs[n], XmNrightAttachment,  XmATTACH_WIDGET);    ++n;
+    XtSetArg(wargs[n], XmNrightWidget,      GetScroll(kScrollRight)); ++n;
     XtSetArg(wargs[n], XmNbackground,       data->colour[BKG_COL]); ++n;
     Widget form = XtCreateManagedWidget("waveForm", xmFormWidgetClass,GetMainPane(),wargs,n);
     
@@ -224,6 +235,25 @@ void PWaveformWindow::DoMenuCommand(int anID)
                 }
             }
             SetDirty(kDirtyEvent);
+            break;
+    }
+}
+
+void PWaveformWindow::ScrollValueChanged(EScrollBar bar, int value)
+{
+    switch (bar) {
+        case kScrollRight: {
+            float f = value / (float)kScrollMax;
+            for (int i=0; i<kMaxWaveformChannels; ++i) {
+                if (!(mChanMask & (1 << i))) continue;
+                mHist[i]->SetOverlaySep(f);
+                if (mHist[i]->GetNumOverlays()) {
+                    mHist[i]->SetDirty();
+                    SetDirty(kDirtyEvent);
+                }
+            }
+        }   break;
+        default:
             break;
     }
 }
