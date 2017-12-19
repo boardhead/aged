@@ -865,7 +865,7 @@ void PHistImage::GetAutoScales(double *x1,double *x2,double *y1,double *y2)
         }
         if (mHistogram || mNumOverlays) {
             int height = mHeight - HIST_MARGIN_TOP - HIST_MARGIN_BOTTOM;
-            int overlayPlotDY = GetOverlaySpacing();
+            double overlayPlotDY = GetOverlaySpacing();
             int done = 0;
             // this requires iterating if we have overlays because the overlay
             // offset is in pixels while the scale limits are based on data values
@@ -899,7 +899,7 @@ void PHistImage::GetAutoScales(double *x1,double *x2,double *y1,double *y2)
                     }
                     if (i) {
                         // shift due to overlay offset
-                        double diff = (*y2 - *y1) * (double)overlayPlotDY * i / height;
+                        double diff = (*y2 - *y1) * overlayPlotDY * i / height;
                         min -= (long)diff;
                         max -= (long)diff;
                     }
@@ -918,7 +918,7 @@ void PHistImage::GetAutoScales(double *x1,double *x2,double *y1,double *y2)
     }
 }
 
-int PHistImage::GetOverlaySpacing()
+double PHistImage::GetOverlaySpacing()
 {
     int height = mHeight - HIST_MARGIN_TOP - HIST_MARGIN_BOTTOM;
     return height * mOverlaySep / (mNumOverlays + 2);
@@ -1205,7 +1205,7 @@ void PHistImage::DrawSelf()
             }
             for (int over=kMaxOverlays-1; over>=0; --over) {
                 if (!mOverlay[over]) continue;
-                int overlayPlotDY = GetOverlaySpacing();
+                double overlayPlotDY = GetOverlaySpacing();
                 SetForeground(mOverlayCol[over]);
                 sp = segments;
                 lastx = x1;
@@ -1213,7 +1213,7 @@ void PHistImage::DrawSelf()
                 for (i=0; i<nbin; ++i) {
                     counts = mOverlay[over][i+noffset];
                     x = x1 + ((i+1)*(x2-x1)+nbin/2)/nbin + 1;
-                    y = mYScale->GetPix(counts) + (over+1) * overlayPlotDY;
+                    y = mYScale->GetPix(counts) + (int)((over+1) * overlayPlotDY);
                     if (y==y2 && counts) --y;   // don't let bars disappear unless they are truly zero
                     // range-check y position
                     if (y < y1 - 1) y = y1 - 1;
