@@ -21,12 +21,12 @@
 #define HIST_MARGIN_TOP             (14 * GetScaling())
 #define HIST_MARGIN_RIGHT           (24 * GetScaling())
 #define HIST_LABEL_Y                (-10 * GetScaling())
+#define OVERLAY_LABEL_DY            (12 * GetScaling())
 
 const long MIN_LONG = -1 - 0x7fffffffL;
 const long MAX_LONG = 0x7fffffffL;
 
 const int  MIN_Y_RNG        = 10;   // minimum range for integer Y-axis scale
-const int  kOverlayLabelDY  = 12;   // Y offset between overlay labels
 
 PHistImage *PHistImage::sCursorHist = NULL;
 
@@ -1282,17 +1282,17 @@ void PHistImage::DrawSelf()
         }
         for (int over=0; over<mNumOverlays; ++over) {
             if (!mOverlay[over] || !mOverlayLabel[over]) continue;
-            int y = y1 + HIST_LABEL_Y + (over + 1) * kOverlayLabelDY;
-            int wid = GetTextWidth(mOverlayLabel[over]);
+            int y = y1 + HIST_LABEL_Y + (over + 1) * OVERLAY_LABEL_DY;
+            int wid = GetTextWidth(mOverlayLabel[over]) * GetScaling();
             SetForeground(BKG_COL, 0x8000);
-            FillRectangle(x2-wid-1, y, wid+2, kOverlayLabelDY);
+            FillRectangle(x2-wid-1, y, wid+2, OVERLAY_LABEL_DY);
             SetForeground(mOverlayCol[over]);
             DrawString(x2, y, mOverlayLabel[over], kTextAlignTopRight);
         }
         if (mLabel) {
             int wid = GetTextWidth(mLabel);
             SetForeground(BKG_COL, 0xc000);
-            FillRectangle(x2-wid-1, y1+HIST_LABEL_Y, wid+2, kOverlayLabelDY);
+            FillRectangle(x2-wid-1, y1+HIST_LABEL_Y, wid+2, OVERLAY_LABEL_DY);
             if (mStyle == kHistStyleSteps) {
                 SetForeground(mPlotCol);
             } else {

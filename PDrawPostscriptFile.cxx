@@ -218,6 +218,12 @@ void PDrawPostscriptFile::SetForeground(int col_num, int alpha)
             mColours[col_num].blue / 65535.0);
 }
 
+int PDrawPostscriptFile::GetTextWidth(char *str)
+{
+    // yes, this is only an approximation, but we can't get the size from PostScript
+    return(XTextWidth(GetFont(), str, strlen(str)));
+}
+
 int PDrawPostscriptFile::EqualColours(int col1, int col2)
 {
     return((mColours[col1].red   == mColours[col2].red  ) &&

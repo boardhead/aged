@@ -28,6 +28,7 @@ public:
     virtual void    SetLineWidth(float width);
     virtual void    SetLineType(ELineType type);
     virtual void    SetFont(XFontStruct *font);
+    virtual int     GetTextWidth(char *str);
     virtual void    Comment(char *str);
     virtual void    DrawSegments(XSegment *segments, int num, int smooth=1);
     virtual void    DrawLine(int x1,int y1,int x2,int y2);
